@@ -10,7 +10,7 @@ let package = Package(
   ],
   targets: [
     .target(name: "Bits", path: "Sources"),
-    .testTarget(name: "BitsTests", dependencies: ["Bits"])
+    .testTarget(name: "BitsTests", dependencies: ["Bits"], path: "Tests")
   ],
   swiftLanguageVersions: [4]
 )

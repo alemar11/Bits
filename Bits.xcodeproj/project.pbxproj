@@ -50,6 +50,7 @@
 
 /* Begin PBXFileReference section */
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
+		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		23FB40B8208C6CFF002F5428 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23FB40BB208C6CFF002F5428 /* Bits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bits.h; sourceTree = "<group>"; };
 		23FB40BC208C6CFF002F5428 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -81,6 +82,7 @@
 		23DF7881209E149000C10834 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				235C302C209E1BF500DC0C2F /* Package.swift */,
 				23FB40C8208C6CFF002F5428 /* Info-Tests.plist */,
 				235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */,
 				23FB40BB208C6CFF002F5428 /* Bits.h */,
