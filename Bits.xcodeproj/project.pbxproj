@@ -38,6 +38,7 @@
 		23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F71209EFE1700910999 /* WeakBoxTests.swift */; };
 		23C45F74209F00BE00910999 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F73209F00BE00910999 /* Result.swift */; };
 		23C45F76209F026A00910999 /* Bits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F75209F026A00910999 /* Bits.swift */; };
+		23C45F78209F037500910999 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F77209F037500910999 /* ResultTests.swift */; };
 		23FB40C2208C6CFF002F5428 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23FB40B8208C6CFF002F5428 /* Bits.framework */; };
 		23FB40C9208C6CFF002F5428 /* Bits.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FB40BB208C6CFF002F5428 /* Bits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -63,6 +64,7 @@
 		23C45F71209EFE1700910999 /* WeakBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBoxTests.swift; sourceTree = "<group>"; };
 		23C45F73209F00BE00910999 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		23C45F75209F026A00910999 /* Bits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bits.swift; sourceTree = "<group>"; };
+		23C45F77209F037500910999 /* ResultTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
 		23FB40B8208C6CFF002F5428 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23FB40BB208C6CFF002F5428 /* Bits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bits.h; sourceTree = "<group>"; };
 		23FB40BC208C6CFF002F5428 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				23FB40D8208C721B002F5428 /* ReachabilityTests.swift */,
 				23C45F6D209EFB5C00910999 /* BoxTests.swift */,
 				23C45F71209EFE1700910999 /* WeakBoxTests.swift */,
+				23C45F77209F037500910999 /* ResultTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -306,6 +309,7 @@
 			files = (
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
+				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
