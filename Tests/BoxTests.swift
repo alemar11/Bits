@@ -35,7 +35,7 @@ class BoxTests: XCTestCase {
   }
 
   func testBoxedStruct() {
-    struct User {
+    struct User: Equatable {
       var name: String
       var age: Int
     }
@@ -47,11 +47,14 @@ class BoxTests: XCTestCase {
 
     XCTAssertEqual(container1.box.value.name, "Robot")
     XCTAssertEqual(container2.box.value.name, "Robot")
+    XCTAssertEqual(container1.box, container2.box)
 
     box.value.name = "_Robot_"
 
     XCTAssertEqual(container1.box.value.name, "_Robot_")
     XCTAssertEqual(container2.box.value.name, "_Robot_")
+    XCTAssertEqual(container1.box, container2.box)
+    XCTAssertEqual(container1.box, container2.box)
   }
 
 }
