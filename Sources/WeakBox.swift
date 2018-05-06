@@ -32,3 +32,11 @@ public class WeakBox<T: AnyObject> {
   }
 
 }
+
+extension WeakBox: Equatable where T: Equatable {
+
+  public static func == (lhs: WeakBox<T>, rhs: WeakBox<T>) -> Bool {
+    return lhs.value == rhs.value
+  }
+
+}

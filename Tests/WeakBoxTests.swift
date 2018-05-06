@@ -26,7 +26,7 @@ import XCTest
 
 class WeakBoxTests: XCTestCase {
 
-  func testWeakReference() {
+  func testThatValueIsWeaklyReferenced() {
     var object: NSObject? = NSObject()
     let weakBox = WeakBox(object!)
 
@@ -34,4 +34,13 @@ class WeakBoxTests: XCTestCase {
 
     XCTAssertNil(weakBox.value)
   }
+
+  func testThatMultipleWeakBoxReferencingTheSameObjectAreEqual() {
+    let object = NSObject()
+    let weakBox1 = WeakBox(object)
+    let weakBox2 = WeakBox(object)
+    
+    XCTAssertEqual(weakBox1, weakBox2)
+  }
+
 }

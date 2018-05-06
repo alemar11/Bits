@@ -67,6 +67,7 @@ final public class Reachability {
   /// The current network reachability status.
   public var networkStatus: NetworkStatus {
     guard let flags = self.flags else { return .unknown }
+
     return networkReachabilityStatusForFlags(flags)
   }
 
@@ -143,7 +144,7 @@ final public class Reachability {
   }
 
   deinit {
-    stopListening()
+    stop()
   }
 
   // MARK: - Notifications
@@ -158,12 +159,12 @@ final public class Reachability {
     context.info = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
 
     guard SCNetworkReachabilitySetCallback(networkReachability, callback, &context) == true else {
-      stopListening()
+      stop()
       return false
     }
 
     guard SCNetworkReachabilitySetDispatchQueue(networkReachability, reachabilitySerialQueue) == true else {
-      stopListening()
+      stop()
       return false }
 
     reachabilitySerialQueue.async {
@@ -178,7 +179,7 @@ final public class Reachability {
   /// Stops notifing network reachability changes.
   public func stopNotifier() {
     if notifying {
-      stopListening()
+      stop()
       notifying = false
     }
   }
@@ -190,7 +191,7 @@ final public class Reachability {
     previousFlags = flags
   }
 
-  private func stopListening() {
+  private func stop() {
     SCNetworkReachabilitySetCallback(networkReachability, nil, nil)
     SCNetworkReachabilitySetDispatchQueue(networkReachability, nil)
     previousFlags = nil
@@ -198,7 +199,7 @@ final public class Reachability {
 
   // MARK: - Private - Network Reachability Status
 
-  private func networkReachabilityStatusForFlags(_ flags: SCNetworkReachabilityFlags) -> NetworkStatus {
+  internal func networkReachabilityStatusForFlags(_ flags: SCNetworkReachabilityFlags) -> NetworkStatus {
     guard isNetworkReachable(with: flags) else { return .notReachable }
 
     var networkStatus: NetworkStatus = .reachable(.ethernetOrWiFi)
@@ -239,13 +240,13 @@ extension Reachability {
   /// status of the device, both IPv4 and IPv6.
   ///
   /// - returns: A new `Reachability` instance.
-  public static func makeReachabilityForInternetConnection() -> Reachability? {
-    var zeroAddress = sockaddr_in()
-    zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
-    zeroAddress.sin_family = sa_family_t(AF_INET)
-
-    return Reachability(hostAddress: zeroAddress)
-  }
+//  public static func makeReachabilityForInternetConnection() -> Reachability? {
+//    var zeroAddress = sockaddr_in()
+//    zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+//    zeroAddress.sin_family = sa_family_t(AF_INET)
+//
+//    return Reachability(hostAddress: zeroAddress)
+//  }
 
   /// Creates a `Reachability` instance that monitors IN_LINKLOCALNETNUM (that is, 169.254.0.0).
   ///

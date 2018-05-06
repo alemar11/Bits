@@ -34,7 +34,7 @@ class BoxTests: XCTestCase {
     }
   }
 
-  func testBoxedStruct() {
+  func testThatBoxedStructIsSharedAmongMultipleContainers() {
     struct User: Equatable {
       var name: String
       var age: Int

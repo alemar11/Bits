@@ -47,13 +47,13 @@ extension ResultType {
 
   /// Returns the success value.
   public var success: T? {
-    if case .success(let s) = self { return s }
+    if case .success(let success) = self { return success }
     return nil
   }
 
   /// Returns the error.
   public var failure: E? {
-    if case .failure(let e) = self { return e }
+    if case .failure(let error) = self { return error }
     return nil
   }
 
@@ -137,8 +137,3 @@ public extension ResultType where E == Swift.Error {
 
 /// Convenience typealias for untyped errors
 public typealias Result<T> = ResultType<T, Error>
-
-
-
-
-
