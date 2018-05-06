@@ -123,14 +123,43 @@ public extension ResultType where E == Swift.Error {
     }
   }
 
-  // This overload is necessary in order to avoid a compiler error "using 'Error' as a concrete type conforming to protocol 'Error' is not supported".
-  func unwrap() throws -> T {
+  public func unwrap() throws -> T {
+    // This overload is necessary in order to avoid a compiler error "using 'Error' as a concrete type conforming to protocol 'Error' is not supported".
     switch self {
     case .success(let value): return value
     case .failure(let error): throw error
     }
   }
 
+}
+
+public extension Result {
+
+  /// Maps the result type to a new value
+  ///
+  /// - Parameter transform: A mapping closure.
+  /// - Returns: A result containing the transformed value
+  public func map<U>(_ transform: (T) -> U) -> ResultType<U,E> {
+    switch self {
+    case .success(let t):
+      return .success(transform(t))
+    case .failure(let err):
+      return .failure(err)
+    }
+  }
+
+  /// Maps the result type to a new value.
+  ///
+  /// - Parameter transform: A mapping closure.
+  /// - Returns: A result containing the transformed value
+  public func flatMap<U>(transform: (T) -> ResultType<U,E>) -> ResultType<U,E> {
+    switch self {
+    case .success(let t):
+      return transform(t)
+    case .failure(let err):
+      return .failure(err)
+    }
+  }
 }
 
 // MARK: - Result
