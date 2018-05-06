@@ -120,6 +120,7 @@ final public class Reachability {
     }
 
     guard let reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, hostName) else { return nil }
+
     self.init(reachability: reachability)
   }
 
