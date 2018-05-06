@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -34,5 +34,5 @@ extension Box: Equatable where T: Equatable {
   public static func == (lhs: Box<T>, rhs: Box<T>) -> Bool {
     return lhs.value == rhs.value
   }
-  
+
 }
