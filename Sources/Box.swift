@@ -1,4 +1,4 @@
-//
+// 
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -21,9 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import XCTest
-@testable import Bits
+public final class Box<T> {
+  var value: T
 
-class ReachabilityTests: XCTestCase {
+  init(value: T) {
+    self.value = value
+  }
+}
 
+extension Box: Equatable where T: Equatable {
+
+  public static func == (lhs: Box<T>, rhs: Box<T>) -> Bool {
+    return lhs.value == rhs.value
+  }
+  
 }
