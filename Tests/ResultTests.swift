@@ -29,6 +29,7 @@ class ResultTests: XCTestCase {
   let error = NSError(domain: "org.tinrobots", code: 100, userInfo: nil)
 
   // MARK: - Is Success Tests
+
   func testThatIsSuccessPropertyReturnsTrueForSuccessCase() {
     // Given, When
     let result = Result<String>.success("success")
@@ -62,7 +63,8 @@ class ResultTests: XCTestCase {
     XCTAssertTrue(result.isError, "It should be true for failure case.")
   }
 
-  // MARK: - Value Tests
+  // MARK: - Success Tests
+
   func testThatValuePropertyReturnsValueForSuccessCase() {
     // Given, When
     let result = Result<String>.success("success")
@@ -79,7 +81,8 @@ class ResultTests: XCTestCase {
     XCTAssertNil(result.success, "It should be nil for failure case.")
   }
 
-  // MARK: - Error Tests
+  // MARK: - Failure Tests
+  
   func testThatErrorPropertyReturnsNilForSuccessCase() {
     // Given, When
     let result = Result<String>.success("success")
