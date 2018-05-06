@@ -77,7 +77,7 @@ final public class Reachability {
   private let networkReachability: SCNetworkReachability
 
   /// The underlying serial queue.
-  private let reachabilitySerialQueue = DispatchQueue(label: "org.tinrobots.Reachability.serialQueue") //TODO
+  private let reachabilitySerialQueue = DispatchQueue(label: "\(identifier).Reachability")
 
   /// Whether the `Reachability' is actively notifing.
   private var notifying: Bool = false
