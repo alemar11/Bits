@@ -106,11 +106,11 @@ class ReachabilityTests: XCTestCase {
   func testThatReachabilityWithHostNameIsNotifiedWhenStartListeningIsCalled() {
     // Given
     guard let reachability = Reachability(hostName: "store.apple.com") else {
-      XCTFail("manager should NOT be nil")
+      XCTFail("reachability should NOT be nil")
       return
     }
 
-    let expectation = self.expectation(description: "listener closure should be executed")
+    let expectation = self.expectation(description: "The closure should be executed.")
     var networkStatus: Reachability.NetworkStatus?
 
     reachability.listener = { status in
@@ -130,7 +130,7 @@ class ReachabilityTests: XCTestCase {
   func testThatReachabilityWithAddressIsNotifiedWhenStartListeningIsCalled() {
     // Given
     let reachability = Reachability()
-    let expectation = self.expectation(description: "listener closure should be executed")
+    let expectation = self.expectation(description: "The closure should be executed.")
 
     var networkStatus: Reachability.NetworkStatus?
 
