@@ -24,7 +24,7 @@
 public final class Box<T> {
   var value: T
 
-  init(value: T) {
+  init(_ value: T) {
     self.value = value
   }
 }

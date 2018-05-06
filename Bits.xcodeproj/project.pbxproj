@@ -34,6 +34,8 @@
 /* Begin PBXBuildFile section */
 		23C45F6C209EFB1300910999 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6B209EFB1300910999 /* Box.swift */; };
 		23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6D209EFB5C00910999 /* BoxTests.swift */; };
+		23C45F70209EFDF800910999 /* WeakBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6F209EFDF800910999 /* WeakBox.swift */; };
+		23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F71209EFE1700910999 /* WeakBoxTests.swift */; };
 		23FB40C2208C6CFF002F5428 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23FB40B8208C6CFF002F5428 /* Bits.framework */; };
 		23FB40C9208C6CFF002F5428 /* Bits.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FB40BB208C6CFF002F5428 /* Bits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -55,6 +57,8 @@
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		23C45F6B209EFB1300910999 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		23C45F6D209EFB5C00910999 /* BoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxTests.swift; sourceTree = "<group>"; };
+		23C45F6F209EFDF800910999 /* WeakBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBox.swift; sourceTree = "<group>"; };
+		23C45F71209EFE1700910999 /* WeakBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBoxTests.swift; sourceTree = "<group>"; };
 		23FB40B8208C6CFF002F5428 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23FB40BB208C6CFF002F5428 /* Bits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bits.h; sourceTree = "<group>"; };
 		23FB40BC208C6CFF002F5428 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -119,6 +123,7 @@
 			children = (
 				23FB40D8208C721B002F5428 /* ReachabilityTests.swift */,
 				23C45F6D209EFB5C00910999 /* BoxTests.swift */,
+				23C45F71209EFE1700910999 /* WeakBoxTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -128,6 +133,7 @@
 			children = (
 				23FB40D6208C71D9002F5428 /* Reachability.swift */,
 				23C45F6B209EFB1300910999 /* Box.swift */,
+				23C45F6F209EFDF800910999 /* WeakBox.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -282,6 +288,7 @@
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
+				23C45F70209EFDF800910999 /* WeakBox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +296,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
 			);

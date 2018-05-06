@@ -24,35 +24,14 @@
 import XCTest
 @testable import Bits
 
-class BoxTests: XCTestCase {
+class WeakBoxTests: XCTestCase {
 
-  final class TestContainer<T: Any> {
-    let box: Box<T>
+  func testWeakReference() {
+    var object: NSObject? = NSObject()
+    let weakBox = WeakBox(object!)
 
-    init(box: Box<T>) {
-      self.box = box
-    }
+    object = nil
+
+    XCTAssertNil(weakBox.value)
   }
-
-  func testBoxedStruct() {
-    struct User {
-      var name: String
-      var age: Int
-    }
-
-    let user = User(name: "Robot", age: 30)
-    let box = Box(user)
-    let container1 = TestContainer<User>(box: box)
-    let container2 = TestContainer<User>(box: box)
-
-    XCTAssertEqual(container1.box.value.name, "Robot")
-    XCTAssertEqual(container2.box.value.name, "Robot")
-
-    box.value.name = "_Robot_"
-
-    XCTAssertEqual(container1.box.value.name, "_Robot_")
-    XCTAssertEqual(container2.box.value.name, "_Robot_")
-  }
-
 }
-

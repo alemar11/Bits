@@ -21,38 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import XCTest
-@testable import Bits
+public class WeakBox<T: AnyObject> {
 
-class BoxTests: XCTestCase {
+  private weak var _value: T?
 
-  final class TestContainer<T: Any> {
-    let box: Box<T>
+  public var value: T? { return _value }
 
-    init(box: Box<T>) {
-      self.box = box
-    }
-  }
-
-  func testBoxedStruct() {
-    struct User {
-      var name: String
-      var age: Int
-    }
-
-    let user = User(name: "Robot", age: 30)
-    let box = Box(user)
-    let container1 = TestContainer<User>(box: box)
-    let container2 = TestContainer<User>(box: box)
-
-    XCTAssertEqual(container1.box.value.name, "Robot")
-    XCTAssertEqual(container2.box.value.name, "Robot")
-
-    box.value.name = "_Robot_"
-
-    XCTAssertEqual(container1.box.value.name, "_Robot_")
-    XCTAssertEqual(container2.box.value.name, "_Robot_")
+  public init(_ value: T) {
+    _value = value
   }
 
 }
-
