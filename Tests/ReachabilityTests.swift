@@ -28,7 +28,7 @@ import SystemConfiguration
 class ReachabilityTests: XCTestCase {
 
   // MARK: - Tests - Initialization
-  
+
   func testThatReachabilityCanBeInitializedWithAnHostName() {
     // Given, When
     let reachability = Reachability(hostName: "localhost")

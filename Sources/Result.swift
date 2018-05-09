@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -141,10 +141,10 @@ public extension Result {
   /// - Returns: A result containing the transformed value
   public func map<U>(_ transform: (T) -> U) -> ResultType<U,E> {
     switch self {
-    case .success(let t):
-      return .success(transform(t))
-    case .failure(let err):
-      return .failure(err)
+    case .success(let value):
+      return .success(transform(value))
+    case .failure(let error):
+      return .failure(error)
     }
   }
 
@@ -154,10 +154,10 @@ public extension Result {
   /// - Returns: A result containing the transformed value
   public func flatMap<U>(transform: (T) -> ResultType<U,E>) -> ResultType<U,E> {
     switch self {
-    case .success(let t):
-      return transform(t)
-    case .failure(let err):
-      return .failure(err)
+    case .success(let value):
+      return transform(value)
+    case .failure(let error):
+      return .failure(error)
     }
   }
 }

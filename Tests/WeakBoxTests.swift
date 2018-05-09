@@ -39,7 +39,7 @@ class WeakBoxTests: XCTestCase {
     let object = NSObject()
     let weakBox1 = WeakBox(object)
     let weakBox2 = WeakBox(object)
-    
+
     XCTAssertEqual(weakBox1, weakBox2)
   }
 

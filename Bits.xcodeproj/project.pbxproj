@@ -45,6 +45,8 @@
 		23FB40C9208C6CFF002F5428 /* Bits.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FB40BB208C6CFF002F5428 /* Bits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
 		23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D8208C721B002F5428 /* ReachabilityTests.swift */; };
+		93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */; };
+		93EBB54220A3015800C3B626 /* NetworkActivityIndicatorManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +78,8 @@
 		23FB40C8208C6CFF002F5428 /* Info-Tests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Tests.plist"; sourceTree = "<group>"; };
 		23FB40D6208C71D9002F5428 /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		23FB40D8208C721B002F5428 /* ReachabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityTests.swift; sourceTree = "<group>"; };
+		93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorManager.swift; sourceTree = "<group>"; };
+		93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +140,7 @@
 				23C45F71209EFE1700910999 /* WeakBoxTests.swift */,
 				23C45F77209F037500910999 /* ResultTests.swift */,
 				2394AB30209F1F2B001D1414 /* IdentifiableTests.swift */,
+				93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -149,6 +154,7 @@
 				23C45F73209F00BE00910999 /* Result.swift */,
 				23C45F75209F026A00910999 /* Bits.swift */,
 				2394AB2E209F152A001D1414 /* Identifiable.swift */,
+				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -303,6 +309,7 @@
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
 				2394AB2F209F152A001D1414 /* Identifiable.swift in Sources */,
+				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
 				23C45F74209F00BE00910999 /* Result.swift in Sources */,
@@ -319,6 +326,7 @@
 				2394AB31209F1F2B001D1414 /* IdentifiableTests.swift in Sources */,
 				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
+				93EBB54220A3015800C3B626 /* NetworkActivityIndicatorManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,7 +496,7 @@
 		23FB40CD208C6CFF002F5428 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
@@ -517,7 +525,7 @@
 		23FB40CE208C6CFF002F5428 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;

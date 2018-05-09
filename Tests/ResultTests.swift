@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -25,7 +25,7 @@ import XCTest
 @testable import Bits
 
 class ResultTests: XCTestCase {
-  
+
   let error = NSError(domain: "org.tinrobots", code: 100, userInfo: nil)
 
   // MARK: - Is Success Tests
@@ -82,7 +82,7 @@ class ResultTests: XCTestCase {
   }
 
   // MARK: - Failure Tests
-  
+
   func testThatErrorPropertyReturnsNilForSuccessCase() {
     // Given, When
     let result = Result<String>.success("success")

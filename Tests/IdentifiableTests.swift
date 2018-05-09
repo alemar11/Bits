@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -36,7 +36,7 @@ class IdentifiableTests: XCTestCase {
 
       final class Book: Identifiable {
 
-        
+
 
         static var identifierKeyPath: WritableKeyPath<Book, Int> = \Book.isbn
 
