@@ -139,7 +139,7 @@ public extension Result {
   ///
   /// - Parameter transform: A mapping closure.
   /// - Returns: A result containing the transformed value
-  public func map<U>(_ transform: (T) -> U) -> ResultType<U,E> {
+  public func map<U>(_ transform: (T) -> U) -> ResultType<U, E> {
     switch self {
     case .success(let value):
       return .success(transform(value))
@@ -152,7 +152,7 @@ public extension Result {
   ///
   /// - Parameter transform: A mapping closure.
   /// - Returns: A result containing the transformed value
-  public func flatMap<U>(transform: (T) -> ResultType<U,E>) -> ResultType<U,E> {
+  public func flatMap<U>(transform: (T) -> ResultType<U, E>) -> ResultType<U, E> {
     switch self {
     case .success(let value):
       return transform(value)
