@@ -97,8 +97,30 @@ public class Channel<Value> {
   ///   - completion: Completion handler called after notifing all subscribers.
   public func broadcast(_ value: Value) {
     subscriptions.write(mode: .sync) { list in
-      list = list.filter({ $0.isValid })
+      list = list.filter({ $0.isValid }) // flushing
       list.forEach({ $0.notify(value) })
+    }
+  }
+
+  /// Flushes all the subscribers no more active.
+  private func flushCancelledSubscribers() {
+    var removeSubscribers = false
+
+    subscriptions.read { list in
+      for subscriber in list {
+        if subscriber.object == nil {
+          removeSubscribers = true
+          break
+        }
+      }
+    }
+
+    guard removeSubscribers else { return }
+
+    subscriptions.write(mode: .sync) { (list) in
+      if removeSubscribers {
+        list = list.filter { $0.object != nil }
+      }
     }
   }
 }
