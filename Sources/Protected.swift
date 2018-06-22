@@ -23,8 +23,6 @@
 
 import Foundation
 
-import Foundation
-
 /// A value register to read/write with locking.
 final public class Protected<Value> {
 
@@ -37,7 +35,7 @@ final public class Protected<Value> {
     case async
   }
 
-  private var queue = DispatchQueue(label: "org.tinrobots.Bits", attributes: .concurrent)
+  private lazy var queue = { return DispatchQueue(label: "org.tinrobots.Bits.\(type(of: self))", attributes: .concurrent) }()
 
   private var _value: Value
 
