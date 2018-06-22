@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 import Foundation
+import Dispatch
 
 /// The `NetworkActivityIndicatorManager` manages the state of the network activity indicator in the status bar. The indicator will continue to animate while the internal activity count is
 /// greater than zero.
