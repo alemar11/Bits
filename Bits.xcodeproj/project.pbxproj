@@ -32,8 +32,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		2394AB2F209F152A001D1414 /* Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2394AB2E209F152A001D1414 /* Identifiable.swift */; };
-		2394AB31209F1F2B001D1414 /* IdentifiableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2394AB30209F1F2B001D1414 /* IdentifiableTests.swift */; };
 		23C45F6C209EFB1300910999 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6B209EFB1300910999 /* Box.swift */; };
 		23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6D209EFB5C00910999 /* BoxTests.swift */; };
 		23C45F70209EFDF800910999 /* WeakBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6F209EFDF800910999 /* WeakBox.swift */; };
@@ -64,8 +62,6 @@
 /* Begin PBXFileReference section */
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
-		2394AB2E209F152A001D1414 /* Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifiable.swift; sourceTree = "<group>"; };
-		2394AB30209F1F2B001D1414 /* IdentifiableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableTests.swift; sourceTree = "<group>"; };
 		23C45F6B209EFB1300910999 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		23C45F6D209EFB5C00910999 /* BoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxTests.swift; sourceTree = "<group>"; };
 		23C45F6F209EFDF800910999 /* WeakBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBox.swift; sourceTree = "<group>"; };
@@ -143,7 +139,6 @@
 				23C45F6D209EFB5C00910999 /* BoxTests.swift */,
 				23C45F71209EFE1700910999 /* WeakBoxTests.swift */,
 				23C45F77209F037500910999 /* ResultTests.swift */,
-				2394AB30209F1F2B001D1414 /* IdentifiableTests.swift */,
 				93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */,
 			);
 			path = Tests;
@@ -157,7 +152,6 @@
 				23C45F6F209EFDF800910999 /* WeakBox.swift */,
 				23C45F73209F00BE00910999 /* Result.swift */,
 				23C45F75209F026A00910999 /* Bits.swift */,
-				2394AB2E209F152A001D1414 /* Identifiable.swift */,
 				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
 				23F3845B20ADCFC7004983E5 /* Protected.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
@@ -314,7 +308,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
-				2394AB2F209F152A001D1414 /* Identifiable.swift in Sources */,
 				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				23F3845C20ADCFC7004983E5 /* Protected.swift in Sources */,
@@ -331,7 +324,6 @@
 			files = (
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
-				2394AB31209F1F2B001D1414 /* IdentifiableTests.swift in Sources */,
 				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
 				93EBB54220A3015800C3B626 /* NetworkActivityIndicatorManagerTests.swift in Sources */,
