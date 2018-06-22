@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
+
 /// The `NetworkActivityIndicatorManager` manages the state of the network activity indicator in the status bar. The indicator will continue to animate while the internal activity count is
 /// greater than zero.
 ///
