@@ -24,6 +24,7 @@
 import Foundation
 
 /// A value register to read/write with locking.
+/// https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock
 final public class Protected<Value> {
 
   /// Tansaction modes.
@@ -35,7 +36,7 @@ final public class Protected<Value> {
     case async
   }
 
-  private lazy var queue = { return DispatchQueue(label: "org.tinrobots.Bits.\(type(of: self))", attributes: .concurrent) }()
+  private lazy var queue = DispatchQueue(label: "org.tinrobots.Bits", attributes: .concurrent)
 
   private var _value: Value
 
@@ -65,6 +66,15 @@ final public class Protected<Value> {
     queue.sync {
       block(_value)
     }
+  }
+
+  public func read() -> Value {
+    return queue.sync { _value }
+//    var value: Value!
+//    queue.sync {
+//      value = _value
+//    }
+//    return value
   }
 
   /// Calls given block with a reference (inout) to the current value while locking.
