@@ -107,14 +107,10 @@ public class Channel<Value> {
     var removeSubscribers = false
 
     subscriptions.read { list in
-      for subscriber in list {
-        if subscriber.object == nil {
-          removeSubscribers = true
-          break
-        }
+      for subscriber in list where subscriber.object == nil {
+        removeSubscribers = true
       }
     }
-
     guard removeSubscribers else { return }
 
     subscriptions.write(mode: .sync) { (list) in
