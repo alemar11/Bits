@@ -33,6 +33,7 @@
 
 /* Begin PBXBuildFile section */
 		2371896520DD3B4400350F6E /* ThreadSafeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* ThreadSafeTests.swift */; };
+		23B1377020DEAB1D00D50A3A /* ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */; };
 		23C45F6C209EFB1300910999 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6B209EFB1300910999 /* Box.swift */; };
 		23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6D209EFB5C00910999 /* BoxTests.swift */; };
 		23C45F70209EFDF800910999 /* WeakBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6F209EFDF800910999 /* WeakBox.swift */; };
@@ -64,6 +65,7 @@
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		2371896420DD3B4400350F6E /* ThreadSafeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeTests.swift; sourceTree = "<group>"; };
+		23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafe.swift; sourceTree = "<group>"; };
 		23C45F6B209EFB1300910999 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		23C45F6D209EFB5C00910999 /* BoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxTests.swift; sourceTree = "<group>"; };
 		23C45F6F209EFDF800910999 /* WeakBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBox.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
 				23F3845B20ADCFC7004983E5 /* Protected.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
+				23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -311,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
+				23B1377020DEAB1D00D50A3A /* ThreadSafe.swift in Sources */,
 				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				23F3845C20ADCFC7004983E5 /* Protected.swift in Sources */,
