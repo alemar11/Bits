@@ -240,7 +240,52 @@ class ChannelTests: XCTestCase {
     waitForExpectations(timeout: 5)
   }
 
-  func testUnsuscribeWhileBroadcasting() {
+  func testUnsuscribeWhileBroadcastingWithoutRaceCondition() {
+    // Given
+    let channel = Channel<Event>()
+    let object1 = NSObject()
+    let iterations = 1000
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let expectation4 = self.expectation(description: "\(#function)\(#line)")
+    expectation4.isInverted = true
+
+    var count = 0
+    let queue = DispatchQueue(label: "\(#function)\(#line)")
+
+    // When
+    channel.subscribe(object1, queue: queue) { event in
+      switch event {
+      case .event3:
+        count += 1
+      default: break
+      }
+    }
+
+    DispatchQueue(label: "\(#function)\(#line)").async {
+      DispatchQueue.concurrentPerform(iterations: iterations) { index in
+        Thread.sleep(forTimeInterval: 0.01)
+        channel.broadcast(.event3(index))
+        if index == 999 {
+          expectation1.fulfill()
+        }
+      }
+    }
+
+    /// Object1 will receive some events the events
+    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+      channel.unsubscribe(object1) {
+        expectation2.fulfill()
+      }
+    }
+
+    // Then
+    waitForExpectations(timeout: 2)
+    XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
+
+  }
+
+  func testUnsuscribeWhileBroadcastingWithRaceCondition() {
     // Given
     let channel = Channel<Event>()
     let object1 = NSObject()
@@ -254,9 +299,10 @@ class ChannelTests: XCTestCase {
     let lock = NSLock()
 
     // When
-    channel.subscribe(object1) { event in
+    channel.subscribe(object1, queue: nil) { event in
       switch event {
-      case .event3(let value):
+      case .event3:
+        /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
         lock.lock(); defer { lock.unlock() }
         count += 1
       default: break
@@ -282,9 +328,8 @@ class ChannelTests: XCTestCase {
 
     // Then
     waitForExpectations(timeout: 2)
-    lock.lock()
     XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
-    lock.unlock()
+
   }
 
 }

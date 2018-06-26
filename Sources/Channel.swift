@@ -73,7 +73,9 @@ public final class Channel<Value> {
   /// - Parameters:
   ///   - object: Object to subscribe.
   ///   - queue: Queue for given block to be called in. If you pass nil, the block is run synchronously on the posting thread.
+  ///   - completion: A block called once the object is subscribed.
   ///   - block: Block to call upon broadcast.
+  /// - Note: A *nil* queue can cause a **race condition** if there are more than one posting threads; in that case solving the race issue is up to the developer (i.e. using a lock or another queue).
   public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
     let subscription = Subscription(object: object, queue: queue, block: block)
 
@@ -85,7 +87,9 @@ public final class Channel<Value> {
 
   /// Unsubscribes given object from channel.
   ///
-  /// - Parameter object: Object to remove.
+  /// - Parameters:
+  ///   - object: Object to remove.
+  ///   - completion: A block called once the object is unsubscribe.
   public func unsubscribe(_ object: AnyObject?, completion: (() -> Void)? = nil) {
     self.queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
