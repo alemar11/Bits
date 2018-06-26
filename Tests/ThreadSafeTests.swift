@@ -32,8 +32,8 @@ class ThreadSafeTests: XCTestCase {
       let iterations = 1000
 
       DispatchQueue.concurrentPerform(iterations: iterations) { index in
-        let last = array.read().last ?? 0
-        array.write { $0.append(last + 1) }
+        //let last = array.read().last ?? 0
+        array.write { $0.append(1) }
       }
 
       print(array.value)
