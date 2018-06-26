@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#import <UIKit/UIKit.h>
+@import Foundation;
 
 //! Project version number for Bits.
 FOUNDATION_EXPORT double BitsVersionNumber;

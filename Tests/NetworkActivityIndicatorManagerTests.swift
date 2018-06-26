@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(iOS)
+
 import XCTest
 @testable import Bits
 
@@ -331,3 +333,5 @@ class NetworkActivityIndicatorManagerTests: XCTestCase {
 private func dispatchAfter(_ seconds: TimeInterval, closure: @escaping () -> Void) {
     DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { closure() }
 }
+
+#endif

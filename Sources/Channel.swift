@@ -24,17 +24,15 @@
 import Foundation
 
 /// An event bus object which provides an API to broadcast messages to its subscribers.
-public class Channel<Value> {
+public final class Channel<Value> {
 
-  internal class Subscription {
+  internal final class Subscription {
 
-    weak var object: AnyObject?
+    internal weak var object: AnyObject?
+    internal let uuid = UUID()
+    internal var isValid: Bool { return object != nil }
     private let queue: DispatchQueue?
     private let block: (Value) -> Void
-
-    var isValid: Bool {
-      return object != nil
-    }
 
     init(object: AnyObject?, queue: DispatchQueue?, block: @escaping (Value) -> Void) {
       self.object = object
@@ -45,10 +43,10 @@ public class Channel<Value> {
     func notify(_ value: Value) {
       if let queue = queue {
         queue.async { [weak self] in
-          guard let strongSelf = self else { return }
+          guard let `self` = self else { return }
 
-          if strongSelf.isValid {
-            strongSelf.block(value)
+          if self.isValid {
+            self.block(value)
           }
         }
       } else {
@@ -60,10 +58,15 @@ public class Channel<Value> {
 
   }
 
-  internal var subscriptions: Protected<[Subscription]> = Protected([])
+  /// An internal queue for concurrent readings and exclusive writing.
+  private let queue: DispatchQueue
+  /// A list of all the subscriptions
+  internal var subscriptions = [Subscription]()
 
   /// Creates a channel instance.
-  public init() { }
+  public init() {
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of:self))", qos: .default, attributes: .concurrent)
+  }
 
   /// Subscribes given object to channel.
   ///
@@ -71,23 +74,27 @@ public class Channel<Value> {
   ///   - object: Object to subscribe.
   ///   - queue: Queue for given block to be called in. If you pass nil, the block is run synchronously on the posting thread.
   ///   - block: Block to call upon broadcast.
-  public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, block: @escaping (Value) -> Void) {
+  public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
     let subscription = Subscription(object: object, queue: queue, block: block)
 
-    subscriptions.write { list in
-      list.append(subscription)
-    }
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      self?.subscriptions.append(subscription)
+      completion?()
+    })
   }
 
   /// Unsubscribes given object from channel.
   ///
   /// - Parameter object: Object to remove.
-  public func unsubscribe(_ object: AnyObject?) {
-    subscriptions.write { list in
-      if let foundIndex = list.index(where: { $0.object === object }) {
-        list.remove(at: foundIndex)
+  public func unsubscribe(_ object: AnyObject?, completion: (() -> Void)? = nil) {
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      guard let `self` = self else { return }
+
+      if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
+        self.subscriptions.remove(at: foundIndex)
       }
-    }
+      completion?()
+    })
   }
 
   /// Broadcasts given value to subscribers.
@@ -96,27 +103,22 @@ public class Channel<Value> {
   ///   - value: Value to broadcast.
   ///   - completion: Completion handler called after notifing all subscribers.
   public func broadcast(_ value: Value) {
-    subscriptions.write(mode: .sync) { list in
-      list = list.filter({ $0.isValid }) // flushing
-      list.forEach({ $0.notify(value) })
+    flushCancelledSubscribers()
+
+    self.queue.sync { [weak self] in
+      guard let `self` = self else { return }
+
+      self.subscriptions.forEach { $0.notify(value) }
     }
+
   }
 
-  /// Flushes all the subscribers no more active.
-  private func flushCancelledSubscribers() {
-    var removeSubscribers = false
+  /// Asynchronously flushes all the invalid (no more active) subscribers.
+  internal func flushCancelledSubscribers() {
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      guard let `self` = self else { return }
 
-    subscriptions.read { list in
-      for subscriber in list where subscriber.object == nil {
-        removeSubscribers = true
-      }
-    }
-    guard removeSubscribers else { return }
-
-    subscriptions.write(mode: .sync) { (list) in
-      if removeSubscribers {
-        list = list.filter { $0.object != nil }
-      }
-    }
+      self.subscriptions = self.subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
+    })
   }
 }
