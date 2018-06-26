@@ -28,16 +28,16 @@ class ThreadSafeTests: XCTestCase {
 
     func testExample() {
 
-      let array = Protected([Int]())
-      let iterations = 1000
-
-      DispatchQueue.concurrentPerform(iterations: iterations) { index in
-        let last = array.read().last ?? 0
-        array.write { $0.append(last + 1) }
-      }
-
-      print(array.value)
-      XCTAssertEqual(array.value.count, iterations)
+      //let array = Protected([Int]())
+//      let iterations = 1000
+//
+//      DispatchQueue.concurrentPerform(iterations: iterations) { index in
+//        let last = array.read().last ?? 0
+//        array.write { $0.append(last + 1) }
+//      }
+//
+//      print(array.value)
+//      XCTAssertEqual(array.value.count, iterations)
     }
 
 //https://mikeash.com/pyblog/friday-qa-2011-10-14-whats-new-in-gcd.html

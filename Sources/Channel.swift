@@ -28,13 +28,11 @@ public final class Channel<Value> {
 
   internal final class Subscription {
 
-    weak var object: AnyObject?
+    internal weak var object: AnyObject?
+    internal let uuid = UUID()
+    internal var isValid: Bool { return object != nil }
     private let queue: DispatchQueue?
     private let block: (Value) -> Void
-
-    var isValid: Bool {
-      return object != nil
-    }
 
     init(object: AnyObject?, queue: DispatchQueue?, block: @escaping (Value) -> Void) {
       self.object = object
@@ -60,7 +58,7 @@ public final class Channel<Value> {
 
   }
 
-  /// An internal queue for concurrent readings. and exclusive writing.
+  /// An internal queue for concurrent readings and exclusive writing.
   private let queue: DispatchQueue
   /// A list of all the subscriptions
   internal var subscriptions = [Subscription]()
@@ -76,24 +74,26 @@ public final class Channel<Value> {
   ///   - object: Object to subscribe.
   ///   - queue: Queue for given block to be called in. If you pass nil, the block is run synchronously on the posting thread.
   ///   - block: Block to call upon broadcast.
-  public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, block: @escaping (Value) -> Void) {
+  public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
     let subscription = Subscription(object: object, queue: queue, block: block)
 
     self.queue.async(flags: .barrier, execute: { [weak self] in
       self?.subscriptions.append(subscription)
+      completion?()
     })
   }
 
   /// Unsubscribes given object from channel.
   ///
   /// - Parameter object: Object to remove.
-  public func unsubscribe(_ object: AnyObject?) {
+  public func unsubscribe(_ object: AnyObject?, completion: (() -> Void)? = nil) {
     self.queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
 
       if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
         self.subscriptions.remove(at: foundIndex)
       }
+      completion?()
     })
   }
 
@@ -103,15 +103,17 @@ public final class Channel<Value> {
   ///   - value: Value to broadcast.
   ///   - completion: Completion handler called after notifing all subscribers.
   public func broadcast(_ value: Value) {
-    self.queue.async(flags: .barrier, execute: { [weak self] in
+    flushCancelledSubscribers()
+
+    self.queue.sync { [weak self] in
       guard let `self` = self else { return }
 
-      self.subscriptions = self.subscriptions.filter { $0.isValid } // flushing
       self.subscriptions.forEach { $0.notify(value) }
-    })
+    }
+
   }
 
-  /// Flushes all the subscribers no more active.
+  /// Asynchronously flushes all the invalid (no more active) subscribers.
   internal func flushCancelledSubscribers() {
     self.queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
