@@ -107,7 +107,7 @@ public final class Channel<Value> {
 
     self.queue.sync { [weak self] in
       guard let `self` = self else { return }
-
+      
       self.subscriptions.forEach { $0.notify(value) }
     }
 

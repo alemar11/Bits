@@ -211,48 +211,42 @@ class ChannelTests: XCTestCase {
     XCTAssertEqual(count, iterations)
   }
 
-//  func testUnsuscribeWhileBroadcasting() {
-//    // Given
-//    let channel = Channel<Event>()
-//    let object1 = NSObject()
-//    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation3 = self.expectation(description: "\(#function)\(#line)")
-//
-//    // When
-//    channel.subscribe(object1) { event in
-//      switch event {
-//      case .event1:
-//        expectation1.fulfill()
-//      default: break
-//      }
-//    }
-//
-//    channel.subscribe(object1, queue: .main) { _ in
-//      expectation3.fulfill()
-//    }
-//
-//    channel.broadcast(.event1)
-//
-//    channel.unsubscribe(object1) {
-//      expectation2.fulfill()
-//    }
-//
-//    channel.broadcast(.event1)
-//
-//    // Then
-//    waitForExpectations(timeout: 2)
-//  }
-
-  func testUnsuscribeWhileBroadcasting2() {
+  func testUnsuscribeBetweenTheBroadcastingOfTwoEvents() {
     // Given
     let channel = Channel<Event>()
     let object1 = NSObject()
-    let object2 = NSObject()
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+
+    // When
+    channel.subscribe(object1) { event in
+      switch event {
+      case .event1:
+        expectation1.fulfill()
+      default: break
+      }
+    }
+
+    channel.broadcast(.event1)
+
+    channel.unsubscribe(object1) {
+      expectation2.fulfill()
+    }
+
+    wait(for: [expectation2], timeout: 2)
+    channel.broadcast(.event1)
+
+    // Then
+    waitForExpectations(timeout: 5)
+  }
+
+  func testUnsuscribeWhileBroadcasting() {
+    // Given
+    let channel = Channel<Event>()
+    let object1 = NSObject()
     let iterations = 1000
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let expectation3 = self.expectation(description: "\(#function)\(#line)")
     let expectation4 = self.expectation(description: "\(#function)\(#line)")
     expectation4.isInverted = true
 
@@ -263,22 +257,16 @@ class ChannelTests: XCTestCase {
     channel.subscribe(object1) { event in
       switch event {
       case .event3(let value):
-        print("🔸\(value)")
         lock.lock(); defer { lock.unlock() }
         count += 1
       default: break
       }
     }
 
-    channel.subscribe(object2, queue: .main) { _ in
-      expectation4.fulfill()
-    }
-
     DispatchQueue(label: "\(#function)\(#line)").async {
       DispatchQueue.concurrentPerform(iterations: iterations) { index in
-        //Thread.sleep(forTimeInterval: 0.1)
+        Thread.sleep(forTimeInterval: 0.01)
         channel.broadcast(.event3(index))
-        print(index)
         if index == 999 {
           expectation1.fulfill()
         }
@@ -286,15 +274,10 @@ class ChannelTests: XCTestCase {
     }
 
     /// Object1 will receive some events the events
-    DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
       channel.unsubscribe(object1) {
         expectation2.fulfill()
       }
-    }
-
-    /// Object2 won't receive nothing
-    channel.unsubscribe(object2) {
-      expectation3.fulfill()
     }
 
     // Then
