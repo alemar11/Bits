@@ -33,6 +33,7 @@
 
 /* Begin PBXBuildFile section */
 		2371896520DD3B4400350F6E /* ThreadSafeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* ThreadSafeTests.swift */; };
+		239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
 		23B1377020DEAB1D00D50A3A /* ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */; };
 		23C45F6C209EFB1300910999 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6B209EFB1300910999 /* Box.swift */; };
 		23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6D209EFB5C00910999 /* BoxTests.swift */; };
@@ -65,6 +66,7 @@
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		2371896420DD3B4400350F6E /* ThreadSafeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeTests.swift; sourceTree = "<group>"; };
+		239CCC9520E229B0007782E5 /* ChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelTests.swift; sourceTree = "<group>"; };
 		23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafe.swift; sourceTree = "<group>"; };
 		23C45F6B209EFB1300910999 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		23C45F6D209EFB5C00910999 /* BoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxTests.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				23C45F77209F037500910999 /* ResultTests.swift */,
 				93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */,
 				2371896420DD3B4400350F6E /* ThreadSafeTests.swift */,
+				239CCC9520E229B0007782E5 /* ChannelTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -330,6 +333,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
+				239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
 				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,

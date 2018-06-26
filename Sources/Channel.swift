@@ -24,9 +24,9 @@
 import Foundation
 
 /// An event bus object which provides an API to broadcast messages to its subscribers.
-public class Channel<Value> {
+public final class Channel<Value> {
 
-  internal class Subscription {
+  internal final class Subscription {
 
     weak var object: AnyObject?
     private let queue: DispatchQueue?
@@ -45,10 +45,10 @@ public class Channel<Value> {
     func notify(_ value: Value) {
       if let queue = queue {
         queue.async { [weak self] in
-          guard let strongSelf = self else { return }
+          guard let `self` = self else { return }
 
-          if strongSelf.isValid {
-            strongSelf.block(value)
+          if self.isValid {
+            self.block(value)
           }
         }
       } else {
@@ -60,10 +60,15 @@ public class Channel<Value> {
 
   }
 
-  internal var subscriptions: Protected<[Subscription]> = Protected([])
+  /// An internal queue for concurrent readings. and exclusive writing.
+  private let queue: DispatchQueue
+  /// A list of all the subscriptions
+  internal var subscriptions = [Subscription]()
 
   /// Creates a channel instance.
-  public init() { }
+  public init() {
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of:self))", qos: .default, attributes: .concurrent)
+  }
 
   /// Subscribes given object to channel.
   ///
@@ -74,20 +79,22 @@ public class Channel<Value> {
   public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, block: @escaping (Value) -> Void) {
     let subscription = Subscription(object: object, queue: queue, block: block)
 
-    subscriptions.write { list in
-      list.append(subscription)
-    }
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      self?.subscriptions.append(subscription)
+    })
   }
 
   /// Unsubscribes given object from channel.
   ///
   /// - Parameter object: Object to remove.
   public func unsubscribe(_ object: AnyObject?) {
-    subscriptions.write { list in
-      if let foundIndex = list.index(where: { $0.object === object }) {
-        list.remove(at: foundIndex)
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      guard let `self` = self else { return }
+
+      if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
+        self.subscriptions.remove(at: foundIndex)
       }
-    }
+    })
   }
 
   /// Broadcasts given value to subscribers.
@@ -96,27 +103,20 @@ public class Channel<Value> {
   ///   - value: Value to broadcast.
   ///   - completion: Completion handler called after notifing all subscribers.
   public func broadcast(_ value: Value) {
-    subscriptions.write(mode: .sync) { list in
-      list = list.filter({ $0.isValid }) // flushing
-      list.forEach({ $0.notify(value) })
-    }
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      guard let `self` = self else { return }
+
+      self.subscriptions = self.subscriptions.filter { $0.isValid } // flushing
+      self.subscriptions.forEach { $0.notify(value) }
+    })
   }
 
   /// Flushes all the subscribers no more active.
-  private func flushCancelledSubscribers() {
-    var removeSubscribers = false
+  internal func flushCancelledSubscribers() {
+    self.queue.async(flags: .barrier, execute: { [weak self] in
+      guard let `self` = self else { return }
 
-    subscriptions.read { list in
-      for subscriber in list where subscriber.object == nil {
-        removeSubscribers = true
-      }
-    }
-    guard removeSubscribers else { return }
-
-    subscriptions.write(mode: .sync) { (list) in
-      if removeSubscribers {
-        list = list.filter { $0.object != nil }
-      }
-    }
+      self.subscriptions = self.subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
+    })
   }
 }
