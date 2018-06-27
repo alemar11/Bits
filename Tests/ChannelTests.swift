@@ -265,15 +265,13 @@ class ChannelTests: XCTestCase {
     // Then
     waitForExpectations(timeout: 2)
     scheduler.stop()
-    
     let lock = NSLock()
-    let result: Int
     lock.lock()
-    result = count
-    lock.unlock()
+    let result = count
+    let isEmpty = channel.subscriptions.isEmpty
     XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
-
-    XCTAssertTrue(channel.subscriptions.isEmpty)
+    XCTAssertTrue(isEmpty)
+    lock.unlock()
   }
 
   func testUnsuscribeWhileBroadcastingWithRaceCondition() {
@@ -310,8 +308,12 @@ class ChannelTests: XCTestCase {
     // Then
     waitForExpectations(timeout: 2)
     scheduler.stop()
-    XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
-    XCTAssertTrue(channel.subscriptions.isEmpty)
+    lock.lock();
+    let result = count
+    let isEmpty = channel.subscriptions.isEmpty
+    XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
+    XCTAssertTrue(isEmpty)
+    lock.unlock()
   }
 
 }
@@ -347,7 +349,6 @@ fileprivate class BroadCastScheduler {
 
   @objc
   func broadcast() {
-    print("\(times)")
     DispatchQueue(label: "\(#function)\(#line)").async { [weak self] in
       self?.channel.broadcast(Event.event1)
     }
