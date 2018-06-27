@@ -26,12 +26,6 @@ import XCTest
 
 class ChannelTests: XCTestCase {
 
-  enum Event {
-    case event1
-    case event2(String)
-    case event3(Int)
-  }
-
   func testSimpleBroadcast() {
     // Given
     let channel = Channel<Event>()
@@ -243,65 +237,55 @@ class ChannelTests: XCTestCase {
   func testUnsuscribeWhileBroadcastingWithoutRaceCondition() {
     // Given
     let channel = Channel<Event>()
+    let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1, repeats: 1000)
     let object1 = NSObject()
-    let iterations = 1000
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let expectation4 = self.expectation(description: "\(#function)\(#line)")
-    expectation4.isInverted = true
 
     var count = 0
     let queue = DispatchQueue(label: "\(#function)\(#line)")
 
     // When
+    scheduler.start()
+
     channel.subscribe(object1, queue: queue) { event in
       switch event {
-      case .event3:
+      case .event1:
         count += 1
       default: break
-      }
-    }
-
-    DispatchQueue(label: "\(#function)\(#line)").async {
-      DispatchQueue.concurrentPerform(iterations: iterations) { index in
-        Thread.sleep(forTimeInterval: 0.01)
-        channel.broadcast(.event3(index))
-        if index == 999 {
-          expectation1.fulfill()
-        }
       }
     }
 
     /// Object1 will receive some events the events
     DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
       channel.unsubscribe(object1) {
-        expectation2.fulfill()
+        expectation1.fulfill()
       }
     }
 
     // Then
     waitForExpectations(timeout: 2)
+    scheduler.stop()
     XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
-
+    XCTAssertTrue(channel.subscriptions.isEmpty)
   }
 
   func testUnsuscribeWhileBroadcastingWithRaceCondition() {
     // Given
     let channel = Channel<Event>()
+    let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1)
     let object1 = NSObject()
     let iterations = 1000
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let expectation4 = self.expectation(description: "\(#function)\(#line)")
-    expectation4.isInverted = true
 
     var count = 0
     let lock = NSLock()
 
     // When
+    scheduler.start()
+
     channel.subscribe(object1, queue: nil) { event in
       switch event {
-      case .event3:
+      case .event1:
         /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
         lock.lock(); defer { lock.unlock() }
         count += 1
@@ -309,27 +293,59 @@ class ChannelTests: XCTestCase {
       }
     }
 
-    DispatchQueue(label: "\(#function)\(#line)").async {
-      DispatchQueue.concurrentPerform(iterations: iterations) { index in
-        Thread.sleep(forTimeInterval: 0.01)
-        channel.broadcast(.event3(index))
-        if index == 999 {
-          expectation1.fulfill()
-        }
-      }
-    }
-
-    /// Object1 will receive some events the events
+    /// Object1 will receive some events
     DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
       channel.unsubscribe(object1) {
-        expectation2.fulfill()
+        expectation1.fulfill()
       }
     }
 
     // Then
     waitForExpectations(timeout: 2)
+    scheduler.stop()
     XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
+    XCTAssertTrue(channel.subscriptions.isEmpty)
+  }
 
+}
+
+fileprivate enum Event {
+  case event1
+  case event2(String)
+  case event3(Int)
+}
+
+fileprivate class BroadCastScheduler {
+  let channel: Channel<Event>
+  let timeInterval: TimeInterval
+  var timer: Timer!
+  let repeats: Int
+  var times = 0
+
+  init(channel: Channel<Event>, timeInterval: TimeInterval, repeats: Int = 1000) {
+    self.channel = channel
+    self.timeInterval = timeInterval
+    self.repeats = repeats
+  }
+
+  func start() {
+    timer =  Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(broadcast), userInfo: nil, repeats: false)
+  }
+
+  func stop() {
+    timer.invalidate()
+  }
+
+  @objc
+  func broadcast() {
+    print("\(times)")
+    DispatchQueue(label: "\(#function)\(#line)").async { [weak self] in
+      self?.channel.broadcast(Event.event1)
+    }
+    times += 1
+    if times < repeats {  // set the next timer
+      self.start()
+    }
   }
 
 }
