@@ -309,6 +309,8 @@ class ChannelTests: XCTestCase {
 
 }
 
+// MARK: - Mocks
+
 fileprivate enum Event {
   case event1
   case event2(String)
