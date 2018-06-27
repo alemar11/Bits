@@ -265,7 +265,14 @@ class ChannelTests: XCTestCase {
     // Then
     waitForExpectations(timeout: 2)
     scheduler.stop()
-    XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
+    
+    let lock = NSLock()
+    let result: Int
+    lock.lock()
+    result = count
+    lock.unlock()
+    XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
+
     XCTAssertTrue(channel.subscriptions.isEmpty)
   }
 
