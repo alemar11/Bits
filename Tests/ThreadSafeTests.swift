@@ -28,40 +28,50 @@ class ThreadSafeTests: XCTestCase {
   
   func testConcurrentReadExclusiveWrite() {
     let safe = ThreadSafe.concurrentReadExclusiveWrite(qos: .default).make()
-    
+    let expectation = self.expectation(description: "\(#function)\(#line)")
     var array = [Int]()
     let iterations = 1000
     
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       let last = safe.read { array.last ?? 0 }
-      safe.write { array.append(last + 1) }
+      safe.write {
+        array.append(last + 1)
+        if index == 1000-1 {
+          expectation.fulfill()
+        }
+      }
     }
-    
+
+    waitForExpectations(timeout: 3, handler: nil)
     XCTAssertEqual(array.count, iterations)
   }
   
   func testExclusiveReadExclusiveWrite() {
     let safe = ThreadSafe.exclusiveReadExclusiveWrite(qos: .default).make()
-    
+    let expectation = self.expectation(description: "\(#function)\(#line)")
     var array = [Int]()
     let iterations = 1000
     
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       let last = safe.read { array.last ?? 0 }
-      safe.write { array.append(last + 1) }
+      safe.write {
+        array.append(last + 1)
+        if index == 1000-1 {
+          expectation.fulfill()
+        }
+      }
     }
-    
+
+    waitForExpectations(timeout: 3, handler: nil)
     XCTAssertEqual(array.count, iterations)
   }
   
   func testLocked() {
     let safe = ThreadSafe.locked(lock: NSRecursiveLock()).make()
-    
     var array = [Int]()
     let iterations = 1000
     
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      
       safe.write {
         let last = safe.read { array.last ?? 0 } // recursive locking
         array.append(last + 1)
