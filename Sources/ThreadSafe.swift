@@ -26,9 +26,9 @@ import Foundation
 
 /// ThreadSafe
 ///
-/// - exclusiveReadExclusiveWrite: Only one thread can read or write at one time.
-/// - concurrentReadExclusiveWrite: Only one thread can write or multiple threads can read.
-/// - locked: Only one thread can read or write at one time.
+/// - exclusiveReadExclusiveWrite: Only one thread can read or write at one time. The writing operation is asynchronous while the reading is synchronous.
+/// - concurrentReadExclusiveWrite: Only one thread can write or multiple threads can read. The writing operation is asynchronous while the reading is synchronous.
+/// - locked: Only one thread can read or write at one time. The writing and reading operations are both synchronous.
 public enum ThreadSafe {
   case exclusiveReadExclusiveWrite(qos: DispatchQoS)
   case concurrentReadExclusiveWrite(qos: DispatchQoS)
@@ -39,24 +39,25 @@ public enum ThreadSafe {
     case .exclusiveReadExclusiveWrite(qos: let qos):
       return ExclusiveReadExclusiveWrite(qos: qos)
     case .concurrentReadExclusiveWrite(qos: let qos):
-      return ExclusiveReadExclusiveWrite(qos: qos)
+      return ConcurrentReadExclusiveWrite(qos: qos)
     case .locked(lock: let lock):
       return Locked(lock: lock)
     }
   }
 }
 
-/// Represents the safe-access object.
+/// Represents a thread safe access.
 public protocol ThreadSafeType {
 
-  /// Thread safe read operation, always synchronous.
+  /// Thread safe read operation.
   func read<T>(_ block: () -> T) -> T
 
-  /// Thread safe write operation, can be asynchronous (it's synchronous only when using `NSLocking`).
+  /// Thread safe write operation.
   func write(_ block: @escaping () -> Void)
 }
 
 /// Exclusive read, exclusive write. Only one thread can read or write at one time.
+/// The writing operation is asynchronous while the reading is synchronous.
 final class ExclusiveReadExclusiveWrite: ThreadSafeType {
   private let queue: DispatchQueue
 
@@ -76,6 +77,7 @@ final class ExclusiveReadExclusiveWrite: ThreadSafeType {
 /// Concurrent read, exclusive write.
 /// Only one thread can write or multiple threads can read.
 /// Write waits for all previously-enqueued multiple threads can read. Write waits for all previously-enqueued.
+/// The writing operation is asynchronous while the reading is synchronous.
 final class ConcurrentReadExclusiveWrite: ThreadSafeType {
   private let queue: DispatchQueue
 

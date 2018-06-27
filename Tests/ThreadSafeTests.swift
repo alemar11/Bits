@@ -25,33 +25,50 @@ import XCTest
 @testable import Bits
 
 class ThreadSafeTests: XCTestCase {
-
-    func testExample() {
-
-      //let array = Protected([Int]())
-//      let iterations = 1000
-//
-//      DispatchQueue.concurrentPerform(iterations: iterations) { index in
-//        let last = array.read().last ?? 0
-//        array.write { $0.append(last + 1) }
-//      }
-//
-//      print(array.value)
-//      XCTAssertEqual(array.value.count, iterations)
+  
+  func testConcurrentReadExclusiveWrite() {
+    let safe = ThreadSafe.concurrentReadExclusiveWrite(qos: .default).make()
+    
+    var array = [Int]()
+    let iterations = 1000
+    
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      let last = safe.read { array.last ?? 0 }
+      safe.write { array.append(last + 1) }
     }
-
-//https://mikeash.com/pyblog/friday-qa-2011-10-14-whats-new-in-gcd.html
-  //https://gist.github.com/robertmryan/1cb3102112988a47926a82bc5ae5858e
-
-//  func testExample2() {
-//    let array = Protected([Int]())
-//    let iterations = 1000
-//
-//    DispatchQueue.concurrentPerform(iterations: iterations) { index in
-//      array.write(mode: .sync) { $0.append(1) }
-//    }
-//
-//    XCTAssertEqual(array.read().count, iterations)
-//  }
-
+    
+    XCTAssertEqual(array.count, iterations)
+  }
+  
+  func testExclusiveReadExclusiveWrite() {
+    let safe = ThreadSafe.exclusiveReadExclusiveWrite(qos: .default).make()
+    
+    var array = [Int]()
+    let iterations = 1000
+    
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      let last = safe.read { array.last ?? 0 }
+      safe.write { array.append(last + 1) }
+    }
+    
+    XCTAssertEqual(array.count, iterations)
+  }
+  
+  func testLocked() {
+    let safe = ThreadSafe.locked(lock: NSRecursiveLock()).make()
+    
+    var array = [Int]()
+    let iterations = 1000
+    
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      
+      safe.write {
+        let last = safe.read { array.last ?? 0 } // recursive locking
+        array.append(last + 1)
+      }
+    }
+    
+    XCTAssertEqual(array.count, iterations)
+  }
+  
 }
