@@ -234,7 +234,7 @@ class ChannelTests: XCTestCase {
     waitForExpectations(timeout: 5)
   }
 
-  func testUnsuscribeWhileBroadcastingWithoutRaceCondition() {
+  func testUnsuscribeWhileBroadcasting() {
     // Given
     let channel = Channel<Event>()
     let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1, repeats: 1000)
@@ -265,56 +265,51 @@ class ChannelTests: XCTestCase {
     // Then
     waitForExpectations(timeout: 2)
     scheduler.stop()
-
-    objc_sync_enter(self); defer { objc_sync_exit(self) }
-
-    let result = count
-    let isEmpty = channel.subscriptions.isEmpty
-    XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
-    XCTAssertTrue(isEmpty)
+    XCTAssertTrue(1...999 ~= count, "\(count) should be >= 1 and <= 999")
+    XCTAssertTrue(channel.subscriptions.isEmpty)
   }
 
-  func testUnsuscribeWhileBroadcastingWithRaceCondition() {
-    // Given
-    let channel = Channel<Event>()
-    let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1)
-    let object1 = NSObject()
-    let iterations = 1000
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-
-    var count = 0
-    let lock = NSLock()
-
-    // When
-    scheduler.start()
-
-    channel.subscribe(object1, queue: nil) { event in
-      switch event {
-      case .event1:
-        /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
-        lock.lock(); defer { lock.unlock() }
-        count += 1
-      default: break
-      }
-    }
-
-    /// Object1 will receive some events
-    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
-      channel.unsubscribe(object1) {
-        expectation1.fulfill()
-      }
-    }
-
-    // Then
-    waitForExpectations(timeout: 2)
-    scheduler.stop()
-    lock.lock();
-    let result = count
-    let isEmpty = channel.subscriptions.isEmpty
-    XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
-    XCTAssertTrue(isEmpty)
-    lock.unlock()
-  }
+//  func testUnsuscribeWhileBroadcastingWithRaceCondition() {
+//    // Given
+//    let channel = Channel<Event>()
+//    let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1)
+//    let object1 = NSObject()
+//    let iterations = 1000
+//    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+//
+//    var count = 0
+//    let lock = NSLock()
+//
+//    // When
+//    scheduler.start()
+//
+//    channel.subscribe(object1, queue: nil) { event in
+//      switch event {
+//      case .event1:
+//        /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
+//        lock.lock(); defer { lock.unlock() }
+//        count += 1
+//      default: break
+//      }
+//    }
+//
+//    /// Object1 will receive some events
+//    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+//      channel.unsubscribe(object1) {
+//        expectation1.fulfill()
+//      }
+//    }
+//
+//    // Then
+//    waitForExpectations(timeout: 2)
+//    scheduler.stop()
+//    lock.lock();
+//    let result = count
+//    let isEmpty = channel.subscriptions.isEmpty
+//    XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
+//    XCTAssertTrue(isEmpty)
+//    lock.unlock()
+//  }
 
 }
 
