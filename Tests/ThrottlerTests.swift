@@ -81,6 +81,44 @@ class ThrottlerTests: XCTestCase {
     // 1/3 of the repeats should be done
     XCTAssertTrue(33...34 ~= value, "The test ended with \(value) block called; expected 33/34.")
   }
+
+  func testDebouncer() {
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    let block = {
+      expectation.fulfill()
+    }
+    let repeats = 10
+    let throttler = Debouncer(limit: .milliseconds(800))
+
+    let scheduler = Scheduler(timeInterval: Double(0.200), repeats: repeats) {
+      throttler.execute { block() }
+    }
+
+    scheduler.start()
+
+    wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
+  }
+
+//  func testDebouncer2() {
+//    let expectation = self.expectation(description: "\(#file)\(#line)")
+//    var value = 0
+//    let block = {
+//      value += 1
+//      if value >= 10 {
+//      expectation.fulfill()
+//      }
+//    }
+//    let repeats = 10
+//    let throttler = Debouncer(limit: .milliseconds(400))
+//
+//    let scheduler = Scheduler(timeInterval: Double(0.500), repeats: repeats) {
+//      throttler.execute { block() }
+//    }
+//
+//    scheduler.start()
+//
+//    wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
+//  }
 }
 
 fileprivate class Scheduler {
@@ -124,7 +162,6 @@ fileprivate class Scheduler {
     if times < repeats {  // set the next timer
       self.start()
     }
-
   }
 
 }
