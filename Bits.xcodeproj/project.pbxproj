@@ -32,6 +32,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		2328D3AC20E50D66002CEEC9 /* Limiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2328D3AB20E50D66002CEEC9 /* Limiter.swift */; };
+		235535B820E3C42C00C69B70 /* ThrottlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 235535B720E3C42C00C69B70 /* ThrottlerTests.swift */; };
 		2371896520DD3B4400350F6E /* ThreadSafeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* ThreadSafeTests.swift */; };
 		239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
 		23B1377020DEAB1D00D50A3A /* ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */; };
@@ -62,6 +64,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2328D3AB20E50D66002CEEC9 /* Limiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Limiter.swift; sourceTree = "<group>"; };
+		235535B720E3C42C00C69B70 /* ThrottlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrottlerTests.swift; sourceTree = "<group>"; };
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		2371896420DD3B4400350F6E /* ThreadSafeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeTests.swift; sourceTree = "<group>"; };
@@ -146,6 +150,7 @@
 				93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */,
 				2371896420DD3B4400350F6E /* ThreadSafeTests.swift */,
 				239CCC9520E229B0007782E5 /* ChannelTests.swift */,
+				235535B720E3C42C00C69B70 /* ThrottlerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -161,6 +166,7 @@
 				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
 				23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */,
+				2328D3AB20E50D66002CEEC9 /* Limiter.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -315,6 +321,7 @@
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
 				23B1377020DEAB1D00D50A3A /* ThreadSafe.swift in Sources */,
+				2328D3AC20E50D66002CEEC9 /* Limiter.swift in Sources */,
 				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
@@ -330,6 +337,7 @@
 			files = (
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
 				239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */,
+				235535B820E3C42C00C69B70 /* ThrottlerTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
 				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
