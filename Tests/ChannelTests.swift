@@ -237,7 +237,7 @@ class ChannelTests: XCTestCase {
   func testUnsuscribeWhileBroadcasting() {
     // Given
     let channel = Channel<Event>()
-    let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1, repeats: 1000)
+    let scheduler = ChannelScheduler(channel: channel, timeInterval: 0.1, repeats: 1000)
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
 
@@ -321,7 +321,7 @@ fileprivate enum Event {
   case event3(Int)
 }
 
-fileprivate class BroadCastScheduler {
+fileprivate class ChannelScheduler {
   let channel: Channel<Event>
   let timeInterval: TimeInterval
   var timer: Timer!
