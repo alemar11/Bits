@@ -14,7 +14,7 @@
     <a title="Classes  Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="index.html"> Docs</a> (80% documented)</p>
+        <p><a href="index.html"> Docs</a> (53% documented)</p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -31,6 +31,18 @@
             <a href="Classes.html">Classes</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a href="Classes/Box.html">Box</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Channel.html">Channel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/CountedLimiter.html">CountedLimiter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Debouncer.html">Debouncer</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/Reachability.html">Reachability</a>
               </li>
               <li class="nav-group-task">
@@ -39,6 +51,43 @@
               <li class="nav-group-task">
                 <a href="Classes/Reachability/Connection.html">– Connection</a>
               </li>
+              <li class="nav-group-task">
+                <a href="Classes/TimedLimiter.html">TimedLimiter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/WeakBox.html">WeakBox</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/Interval.html">Interval</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/ResultType.html">ResultType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/ThreadSafe.html">ThreadSafe</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/Result.html">Result</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Scheduler.html">Scheduler</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Scheduler/RunningMode.html">– RunningMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Extensions/Scheduler/State.html">– State</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -46,6 +95,22 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a href="Functions.html#/s:4Bits2eeoiSbAA12ReachabilityC13NetworkStatusO_AFtF">==(_:_:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/ThreadSafeType.html">ThreadSafeType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Typealiases.html#/s:4Bits6Resulta">Result</a>
               </li>
             </ul>
           </li>
@@ -59,6 +124,159 @@
 
           </section>
           <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits3BoxC"></a>
+                    <a name="//apple_ref/swift/Class/Box" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits3BoxC">Box</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/Box.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">Box</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits7ChannelC"></a>
+                    <a name="//apple_ref/swift/Class/Channel" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits7ChannelC">Channel</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An event bus object which provides an API to broadcast messages to its subscribers.</p>
+
+                        <a href="Classes/Channel.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">Channel</span><span class="o">&lt;</span><span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits9DebouncerC"></a>
+                    <a name="//apple_ref/swift/Class/Debouncer" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits9DebouncerC">Debouncer</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Debouncing enforces that a function not be called again until a certain amount of time has passed without it being called.
+As in <q>execute this function only if 100 milliseconds have passed without it being called.</q></p>
+
+                        <a href="Classes/Debouncer.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">Debouncer</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits12TimedLimiterC"></a>
+                    <a name="//apple_ref/swift/Class/TimedLimiter" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits12TimedLimiterC">TimedLimiter</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Throttling enforces a maximum number of times a function can be called over time. As in <q>execute this function at most once every 100 milliseconds.</q></p>
+
+                        <a href="Classes/TimedLimiter.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">TimedLimiter</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits14CountedLimiterC"></a>
+                    <a name="//apple_ref/swift/Class/CountedLimiter" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits14CountedLimiterC">CountedLimiter</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/CountedLimiter.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">CountedLimiter</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
             <div class="task-group">
               <ul>
                 <li class="item">
@@ -91,10 +309,42 @@
                 </li>
               </ul>
             </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits7WeakBoxC"></a>
+                    <a name="//apple_ref/swift/Class/WeakBox" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits7WeakBoxC">WeakBox</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/WeakBox.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">WeakBox</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">T</span> <span class="p">:</span> <span class="kt">AnyObject</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2018-05-05)</p>
+          <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2018-06-29)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>

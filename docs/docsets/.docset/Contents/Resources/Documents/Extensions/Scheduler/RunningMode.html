@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>NetworkStatus Enumeration Reference</title>
+    <title>RunningMode Enumeration Reference</title>
     <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
     <meta charset='utf-8'>
@@ -10,8 +10,8 @@
     
   </head>
   <body>
-    <a name="//apple_ref/swift/Enum/NetworkStatus" class="dashAnchor"></a>
-    <a title="NetworkStatus Enumeration Reference"></a>
+    <a name="//apple_ref/swift/Enum/RunningMode" class="dashAnchor"></a>
+    <a title="RunningMode Enumeration Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../../index.html"> Docs</a> (53% documented)</p>
@@ -21,7 +21,7 @@
       <p id="breadcrumbs">
         <a href="../../index.html"> Reference</a>
         <img id="carat" src="../../img/carat.png" />
-        NetworkStatus Enumeration Reference
+        RunningMode Enumeration Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -119,19 +119,19 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>NetworkStatus</h1>
+            <h1>RunningMode</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">NetworkStatus</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">RunningMode</span></code></pre>
 
                 </div>
               </div>
-            <p>Defines the various states of network reachability.</p>
+            <p><code>Scheduler</code> running mode.</p>
 
 <ul>
-<li>unknown:      It is unknown whether the network is reachable.</li>
-<li>notReachable: The network is not reachable.</li>
-<li>reachable:    The network is reachable.</li>
+<li>infinite: infinite number of repeats.</li>
+<li>finite: finite number of repeats.</li>
+<li>once: single repeat.</li>
 </ul>
 
           </section>
@@ -141,9 +141,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:4Bits12ReachabilityC13NetworkStatusO7unknownA2EmF"></a>
-                    <a name="//apple_ref/swift/Element/unknown" class="dashAnchor"></a>
-                    <a class="token" href="#/s:4Bits12ReachabilityC13NetworkStatusO7unknownA2EmF">unknown</a>
+                    <a name="/s:4Bits9SchedulerC11RunningModeO8infiniteA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/infinite" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits9SchedulerC11RunningModeO8infiniteA2EmF">infinite</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -158,7 +158,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">unknown</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">infinite</span></code></pre>
 
                         </div>
                       </div>
@@ -168,9 +168,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:4Bits12ReachabilityC13NetworkStatusO12notReachableA2EmF"></a>
-                    <a name="//apple_ref/swift/Element/notReachable" class="dashAnchor"></a>
-                    <a class="token" href="#/s:4Bits12ReachabilityC13NetworkStatusO12notReachableA2EmF">notReachable</a>
+                    <a name="/s:4Bits9SchedulerC11RunningModeO6finiteAESicAEmF"></a>
+                    <a name="//apple_ref/swift/Element/finite" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits9SchedulerC11RunningModeO6finiteAESicAEmF">finite</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -185,7 +185,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">notReachable</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">finite</span><span class="p">(</span><span class="kt">Int</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -195,9 +195,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:4Bits12ReachabilityC13NetworkStatusO9reachableAeC10ConnectionOcAEmF"></a>
-                    <a name="//apple_ref/swift/Element/reachable" class="dashAnchor"></a>
-                    <a class="token" href="#/s:4Bits12ReachabilityC13NetworkStatusO9reachableAeC10ConnectionOcAEmF">reachable</a>
+                    <a name="/s:4Bits9SchedulerC11RunningModeO4onceA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/once" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits9SchedulerC11RunningModeO4onceA2EmF">once</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -212,23 +212,19 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">reachable</span><span class="p">(</span><span class="kt"><a href="../../Classes/Reachability.html">Reachability</a></span><span class="o">.</span><span class="kt"><a href="../../Classes/Reachability/Connection.html">Connection</a></span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">once</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:s23CustomStringConvertibleP11descriptionSSvp"></a>
-                    <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
-                    <a class="token" href="#/s:s23CustomStringConvertibleP11descriptionSSvp">description</a>
+                    <a name="/s:4Bits9SchedulerC11RunningModeO15countIterationsSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/countIterations" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits9SchedulerC11RunningModeO15countIterationsSiSgvp">countIterations</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -236,13 +232,41 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Number of repeats, if applicable. Otherwise <code>nil</code></p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">description</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">countIterations</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:4Bits9SchedulerC11RunningModeO10isInfiniteSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isInfinite" class="dashAnchor"></a>
+                    <a class="token" href="#/s:4Bits9SchedulerC11RunningModeO10isInfiniteSbvp">isInfinite</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns tue if the <code>Scheduler</code> has an infinite number of repeats.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isInfinite</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
