@@ -23,7 +23,6 @@
 
 import Foundation
 
-
 /// ThreadSafe
 ///
 /// - exclusiveReadExclusiveWrite: Only one thread can read or write at one time. The writing operation is asynchronous while the reading is synchronous.
@@ -62,7 +61,7 @@ final class ExclusiveReadExclusiveWrite: ThreadSafeType {
   private let queue: DispatchQueue
 
   init(qos: DispatchQoS = .default) {
-    self.queue = DispatchQueue(label: "\(identifier).\(type(of:self))", qos: qos)
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
   func read<T>(_ block: () -> T) -> T {
@@ -82,7 +81,7 @@ final class ConcurrentReadExclusiveWrite: ThreadSafeType {
   private let queue: DispatchQueue
 
   init(qos: DispatchQoS = .default) {
-    self.queue = DispatchQueue(label: "\(identifier).\(type(of:self))", qos: qos, attributes: .concurrent)
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos, attributes: .concurrent)
   }
 
   func read<T>(_ block: () -> T) -> T {

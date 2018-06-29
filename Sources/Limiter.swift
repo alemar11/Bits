@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -23,48 +23,27 @@
 
 import Foundation
 
-public enum LimitInterval {
-  case nanoseconds(_: Int)
-  case microseconds(_: Int)
-  case milliseconds(_: Int)
-  case minutes(_: Int)
-  case seconds(_: Int)
-  case hours(_: Int)
-  case days(_: Int)
-
-  internal var dispatchTimeInterval: DispatchTimeInterval {
-    switch self {
-    case .nanoseconds(let value): return .nanoseconds(value)
-    case .microseconds(let value): return .microseconds(value)
-    case .milliseconds(let value): return .milliseconds(value)
-    case .seconds(let value): return .seconds(value)
-    case .minutes(let value): return .seconds(value * 60)
-    case .hours(let value): return .seconds(value * 3600)
-    case .days(let value): return .seconds(value * 86400)
-    }
-  }
-}
-
 /// Debouncing enforces that a function not be called again until a certain amount of time has passed without it being called.
 /// As in "execute this function only if 100 milliseconds have passed without it being called."
 public final class Debouncer {
 
   // MARK: - Properties
+
   public let limit: DispatchTimeInterval
   public let queue: DispatchQueue
 
   private var workItem: DispatchWorkItem?
   private let underlyingQueue = DispatchQueue(label: "\(identifier).Debouncer")
 
-
   // MARK: - Initializers
-  public init(limit: LimitInterval, queue: DispatchQueue = .main) {
+
+  public init(limit: Interval, queue: DispatchQueue = .main) {
     self.limit = limit.dispatchTimeInterval
     self.queue = queue
   }
 
-
   // MARK: - Limiter
+
   public func execute(_ block: @escaping () -> Void) {
     underlyingQueue.async { [weak self] in
       if let workItem = self?.workItem {
@@ -98,17 +77,20 @@ public final class Debouncer {
 public final class TimedLimiter {
 
   // MARK: - Properties
+
   public let limit: DispatchTimeInterval
   public private(set) var lastExecutedAt: DispatchTime?
 
   private let underlyingQueue = DispatchQueue(label: "\(identifier).TimedLimiter")
 
   // MARK: - Initializers
-  public init(limit: LimitInterval) {
+
+  public init(limit: Interval) {
     self.limit = limit.dispatchTimeInterval
   }
 
   // MARK: - Limiter
+
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
     let executed = underlyingQueue.sync { () -> Bool in
@@ -144,17 +126,20 @@ public final class TimedLimiter {
 public final class CountedLimiter {
 
   // MARK: - Properties
+
   public let limit: UInt
   public private(set) var count: UInt = 0
 
   private let underlyingQueue = DispatchQueue(label: "\(identifier).CountedLimiter")
 
   // MARK: - Initializers
+
   public init(limit: UInt) {
     self.limit = limit
   }
 
   // MARK: - Limiter
+  
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
     let executed = underlyingQueue.sync { () -> Bool in

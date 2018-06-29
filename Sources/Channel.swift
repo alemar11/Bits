@@ -31,6 +31,7 @@ public final class Channel<Value> {
     internal weak var object: AnyObject?
     internal let uuid = UUID()
     internal var isValid: Bool { return object != nil }
+
     private let queue: DispatchQueue?
     private let block: (Value) -> Void
 
@@ -65,7 +66,7 @@ public final class Channel<Value> {
 
   /// Creates a channel instance.
   public init() {
-    self.queue = DispatchQueue(label: "\(identifier).\(type(of:self))", qos: .default, attributes: .concurrent)
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: .default, attributes: .concurrent)
   }
 
   /// Subscribes given object to channel.

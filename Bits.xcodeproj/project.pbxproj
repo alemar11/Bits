@@ -45,6 +45,9 @@
 		23C45F76209F026A00910999 /* Bits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F75209F026A00910999 /* Bits.swift */; };
 		23C45F78209F037500910999 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F77209F037500910999 /* ResultTests.swift */; };
 		23F3845E20ADD01A004983E5 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
+		23F97E0220E61A24007C4889 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0120E61A24007C4889 /* Scheduler.swift */; };
+		23F97E0620E61B87007C4889 /* SchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0520E61B87007C4889 /* SchedulerTests.swift */; };
+		23F97E0820E64164007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
 		23FB40C2208C6CFF002F5428 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23FB40B8208C6CFF002F5428 /* Bits.framework */; };
 		23FB40C9208C6CFF002F5428 /* Bits.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FB40BB208C6CFF002F5428 /* Bits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -79,6 +82,9 @@
 		23C45F75209F026A00910999 /* Bits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bits.swift; sourceTree = "<group>"; };
 		23C45F77209F037500910999 /* ResultTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
 		23F3845D20ADD01A004983E5 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
+		23F97E0120E61A24007C4889 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
+		23F97E0520E61B87007C4889 /* SchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerTests.swift; sourceTree = "<group>"; };
+		23F97E0720E64164007C4889 /* Interval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
 		23FB40B8208C6CFF002F5428 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23FB40BB208C6CFF002F5428 /* Bits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bits.h; sourceTree = "<group>"; };
 		23FB40BC208C6CFF002F5428 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -151,6 +157,7 @@
 				2371896420DD3B4400350F6E /* ThreadSafeTests.swift */,
 				239CCC9520E229B0007782E5 /* ChannelTests.swift */,
 				235535B720E3C42C00C69B70 /* ThrottlerTests.swift */,
+				23F97E0520E61B87007C4889 /* SchedulerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -167,6 +174,8 @@
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
 				23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */,
 				2328D3AB20E50D66002CEEC9 /* Limiter.swift */,
+				23F97E0120E61A24007C4889 /* Scheduler.swift */,
+				23F97E0720E64164007C4889 /* Interval.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -322,6 +331,8 @@
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
 				23B1377020DEAB1D00D50A3A /* ThreadSafe.swift in Sources */,
 				2328D3AC20E50D66002CEEC9 /* Limiter.swift in Sources */,
+				23F97E0820E64164007C4889 /* Interval.swift in Sources */,
+				23F97E0220E61A24007C4889 /* Scheduler.swift in Sources */,
 				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
@@ -341,6 +352,7 @@
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
 				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
+				23F97E0620E61B87007C4889 /* SchedulerTests.swift in Sources */,
 				2371896520DD3B4400350F6E /* ThreadSafeTests.swift in Sources */,
 				93EBB54220A3015800C3B626 /* NetworkActivityIndicatorManagerTests.swift in Sources */,
 			);
