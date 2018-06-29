@@ -49,7 +49,7 @@ class ThrottlerTests: XCTestCase {
     wait(for: [expectation], timeout: 2)
   }
 
-  func testThrottlerHavingAllTheFuncationCallsCompleted() {
+  func testThrottlerHavingAllTheFunctionCallsCompleted() {
     var value = 0
     let block = { value += 1 }
     let repeats = 10
@@ -81,7 +81,7 @@ class ThrottlerTests: XCTestCase {
     XCTAssertEqual(value, 4)
   }
 
-  func testDebouncer() {
+  func testDebouncerHavingOnlyOneFunctionCallCompleted() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
       expectation.fulfill()
@@ -98,26 +98,26 @@ class ThrottlerTests: XCTestCase {
     wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
   }
 
-//  func testDebouncer2() {
-//    let expectation = self.expectation(description: "\(#file)\(#line)")
-//    var value = 0
-//    let block = {
-//      value += 1
-//      if value >= 10 {
-//      expectation.fulfill()
-//      }
-//    }
-//    let repeats = 10
-//    let throttler = Debouncer(limit: .milliseconds(400))
-//
-//    let scheduler = Scheduler(timeInterval: Double(0.500), repeats: repeats) {
-//      throttler.execute { block() }
-//    }
-//
-//    scheduler.start()
-//
-//    wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
-//  }
+  func testDebouncerHavingAllTheFunctionCallsCompleted() {
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    var value = 0
+    let block = {
+      value += 1
+      if value >= 10 {
+      expectation.fulfill()
+      }
+    }
+    let repeats = 10
+    let throttler = Debouncer(limit: .milliseconds(400))
+
+    let scheduler = Scheduler(timeInterval: Double(0.500), repeats: repeats) {
+      throttler.execute { block() }
+    }
+
+    scheduler.start()
+
+    wait(for: [scheduler.completionExpectation, expectation], timeout: 6)
+  }
 }
 
 fileprivate class Scheduler {
