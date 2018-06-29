@@ -202,17 +202,17 @@ import UIKit
 // MARK: - Utils
 
 @available(iOSApplicationExtension, unavailable)
-func unregisterForRemoteNotifications() {
+public func unregisterForRemoteNotifications() {
   UIApplication.shared.unregisterForRemoteNotifications()
 }
 
 @available(iOSApplicationExtension, unavailable)
-func registerForRemoteNotifications() {
+public func registerForRemoteNotifications() {
   UIApplication.shared.registerForRemoteNotifications()
 }
 
 @available(iOSApplicationExtension, unavailable)
-func openSettings() {
+public func openSettings() {
   if let appSettings = URL(string: UIApplicationOpenSettingsURLString) {
     UIApplication.shared.open(appSettings, options: [:], completionHandler: nil)
   }
