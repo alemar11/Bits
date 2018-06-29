@@ -33,8 +33,8 @@ class SchedulerTests: XCTestCase {
     timer.onStateChanged = { (_, state) in
       if state == .paused {
         expectation.fulfill()
-        XCTAssertTrue(timer.state.isPaused)
-        XCTAssertFalse(timer.pause())
+        XCTAssertTrue(timer.state.isPaused, "The state should be paused.")
+        XCTAssertFalse(timer.pause(), "A paused scheduler cannot be paused again.")
       }
     }
 
@@ -42,12 +42,13 @@ class SchedulerTests: XCTestCase {
       timer.pause()
     }
 
-    XCTAssertFalse(timer.state.isRunning)
-    XCTAssertTrue(timer.start())
-    XCTAssertFalse(timer.start())
+    XCTAssertFalse(timer.state.isRunning, "The scheduler is not yet started.")
+    XCTAssertTrue(timer.start(), "The scheduler should start.")
+    XCTAssertFalse(timer.start(), "The scheduler is already started.")
+
     wait(for: [expectation], timeout: 30)
-    XCTAssertTrue(timer.state.isPaused)
-    XCTAssertTrue(timer.mode.isInfinite)
+    XCTAssertTrue(timer.state.isPaused, "The state should be paused.")
+    XCTAssertTrue(timer.mode.isInfinite, "The scheduler mode should be \"infinite\" instead of \(timer.mode)")
 
   }
 
@@ -155,7 +156,7 @@ class SchedulerTests: XCTestCase {
     }
 
     scheduler.start()
-    wait(for: [expectation], timeout: 5)
+    wait(for: [expectation], timeout: 10)
     XCTAssertTrue(value1 > 0 )
     XCTAssertTrue(value2 > 0 )
     XCTAssertTrue(value3 > 0 )
