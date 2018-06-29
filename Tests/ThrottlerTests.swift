@@ -26,6 +26,8 @@ import XCTest
 
 class ThrottlerTests: XCTestCase {
 
+  // MARK: - Throttling
+
   func testThrottler() {
     var value = 0
     let block = { value += 1 }
@@ -81,6 +83,8 @@ class ThrottlerTests: XCTestCase {
     XCTAssertEqual(value, 4)
   }
 
+  // MARK: - Debouncing
+
   func testDebouncerHavingOnlyOneFunctionCallCompleted() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
@@ -118,6 +122,30 @@ class ThrottlerTests: XCTestCase {
 
     wait(for: [scheduler.completionExpectation, expectation], timeout: 6)
   }
+
+  // MARK: - Count limit
+
+  func testCountLimiter() {
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    var value = 0
+    let block = {
+      value += 1
+      if value >= 5 {
+        expectation.fulfill()
+      }
+    }
+    let limiter = CountedLimiter(limit: 5)
+
+    let repeats = 30
+    let scheduler = Scheduler(timeInterval: Double(0.100), repeats: repeats) {
+      limiter.execute { block() }
+    }
+
+    scheduler.start()
+
+    wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
+  }
+
 }
 
 fileprivate class Scheduler {
