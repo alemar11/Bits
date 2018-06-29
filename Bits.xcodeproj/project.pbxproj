@@ -48,6 +48,27 @@
 		23F97E0220E61A24007C4889 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0120E61A24007C4889 /* Scheduler.swift */; };
 		23F97E0620E61B87007C4889 /* SchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0520E61B87007C4889 /* SchedulerTests.swift */; };
 		23F97E0820E64164007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
+		23F97E2420E66012007C4889 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23F97E1B20E66012007C4889 /* Bits.framework */; };
+		23F97E3220E6616E007C4889 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
+		23F97E3320E6616E007C4889 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6B209EFB1300910999 /* Box.swift */; };
+		23F97E3420E6616E007C4889 /* WeakBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6F209EFDF800910999 /* WeakBox.swift */; };
+		23F97E3520E6616E007C4889 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F73209F00BE00910999 /* Result.swift */; };
+		23F97E3620E6616E007C4889 /* Bits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F75209F026A00910999 /* Bits.swift */; };
+		23F97E3720E6616E007C4889 /* NetworkActivityIndicatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */; };
+		23F97E3820E6616E007C4889 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
+		23F97E3920E6616E007C4889 /* ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */; };
+		23F97E3A20E6616E007C4889 /* Limiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2328D3AB20E50D66002CEEC9 /* Limiter.swift */; };
+		23F97E3B20E6616E007C4889 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0120E61A24007C4889 /* Scheduler.swift */; };
+		23F97E3C20E6616E007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
+		23F97E3D20E6617D007C4889 /* ReachabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D8208C721B002F5428 /* ReachabilityTests.swift */; };
+		23F97E3E20E6617D007C4889 /* BoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6D209EFB5C00910999 /* BoxTests.swift */; };
+		23F97E3F20E6617D007C4889 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F71209EFE1700910999 /* WeakBoxTests.swift */; };
+		23F97E4020E6617D007C4889 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F77209F037500910999 /* ResultTests.swift */; };
+		23F97E4120E6617D007C4889 /* NetworkActivityIndicatorManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93EBB54020A3014400C3B626 /* NetworkActivityIndicatorManagerTests.swift */; };
+		23F97E4220E6617D007C4889 /* ThreadSafeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* ThreadSafeTests.swift */; };
+		23F97E4320E6617D007C4889 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
+		23F97E4420E6617D007C4889 /* ThrottlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 235535B720E3C42C00C69B70 /* ThrottlerTests.swift */; };
+		23F97E4520E6617D007C4889 /* SchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0520E61B87007C4889 /* SchedulerTests.swift */; };
 		23FB40C2208C6CFF002F5428 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23FB40B8208C6CFF002F5428 /* Bits.framework */; };
 		23FB40C9208C6CFF002F5428 /* Bits.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FB40BB208C6CFF002F5428 /* Bits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -57,6 +78,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		23F97E2520E66012007C4889 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23FB40AF208C6CFF002F5428 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 23F97E1A20E66012007C4889;
+			remoteInfo = "Bits macOS";
+		};
 		23FB40C3208C6CFF002F5428 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23FB40AF208C6CFF002F5428 /* Project object */;
@@ -85,6 +113,8 @@
 		23F97E0120E61A24007C4889 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		23F97E0520E61B87007C4889 /* SchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerTests.swift; sourceTree = "<group>"; };
 		23F97E0720E64164007C4889 /* Interval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
+		23F97E1B20E66012007C4889 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		23F97E2320E66012007C4889 /* Bits macOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bits macOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		23FB40B8208C6CFF002F5428 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23FB40BB208C6CFF002F5428 /* Bits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bits.h; sourceTree = "<group>"; };
 		23FB40BC208C6CFF002F5428 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -97,6 +127,21 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		23F97E1720E66012007C4889 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23F97E2020E66012007C4889 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23F97E2420E66012007C4889 /* Bits.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23FB40B4208C6CFF002F5428 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -142,6 +187,8 @@
 			children = (
 				23FB40B8208C6CFF002F5428 /* Bits.framework */,
 				23FB40C1208C6CFF002F5428 /* Bits Tests iOS.xctest */,
+				23F97E1B20E66012007C4889 /* Bits.framework */,
+				23F97E2320E66012007C4889 /* Bits macOS Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -183,6 +230,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		23F97E1820E66012007C4889 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23FB40B5208C6CFF002F5428 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -194,6 +248,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		23F97E1A20E66012007C4889 /* Bits macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23F97E3020E66012007C4889 /* Build configuration list for PBXNativeTarget "Bits macOS" */;
+			buildPhases = (
+				23F97E1620E66012007C4889 /* Sources */,
+				23F97E1720E66012007C4889 /* Frameworks */,
+				23F97E1820E66012007C4889 /* Headers */,
+				23F97E1920E66012007C4889 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Bits macOS";
+			productName = "Bits macOS";
+			productReference = 23F97E1B20E66012007C4889 /* Bits.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		23F97E2220E66012007C4889 /* Bits macOS Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23F97E3120E66012007C4889 /* Build configuration list for PBXNativeTarget "Bits macOS Tests" */;
+			buildPhases = (
+				23F97E1F20E66012007C4889 /* Sources */,
+				23F97E2020E66012007C4889 /* Frameworks */,
+				23F97E2120E66012007C4889 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				23F97E2620E66012007C4889 /* PBXTargetDependency */,
+			);
+			name = "Bits macOS Tests";
+			productName = "Bits macOSTests";
+			productReference = 23F97E2320E66012007C4889 /* Bits macOS Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		23FB40B7208C6CFF002F5428 /* Bits iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 23FB40CC208C6CFF002F5428 /* Build configuration list for PBXNativeTarget "Bits iOS" */;
@@ -236,7 +326,7 @@
 		23FB40AF208C6CFF002F5428 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0930;
+				LastSwiftUpdateCheck = 0940;
 				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = Tinrobots;
 				TargetAttributes = {
@@ -245,6 +335,12 @@
 					};
 					235C3027209E19DC00DC0C2F = {
 						CreatedOnToolsVersion = 9.3;
+					};
+					23F97E1A20E66012007C4889 = {
+						CreatedOnToolsVersion = 9.4.1;
+					};
+					23F97E2220E66012007C4889 = {
+						CreatedOnToolsVersion = 9.4.1;
 					};
 					23FB40B7208C6CFF002F5428 = {
 						CreatedOnToolsVersion = 9.3;
@@ -271,11 +367,27 @@
 				23FB40C0208C6CFF002F5428 /* Bits Tests iOS */,
 				235C3022209E19B800DC0C2F /* SwiftLint */,
 				235C3027209E19DC00DC0C2F /* Cleanup Whitespace */,
+				23F97E1A20E66012007C4889 /* Bits macOS */,
+				23F97E2220E66012007C4889 /* Bits macOS Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		23F97E1920E66012007C4889 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23F97E2120E66012007C4889 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23FB40B6208C6CFF002F5428 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -324,6 +436,40 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		23F97E1620E66012007C4889 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23F97E3820E6616E007C4889 /* Channel.swift in Sources */,
+				23F97E3220E6616E007C4889 /* Reachability.swift in Sources */,
+				23F97E3920E6616E007C4889 /* ThreadSafe.swift in Sources */,
+				23F97E3C20E6616E007C4889 /* Interval.swift in Sources */,
+				23F97E3B20E6616E007C4889 /* Scheduler.swift in Sources */,
+				23F97E3620E6616E007C4889 /* Bits.swift in Sources */,
+				23F97E3320E6616E007C4889 /* Box.swift in Sources */,
+				23F97E3520E6616E007C4889 /* Result.swift in Sources */,
+				23F97E3A20E6616E007C4889 /* Limiter.swift in Sources */,
+				23F97E3420E6616E007C4889 /* WeakBox.swift in Sources */,
+				23F97E3720E6616E007C4889 /* NetworkActivityIndicatorManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23F97E1F20E66012007C4889 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23F97E3F20E6617D007C4889 /* WeakBoxTests.swift in Sources */,
+				23F97E4320E6617D007C4889 /* ChannelTests.swift in Sources */,
+				23F97E4420E6617D007C4889 /* ThrottlerTests.swift in Sources */,
+				23F97E4120E6617D007C4889 /* NetworkActivityIndicatorManagerTests.swift in Sources */,
+				23F97E3D20E6617D007C4889 /* ReachabilityTests.swift in Sources */,
+				23F97E4020E6617D007C4889 /* ResultTests.swift in Sources */,
+				23F97E4520E6617D007C4889 /* SchedulerTests.swift in Sources */,
+				23F97E4220E6617D007C4889 /* ThreadSafeTests.swift in Sources */,
+				23F97E3E20E6617D007C4889 /* BoxTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23FB40B3208C6CFF002F5428 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -361,6 +507,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		23F97E2620E66012007C4889 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 23F97E1A20E66012007C4889 /* Bits macOS */;
+			targetProxy = 23F97E2520E66012007C4889 /* PBXContainerItemProxy */;
+		};
 		23FB40C4208C6CFF002F5428 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 23FB40B7208C6CFF002F5428 /* Bits iOS */;
@@ -398,6 +549,104 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		23F97E2C20E66012007C4889 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Support/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = org.tinrobots.Bits;
+				PRODUCT_NAME = Bits;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		23F97E2D20E66012007C4889 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Support/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = org.tinrobots.Bits;
+				PRODUCT_NAME = Bits;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		23F97E2E20E66012007C4889 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Support/Info-Tests.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.tinrobots.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		23F97E2F20E66012007C4889 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Support/Info-Tests.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.tinrobots.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -633,6 +882,24 @@
 			buildConfigurations = (
 				235C3029209E19DC00DC0C2F /* Debug */,
 				235C302A209E19DC00DC0C2F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23F97E3020E66012007C4889 /* Build configuration list for PBXNativeTarget "Bits macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23F97E2C20E66012007C4889 /* Debug */,
+				23F97E2D20E66012007C4889 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23F97E3120E66012007C4889 /* Build configuration list for PBXNativeTarget "Bits macOS Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23F97E2E20E66012007C4889 /* Debug */,
+				23F97E2F20E66012007C4889 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
