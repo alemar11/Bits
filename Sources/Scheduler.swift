@@ -23,6 +23,9 @@
 
 import Foundation
 
+/// **Bits**
+///
+/// A scheduler based on a GCD timer.
 final class Scheduler: Equatable {
 
   // MARK: - Typealias
@@ -57,23 +60,25 @@ final class Scheduler: Equatable {
   /// Schduler observers
   private(set) internal var observers = [Token: Observer]()
 
-  /// GCD Timer
+  /// GCD timer
   private var timer: DispatchSourceTimer?
 
-  /// GCD Timer interval
+  /// GCD timer interval
   private(set) internal var interval: Interval {
     didSet {
       onIntervalChanged?(self, interval)
     }
   }
 
-  /// GCD Timer Accuracy
+  /// GCD timer accuracy
   private var tolerance: DispatchTimeInterval
-
-  /// GCD Timer queue
+  
+  /// GCD timer queue
   private var queue: DispatchQueue
 
-  /// Initialize a new timer.
+  /// **Bits**
+  ///
+  /// Initializes a new `Scheduler` instance.
   ///
   /// - Parameters:
   ///   - interval: interval of the timer
@@ -91,7 +96,9 @@ final class Scheduler: Equatable {
     self.addObserver(observer)
   }
 
-  /// Add new a listener to the timer.
+  /// **Bits**
+  ///
+  /// Adds a new observer to the `Scheduler`.
   ///
   /// - Parameter callback: callback to call for fire events.
   /// - Returns: The token used to remove the observer from the scheduler
@@ -102,14 +109,18 @@ final class Scheduler: Equatable {
     return new
   }
 
-  /// Remove an observer of the timer.
+  /// **Bits**
   ///
-  /// - Parameter id: id of the observer to remove
+  /// Removes an observer from the the `Scheduler`.
+  ///
+  /// - Parameter token: token of the observer to remove
   public func removeObserver(withToken token: Token) {
     observers.removeValue(forKey: token)
   }
 
-  /// Remove all observers of the timer.
+  /// **Bits**
+  ///
+  /// Removes all the observers of the `Scheduler`.
   ///
   /// - Parameter stopTimer: `true` to also stop timer by calling `pause()` function.
   public func removeAllObservers(thenStop stopTimer: Bool = false) {
@@ -120,9 +131,7 @@ final class Scheduler: Equatable {
     }
   }
 
-  /// Configure a new timer session.
-  ///
-  /// - Returns: dispatch timer
+  /// Configures a new GCD timer.
   private func configureTimer() -> DispatchSourceTimer {
     let timer = DispatchSource.makeTimerSource(queue: queue)
     let repeatInterval = interval.dispatchTimeInterval
@@ -142,7 +151,7 @@ final class Scheduler: Equatable {
     return timer
   }
 
-  /// Destroy the current timer
+  /// Destroys the current CGD Timer
   private func destroyTimer() {
     timer?.setEventHandler(handler: nil)
     timer?.cancel()
@@ -154,7 +163,9 @@ final class Scheduler: Equatable {
     }
   }
 
-  /// Creates and starts a `Scheduler` that will call `handler` once after the specified time.
+  /// **Bits**
+  ///
+  /// Creates and starts a new `Scheduler` that will call the `observer` once after the specified time.
   ///
   /// - Parameters:
   ///   - interval: interval delay for single fire
@@ -168,6 +179,8 @@ final class Scheduler: Equatable {
     return timer
   }
 
+  /// **Bits**
+  ///
   /// Creates and starts a `Scheduler` that will fire every interval optionally by limiting the number of fires.
   ///
   /// - Parameters:
@@ -184,7 +197,9 @@ final class Scheduler: Equatable {
     return timer
   }
 
-  /// Forces an event fire.
+  /// **Bits**
+  ///
+  /// Forces a fire.
   ///
   /// - Parameter pause: `true` to pause after fire, `false` to continue the regular firing schedule.
   public func fire(andThenPause pause: Bool = false) {
@@ -195,6 +210,8 @@ final class Scheduler: Equatable {
     }
   }
 
+  /// **Bits**
+  ///
   /// Resets the state of the `Scheduler`, optionally changing the fire interval.
   ///
   /// - Parameters:
@@ -226,7 +243,9 @@ final class Scheduler: Equatable {
     }
   }
 
-  /// Start the `Scheduler`. If the `Scheduler` is already running it does nothing.
+  /// **Bits**
+  ///
+  /// Starts the `Scheduler`; if it is already running, it does nothing.
   @discardableResult
   public func start() -> Bool {
     guard state.isRunning == false else { return false }
@@ -244,7 +263,9 @@ final class Scheduler: Equatable {
     return true
   }
 
-  /// Pauses a running `Scheduler`. If the `Scheduler` is paused it does nothing.
+  /// **Bits**
+  ///
+  /// Pauses a running `Scheduler`; if is paused, it does nothing.
   @discardableResult
   public func pause() -> Bool {
     guard state != .paused && state != .finished else { return false }
@@ -252,6 +273,8 @@ final class Scheduler: Equatable {
     return setPause(from: state)
   }
 
+  /// **Bits**
+  ///
   /// Pauses a running `Scheduler` optionally changing the state with regard to the current state.
   ///
   /// - Parameters:
@@ -309,6 +332,8 @@ extension Scheduler {
 
   // MARK: - Scheduler RunningMode
 
+  /// **Bits**
+  ///
   /// `Scheduler` running mode.
   ///
   /// - infinite: infinite number of repeats.
@@ -319,6 +344,8 @@ extension Scheduler {
     case finite(_: Int)
     case once
 
+    /// **Bits**
+    ///
     /// Is the `Scheduler` a repeating timer?
     internal var isRepeating: Bool {
       switch self {
@@ -327,6 +354,8 @@ extension Scheduler {
       }
     }
 
+    /// **Bits**
+    ///
     /// Number of repeats, if applicable. Otherwise `nil`
     public var countIterations: Int? {
       switch self {
@@ -335,6 +364,8 @@ extension Scheduler {
       }
     }
 
+    /// **Bits**
+    ///
     /// Returns tue if the `Scheduler` has an infinite number of repeats.
     public var isInfinite: Bool {
       guard case .infinite = self else { return false }
@@ -348,6 +379,8 @@ extension Scheduler {
 
   // MARK: - Scheduler State
 
+  /// **Bits**
+  ///
   /// State of the `Scheduler`
   ///
   /// - paused: idle (never started yet or paused)
@@ -372,23 +405,31 @@ extension Scheduler {
       }
     }
 
+    /// **Bits**
+    ///
     /// Returns `true` if the `Scheduler` is currently running, including when the observers are being executed.
     public var isRunning: Bool {
       guard self == .running || self == .executing else { return false }
       return true
     }
 
+    /// **Bits**
+    ///
     /// Returns `true` if the `Scheduler` is currently paused.
     public var isPaused: Bool {
       return self == .paused
     }
 
+    /// **Bits**
+    ///
     /// Returns `true` if the observers are being executed.
     public var isExecuting: Bool {
       guard case .executing = self else { return false }
       return true
     }
 
+    /// **Bits**
+    ///
     /// Has the `Scheduler` finished its lifetime?
     ///
     /// Returns always `false` for infinite `Scheduler`.

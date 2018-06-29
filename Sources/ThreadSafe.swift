@@ -23,6 +23,8 @@
 
 import Foundation
 
+/// **Bits**
+///
 /// ThreadSafe
 ///
 /// - exclusiveReadExclusiveWrite: Only one thread can read or write at one time. The writing operation is asynchronous while the reading is synchronous.
@@ -45,6 +47,8 @@ public enum ThreadSafe {
   }
 }
 
+/// **Bits**
+///
 /// Represents a thread safe access.
 public protocol ThreadSafeType {
 
@@ -57,6 +61,8 @@ public protocol ThreadSafeType {
 
 // MARK: - Exclusive Read - Exclusive Write (Async)
 
+/// **Bits**
+///
 /// Exclusive read, exclusive write. Only one thread can read or write at one time.
 /// The writing operation is asynchronous while the reading is synchronous.
 final class ExclusiveReadExclusiveWrite: ThreadSafeType {
@@ -77,6 +83,8 @@ final class ExclusiveReadExclusiveWrite: ThreadSafeType {
 
  // MARK: - Concurrent Read - Exclusive Write
 
+/// **Bits**
+///
 /// Concurrent read, exclusive write.
 /// Only one thread can write or multiple threads can read.
 /// Write waits for all previously-enqueued multiple threads can read. Write waits for all previously-enqueued.
@@ -99,6 +107,8 @@ final class ConcurrentReadExclusiveWrite: ThreadSafeType {
 
 // MARK: - Exclusive Read - Exclusive Write (Sync)
 
+/// **Bits**
+///
 /// Exclusive read, exclusive write. Only one thread can read or write at one time.
 final class Locked: ThreadSafeType {
   private let lock: NSLocking

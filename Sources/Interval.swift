@@ -23,6 +23,9 @@
 
 import Foundation
 
+/// **Bits**
+///
+/// Represents a time interval.
 public enum Interval {
   case nanoseconds(_: Int)
   case microseconds(_: Int)
@@ -32,7 +35,7 @@ public enum Interval {
   case hours(_: Int)
   case days(_: Int)
 
-  internal var dispatchTimeInterval: DispatchTimeInterval {
+  public var dispatchTimeInterval: DispatchTimeInterval {
     switch self {
     case .nanoseconds(let value): return .nanoseconds(value)
     case .microseconds(let value): return .microseconds(value)

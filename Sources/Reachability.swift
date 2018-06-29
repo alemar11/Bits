@@ -30,40 +30,30 @@
 import Foundation
 import SystemConfiguration
 
+/// **Bits**
+///
 /// The `Reachability` class listens for reachability changes of hosts and addresses for both WWAN and WiFi network interfaces.
 final public class Reachability {
 
-  /// Defines the various states of network reachability.
-  ///
-  /// - unknown:      It is unknown whether the network is reachable.
-  /// - notReachable: The network is not reachable.
-  /// - reachable:    The network is reachable.
-  public enum NetworkStatus {
-    case unknown
-    case notReachable
-    case reachable(Connection)
-  }
-
-  /// Defines the various connection types detected by reachability flags.
-  ///
-  /// - ethernetOrWiFi: The connection type is either over Ethernet or WiFi.
-  /// - wwan:           The connection type is a WWAN connection.
-  public enum Connection {
-    case ethernetOrWiFi
-    case wwan
-  }
-
   // MARK: - Properties
 
+  /// **Bits**
+  ///
   /// Whether the network is currently reachable.
   public var isReachable: Bool { return isReachableOnWWAN || isReachableOnEthernetOrWiFi }
 
+  /// **Bits**
+  ///
   /// Whether the network is currently reachable over the WWAN interface (iOS).
   public var isReachableOnWWAN: Bool { return networkStatus == .reachable(.wwan) }
 
+  /// **Bits**
+  ///
   /// Whether the network is currently reachable over Ethernet or WiFi interface.
   public var isReachableOnEthernetOrWiFi: Bool { return networkStatus == .reachable(.ethernetOrWiFi) }
 
+  /// **Bits**
+  ///
   /// The current network reachability status.
   public var networkStatus: NetworkStatus {
     guard let flags = self.flags else { return .unknown }
@@ -71,12 +61,16 @@ final public class Reachability {
     return networkReachabilityStatusForFlags(flags)
   }
 
+  /// **Bits**
+  ///
   /// A closure executed when the network reachability status changes.
   public var listener: ((Reachability.NetworkStatus) -> Void)?
 
   /// The underlying `SCNetworkReachability` instance.
   private let networkReachability: SCNetworkReachability
 
+  /// **Bits**
+  ///
   /// The underlying serial queue.
   private let reachabilitySerialQueue = DispatchQueue(label: "\(identifier).Reachability")
 
@@ -99,6 +93,8 @@ final public class Reachability {
 
   // MARK: - Initializers
 
+  /// **Bits**
+  ///
   /// Creates a `Reachability` instance that monitors the address 0.0.0.0.
   ///
   /// Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
@@ -112,6 +108,8 @@ final public class Reachability {
     self.init(hostAddress: zeroAddress)
   }
 
+  /// **Bits**
+  ///
   /// Creates a `Reachability` instance for a specified host name.
   public convenience init?(hostName: String) {
     guard hostName.contains("://") == false else {
@@ -124,6 +122,8 @@ final public class Reachability {
     self.init(reachability: reachability)
   }
 
+  /// **Bits**
+  ///
   /// Creates a `Reachability` instance for a specified host address.
   public convenience init?(hostAddress: sockaddr_in) {
     var address = hostAddress
@@ -150,6 +150,8 @@ final public class Reachability {
 
   // MARK: - Notifications
 
+  /// **Bits**
+  ///
   /// Starts notifing network reachability changes.
   @discardableResult
   public func startNotifier() -> Bool {
@@ -175,8 +177,11 @@ final public class Reachability {
 
     notifying = true
     return notifying
+
   }
 
+  /// **Bits**
+  ///
   /// Stops notifing network reachability changes.
   public func stopNotifier() {
     if notifying {
@@ -235,20 +240,24 @@ private func callback(reachability: SCNetworkReachability, flags: SCNetworkReach
 
 extension Reachability {
 
+  /// **Bits**
+  ///
   /// Creates a `Reachability` instance that monitors the address 0.0.0.0.
   ///
   /// Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
   /// status of the device, both IPv4 and IPv6.
   ///
   /// - returns: A new `Reachability` instance.
-//  public static func makeReachabilityForInternetConnection() -> Reachability? {
-//    var zeroAddress = sockaddr_in()
-//    zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
-//    zeroAddress.sin_family = sa_family_t(AF_INET)
-//
-//    return Reachability(hostAddress: zeroAddress)
-//  }
+  private static func makeReachabilityForInternetConnection() -> Reachability? {
+    var zeroAddress = sockaddr_in()
+    zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+    zeroAddress.sin_family = sa_family_t(AF_INET)
 
+    return Reachability(hostAddress: zeroAddress)
+  }
+
+  /// **Bits**
+  ///
   /// Creates a `Reachability` instance that monitors IN_LINKLOCALNETNUM (that is, 169.254.0.0).
   ///
   /// - returns: A new `Reachability` instance.
@@ -263,6 +272,40 @@ extension Reachability {
     return Reachability(hostAddress: localWifiAddress)
   }
 
+}
+
+extension Reachability {
+
+  // MARK: - Connection Type
+
+  /// **Bits**
+  ///
+  /// Defines the various connection types detected by reachability flags.
+  ///
+  /// - ethernetOrWiFi: The connection type is either over Ethernet or WiFi.
+  /// - wwan:           The connection type is a WWAN connection.
+  public enum Connection {
+    case ethernetOrWiFi
+    case wwan
+  }
+}
+
+extension Reachability {
+
+  // MARK: - NetworkStatus
+
+  /// **Bits**
+  ///
+  /// Defines the various states of network reachability.
+  ///
+  /// - unknown:      It is unknown whether the network is reachable.
+  /// - notReachable: The network is not reachable.
+  /// - reachable:    The network is reachable.
+  public enum NetworkStatus {
+    case unknown
+    case notReachable
+    case reachable(Reachability.Connection)
+  }
 }
 
 extension Reachability.NetworkStatus: CustomStringConvertible {
@@ -282,6 +325,8 @@ extension Reachability.NetworkStatus: CustomStringConvertible {
 
 extension Reachability.NetworkStatus: Equatable {}
 
+/// **Bits**
+///
 /// Returns whether the two network status values are equal.
 ///
 /// - parameter lhs: The left-hand side value to compare.

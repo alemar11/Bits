@@ -23,25 +23,32 @@
 
 import Foundation
 
+/// **Bits**
+///
 /// An event bus object which provides an API to broadcast messages to its subscribers.
 public final class Channel<Value> {
-
+  
   // MARK: - Properties
-
+  
   /// An internal queue for concurrent readings and exclusive writing.
   private let queue: DispatchQueue
+  
   /// A list of all the subscriptions
   internal var subscriptions = [Subscription]()
-
+  
   // MARK: - Initializers
-
+  
+  /// **Bits**
+  ///
   /// Creates a channel instance.
   public init() {
     self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: .default, attributes: .concurrent)
   }
-
+  
   // MARK: - Channel
-
+  
+  /// **Bits**
+  ///
   /// Subscribes given object to channel.
   ///
   /// - Parameters:
@@ -52,13 +59,15 @@ public final class Channel<Value> {
   /// - Note: A *nil* queue can cause a **race condition** if there are more than one posting threads; in that case solving the race issue is up to the developer (i.e. using a lock or another queue).
   public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
     let subscription = Subscription(object: object, queue: queue, block: block)
-
+    
     self.queue.async(flags: .barrier, execute: { [weak self] in
       self?.subscriptions.append(subscription)
       completion?()
     })
   }
-
+  
+  /// **Bits**
+  ///
   /// Unsubscribes given object from channel.
   ///
   /// - Parameters:
@@ -67,14 +76,16 @@ public final class Channel<Value> {
   public func unsubscribe(_ object: AnyObject?, completion: (() -> Void)? = nil) {
     self.queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
-
+      
       if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
         self.subscriptions.remove(at: foundIndex)
       }
       completion?()
     })
   }
-
+  
+  /// **Bits**
+  ///
   /// Broadcasts given value to subscribers.
   ///
   /// - Parameters:
@@ -82,48 +93,51 @@ public final class Channel<Value> {
   ///   - completion: Completion handler called after notifing all subscribers.
   public func broadcast(_ value: Value) {
     flushCancelledSubscribers()
-
-    self.queue.sync { [weak self] in
+    
+    queue.sync { [weak self] in
       guard let `self` = self else { return }
-
+      
       self.subscriptions.forEach { $0.notify(value) }
     }
   }
-
+  
   /// Asynchronously flushes all the invalid (no more active) subscribers.
   internal func flushCancelledSubscribers() {
-    self.queue.async(flags: .barrier, execute: { [weak self] in
+    queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
-
+      
       self.subscriptions = self.subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
     })
   }
 }
 
 extension Channel {
-
+  
   // MARK: - Subscription
-
+  
+  /// **Bits**
+  ///
+  /// A `Channel` subscription.
   internal final class Subscription {
-
+    
     internal weak var object: AnyObject?
     internal let uuid = UUID()
     internal var isValid: Bool { return object != nil }
-
+    
     private let queue: DispatchQueue?
     private let block: (Value) -> Void
-
+    
     internal init(object: AnyObject?, queue: DispatchQueue?, block: @escaping (Value) -> Void) {
       self.object = object
       self.queue = queue
       self.block = block
     }
-
+    
     fileprivate func notify(_ value: Value) {
       if let queue = queue {
         queue.async { [weak self] in
           guard let `self` = self else { return }
-
+          
           if self.isValid {
             self.block(value)
           }
@@ -134,7 +148,7 @@ extension Channel {
         }
       }
     }
-
+    
   }
-
+  
 }
