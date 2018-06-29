@@ -3,11 +3,11 @@ env:
     - LC_CTYPE=en_US.UTF-8
     - LANG=en_US.UTF-8
     - IOS_FRAMEWORK_SCHEME="Bits iOS"
-    # - MACOS_FRAMEWORK_SCHEME="Bits macOS"
+    - MACOS_FRAMEWORK_SCHEME="Bits macOS"
     # - TVOS_FRAMEWORK_SCHEME="Bits tvOS"
     # - WATCHOS_FRAMEWORK_SCHEME="Bits watchOS"
-    - IOS_SDK=iphonesimulator11.3
-    # - MACOS_SDK=macosx10.13
+    - IOS_SDK=iphonesimulator11.4
+    - MACOS_SDK=macosx10.13
     # - TVOS_SDK=appletvsimulator11.3
     # - WATCHOS_SDK=watchsimulator4.3
     - XCODE_RUN_TESTS="NO"
@@ -17,11 +17,11 @@ matrix:
 
     # macOS: Swift Tests, CocoaPods and SwiftLint
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode9.4
       language: objective-c
       before_install:
         - gem install cocoapods -no-rdoc --no-ri --no-document --quiet
-        - brew upgrade swiftlint
+        - brew outdated swiftlint || brew upgrade swiftlint
       before_script:
         - swiftlint --reporter "emoji"  
       script:
@@ -30,12 +30,12 @@ matrix:
         - swift test -Xswiftc -target -Xswiftc x86_64-apple-macosx10.12
         #- pod lib lint    
 
-    # iOS 11.3
+    # iOS 11.4
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode9.4
       language: objective-c
       env: 
-        - DESTINATION="OS=11.3,name=iPhone X" SCHEME="$IOS_FRAMEWORK_SCHEME" SDK="$IOS_SDK" XCODE_RUN_TESTS="YES" CODECOV_FLAG="ios"
+        - DESTINATION="OS=11.4,name=iPhone X" SCHEME="$IOS_FRAMEWORK_SCHEME" SDK="$IOS_SDK" XCODE_RUN_TESTS="YES" CODECOV_FLAG="ios"
 
     # #watchOS 4.3
     # - os: osx
@@ -51,12 +51,12 @@ matrix:
     #   env: 
     #     - DESTINATION="OS=11.3,name=Apple TV 4K (at 1080p)" SCHEME="$TVOS_FRAMEWORK_SCHEME" SDK="$TVOS_SDK" XCODE_RUN_TESTS="YES" CODECOV_FLAG="tvos" 
 
-    # # macOS
-    # - os: osx
-    #   osx_image: xcode9.3
-    #   language: objective-c
-    #   env: 
-    #    - DESTINATION="arch=x86_64" SCHEME="$MACOS_FRAMEWORK_SCHEME" SDK="$MACOS_SDK" XCODE_RUN_TESTS="YES" CODECOV_FLAG="macos"     
+    # macOS
+    - os: osx
+      osx_image: xcode9.4
+      language: objective-c
+      env: 
+       - DESTINATION="arch=x86_64" SCHEME="$MACOS_FRAMEWORK_SCHEME" SDK="$MACOS_SDK" XCODE_RUN_TESTS="YES" CODECOV_FLAG="macos"     
 
 bundler_args: --without release_phase
 
