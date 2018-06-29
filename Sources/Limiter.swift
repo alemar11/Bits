@@ -23,7 +23,7 @@
 
 import Foundation
 
-/// Debouncing enforces that a function not be called again until a certain amount of time has passed without it being called.
+/// Enforces a function to not be called again until a certain amount of time has passed without it being called.
 /// As in "execute this function only if 100 milliseconds have passed without it being called."
 public final class Debouncer {
 
@@ -73,7 +73,7 @@ public final class Debouncer {
   }
 }
 
-/// Throttling enforces a maximum number of times a function can be called over time. As in "execute this function at most once every 100 milliseconds."
+/// Enforces a maximum number of times a function can be called over time. As in "execute this function at most once every 100 milliseconds." (Throttling)
 public final class TimedLimiter {
 
   // MARK: - Properties
@@ -123,6 +123,7 @@ public final class TimedLimiter {
   }
 }
 
+/// Enforces a maximum number of times a function can be called. As in "execute this function at most 10 times."
 public final class CountedLimiter {
 
   // MARK: - Properties
