@@ -49,10 +49,10 @@ class ThrottlerTests: XCTestCase {
     wait(for: [expectation], timeout: 2)
   }
 
-  func testThrottlerHavingAllTheFuncationCallsCompelted() {
+  func testThrottlerHavingAllTheFuncationCallsCompleted() {
     var value = 0
     let block = { value += 1 }
-    let repeats = 100
+    let repeats = 10
     let throttler = TimedLimiter(limit: .milliseconds(repeats))
 
     let scheduler = Scheduler(timeInterval: Double(0.350), repeats: repeats) {
@@ -68,18 +68,17 @@ class ThrottlerTests: XCTestCase {
   func testThrottlerHavingOneThirdOfTheFunctionCallsCompleted() {
     var value = 0
     let block = { value += 1 }
-    let repeats = 100
-    let throttler = TimedLimiter(limit: .milliseconds(800))
+    let repeats = 10
+    let throttler = TimedLimiter(limit: .milliseconds(850))
 
-    let scheduler = Scheduler(timeInterval: Double(0.350), repeats: repeats) {
+    let scheduler = Scheduler(timeInterval: Double(0.300), repeats: repeats) {
       throttler.execute { block() }
     }
 
     scheduler.start()
 
     wait(for: [scheduler.completionExpectation], timeout: 60)
-    // 1/3 of the repeats should be done
-    XCTAssertTrue(33...34 ~= value, "The test ended with \(value) block called; expected 33/34.")
+    XCTAssertEqual(value, 4)
   }
 
   func testDebouncer() {
