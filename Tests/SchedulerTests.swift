@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -25,11 +25,11 @@ import XCTest
 @testable import Bits
 
 class SchedulerTests: XCTestCase {
-  
+
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let timer = Scheduler(interval: .milliseconds(500), mode: .infinite) { _ in }
-    
+
     timer.onStateChanged = { (_, state) in
       if state == .paused {
         expectation.fulfill()
@@ -37,7 +37,7 @@ class SchedulerTests: XCTestCase {
         XCTAssertFalse(timer.pause())
       }
     }
-    
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
       timer.pause()
     }
@@ -50,41 +50,41 @@ class SchedulerTests: XCTestCase {
     XCTAssertTrue(timer.mode.isInfinite)
 
   }
-  
+
   func testFireAndThenPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     var value = 0
     let timer = Scheduler(interval: .milliseconds(500), mode: .infinite) { _ in
       value += 1
     }
-    
+
     timer.onStateChanged = { (_, state) in
       if state == .paused {
         expectation.fulfill()
         timer.pause()
       }
     }
-    
+
     timer.fire(andThenPause: true)
-    
+
     wait(for: [expectation], timeout: 30)
     XCTAssertEqual(value, 1)
     XCTAssertTrue(timer.state.isPaused)
     XCTAssertFalse(timer.state.isRunning)
   }
-  
+
   func testFireOnce() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let timer = Scheduler.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
       XCTAssertFalse(Thread.isMainThread)
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 2)
     XCTAssertTrue(timer.state.isFinished)
     XCTAssertFalse(timer.state.isRunning)
   }
-  
+
   func testFireEverySecond() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     var value = 0
@@ -99,7 +99,7 @@ class SchedulerTests: XCTestCase {
         expectation.fulfill()
       }
     }
-    
+
     wait(for: [expectation], timeout: 5)
     XCTAssertTrue(timer.state.isFinished)
     XCTAssertTrue(timer.mode.isRepeating)
@@ -257,5 +257,5 @@ class SchedulerTests: XCTestCase {
 
     wait(for: [expectation3], timeout: 1)
   }
-  
+
 }

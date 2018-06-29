@@ -146,7 +146,7 @@ public final class CountedLimiter {
   }
 
   // MARK: - Limiter
-  
+
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
     let executed = underlyingQueue.sync { () -> Bool in

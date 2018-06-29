@@ -29,7 +29,7 @@ import Foundation
 final class Scheduler: Equatable {
 
   // MARK: - Typealias
-  
+
   /// Handler typealias
   public typealias Observer = ((Scheduler) -> Void)
 
@@ -72,7 +72,7 @@ final class Scheduler: Equatable {
 
   /// GCD timer accuracy
   private var tolerance: DispatchTimeInterval
-  
+
   /// GCD timer queue
   private var queue: DispatchQueue
 
