@@ -97,7 +97,7 @@ final public class Reachability {
   /// Flags that indicate the reachability of a network during the previous notification.
   private var previousFlags: SCNetworkReachabilityFlags?
 
-  // MARK: - Initialization
+  // MARK: - Initializers
 
   /// Creates a `Reachability` instance that monitors the address 0.0.0.0.
   ///

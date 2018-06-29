@@ -117,7 +117,7 @@ public class NetworkActivityIndicatorManager {
 
   private let lock = NSLock()
 
-  // MARK: - Initialization
+  // MARK: - Initializers
 
   init() { }
 

@@ -26,48 +26,21 @@ import Foundation
 /// An event bus object which provides an API to broadcast messages to its subscribers.
 public final class Channel<Value> {
 
-  internal final class Subscription {
-
-    internal weak var object: AnyObject?
-    internal let uuid = UUID()
-    internal var isValid: Bool { return object != nil }
-
-    private let queue: DispatchQueue?
-    private let block: (Value) -> Void
-
-    init(object: AnyObject?, queue: DispatchQueue?, block: @escaping (Value) -> Void) {
-      self.object = object
-      self.queue = queue
-      self.block = block
-    }
-
-    func notify(_ value: Value) {
-      if let queue = queue {
-        queue.async { [weak self] in
-          guard let `self` = self else { return }
-
-          if self.isValid {
-            self.block(value)
-          }
-        }
-      } else {
-        if isValid {
-          block(value)
-        }
-      }
-    }
-
-  }
+  // MARK: - Properties
 
   /// An internal queue for concurrent readings and exclusive writing.
   private let queue: DispatchQueue
   /// A list of all the subscriptions
   internal var subscriptions = [Subscription]()
 
+  // MARK: - Initializers
+
   /// Creates a channel instance.
   public init() {
     self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: .default, attributes: .concurrent)
   }
+
+  // MARK: - Channel
 
   /// Subscribes given object to channel.
   ///
@@ -125,4 +98,43 @@ public final class Channel<Value> {
       self.subscriptions = self.subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
     })
   }
+}
+
+extension Channel {
+
+  // MARK: - Subscription
+
+  internal final class Subscription {
+
+    internal weak var object: AnyObject?
+    internal let uuid = UUID()
+    internal var isValid: Bool { return object != nil }
+
+    private let queue: DispatchQueue?
+    private let block: (Value) -> Void
+
+    internal init(object: AnyObject?, queue: DispatchQueue?, block: @escaping (Value) -> Void) {
+      self.object = object
+      self.queue = queue
+      self.block = block
+    }
+
+    fileprivate func notify(_ value: Value) {
+      if let queue = queue {
+        queue.async { [weak self] in
+          guard let `self` = self else { return }
+
+          if self.isValid {
+            self.block(value)
+          }
+        }
+      } else {
+        if isValid {
+          block(value)
+        }
+      }
+    }
+
+  }
+
 }

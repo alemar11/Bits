@@ -55,6 +55,8 @@ public protocol ThreadSafeType {
   func write(_ block: @escaping () -> Void)
 }
 
+// MARK: - Exclusive Read - Exclusive Write (Async)
+
 /// Exclusive read, exclusive write. Only one thread can read or write at one time.
 /// The writing operation is asynchronous while the reading is synchronous.
 final class ExclusiveReadExclusiveWrite: ThreadSafeType {
@@ -72,6 +74,8 @@ final class ExclusiveReadExclusiveWrite: ThreadSafeType {
     queue.async(execute: block)
   }
 }
+
+ // MARK: - Concurrent Read - Exclusive Write
 
 /// Concurrent read, exclusive write.
 /// Only one thread can write or multiple threads can read.
@@ -92,6 +96,8 @@ final class ConcurrentReadExclusiveWrite: ThreadSafeType {
     queue.async(flags: .barrier, execute: block)
   }
 }
+
+// MARK: - Exclusive Read - Exclusive Write (Sync)
 
 /// Exclusive read, exclusive write. Only one thread can read or write at one time.
 final class Locked: ThreadSafeType {
