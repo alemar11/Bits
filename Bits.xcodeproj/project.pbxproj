@@ -33,6 +33,10 @@
 
 /* Begin PBXBuildFile section */
 		2328D3AC20E50D66002CEEC9 /* Limiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2328D3AB20E50D66002CEEC9 /* Limiter.swift */; };
+		2339BA5820EBB22A005C0898 /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */; };
+		2339BA5920EBB22A005C0898 /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */; };
+		2339BA5B20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */; };
+		2339BA5C20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */; };
 		235535B820E3C42C00C69B70 /* ThrottlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 235535B720E3C42C00C69B70 /* ThrottlerTests.swift */; };
 		2371896520DD3B4400350F6E /* ThreadSafeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* ThreadSafeTests.swift */; };
 		239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
@@ -96,6 +100,8 @@
 
 /* Begin PBXFileReference section */
 		2328D3AB20E50D66002CEEC9 /* Limiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Limiter.swift; sourceTree = "<group>"; };
+		2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
+		2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegateTests.swift; sourceTree = "<group>"; };
 		235535B720E3C42C00C69B70 /* ThrottlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrottlerTests.swift; sourceTree = "<group>"; };
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
@@ -206,6 +212,7 @@
 				239CCC9520E229B0007782E5 /* ChannelTests.swift */,
 				235535B720E3C42C00C69B70 /* ThrottlerTests.swift */,
 				23F97E0520E61B87007C4889 /* SchedulerTests.swift */,
+				2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -225,6 +232,7 @@
 				23F97E0120E61A24007C4889 /* Scheduler.swift */,
 				23F97E0720E64164007C4889 /* Interval.swift */,
 				23F97E4620E6669F007C4889 /* Permissions.swift */,
+				2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -366,11 +374,11 @@
 			projectRoot = "";
 			targets = (
 				23FB40B7208C6CFF002F5428 /* Bits iOS */,
+				23F97E1A20E66012007C4889 /* Bits macOS */,
 				23FB40C0208C6CFF002F5428 /* Bits Tests iOS */,
+				23F97E2220E66012007C4889 /* Bits macOS Tests */,
 				235C3022209E19B800DC0C2F /* SwiftLint */,
 				235C3027209E19DC00DC0C2F /* Cleanup Whitespace */,
-				23F97E1A20E66012007C4889 /* Bits macOS */,
-				23F97E2220E66012007C4889 /* Bits macOS Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -450,6 +458,7 @@
 				23F97E3620E6616E007C4889 /* Bits.swift in Sources */,
 				23F97E3320E6616E007C4889 /* Box.swift in Sources */,
 				23F97E3520E6616E007C4889 /* Result.swift in Sources */,
+				2339BA5920EBB22A005C0898 /* MulticastDelegate.swift in Sources */,
 				23F97E3A20E6616E007C4889 /* Limiter.swift in Sources */,
 				23F97E3420E6616E007C4889 /* WeakBox.swift in Sources */,
 			);
@@ -468,6 +477,7 @@
 				23F97E4520E6617D007C4889 /* SchedulerTests.swift in Sources */,
 				23F97E4220E6617D007C4889 /* ThreadSafeTests.swift in Sources */,
 				23F97E3E20E6617D007C4889 /* BoxTests.swift in Sources */,
+				2339BA5C20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +493,7 @@
 				23F97E0220E61A24007C4889 /* Scheduler.swift in Sources */,
 				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
+				2339BA5820EBB22A005C0898 /* MulticastDelegate.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
 				23C45F74209F00BE00910999 /* Result.swift in Sources */,
 				23F3845E20ADD01A004983E5 /* Channel.swift in Sources */,
@@ -503,6 +514,7 @@
 				23F97E0620E61B87007C4889 /* SchedulerTests.swift in Sources */,
 				2371896520DD3B4400350F6E /* ThreadSafeTests.swift in Sources */,
 				93EBB54220A3015800C3B626 /* NetworkActivityIndicatorManagerTests.swift in Sources */,
+				2339BA5B20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

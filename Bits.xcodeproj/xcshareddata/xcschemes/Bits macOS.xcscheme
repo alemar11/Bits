@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "23F97E1A20E66012007C4889"
-               BuildableName = "Bits_macOS.framework"
+               BuildableName = "Bits.framework"
                BlueprintName = "Bits macOS"
                ReferencedContainer = "container:Bits.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "23F97E1A20E66012007C4889"
-            BuildableName = "Bits_macOS.framework"
+            BuildableName = "Bits.framework"
             BlueprintName = "Bits macOS"
             ReferencedContainer = "container:Bits.xcodeproj">
          </BuildableReference>
@@ -68,7 +68,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "23F97E1A20E66012007C4889"
-            BuildableName = "Bits_macOS.framework"
+            BuildableName = "Bits.framework"
             BlueprintName = "Bits macOS"
             ReferencedContainer = "container:Bits.xcodeproj">
          </BuildableReference>
@@ -86,7 +86,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "23F97E1A20E66012007C4889"
-            BuildableName = "Bits_macOS.framework"
+            BuildableName = "Bits.framework"
             BlueprintName = "Bits macOS"
             ReferencedContainer = "container:Bits.xcodeproj">
          </BuildableReference>
