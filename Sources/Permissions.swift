@@ -107,6 +107,7 @@ public class CameraPermission: Permission {
     }
   }
 }
+
 #endif
 
 #if canImport(UserNotifications)
@@ -161,6 +162,7 @@ public class UNUserNotificationPermission: Permission {
   }
 
 }
+
 #endif
 
 import Contacts
