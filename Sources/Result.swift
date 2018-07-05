@@ -95,6 +95,8 @@ public extension ResultType where E: Swift.Error {
 
 extension ResultType: CustomStringConvertible {
 
+  /// **Bits**
+  ///
   /// The textual representation used when written to an output stream, which includes whether the result was a
   /// success or failure.
   public var description: String {
@@ -182,5 +184,7 @@ public extension Result {
 
 // MARK: - Result
 
+/// **Bits**
+///
 /// Convenience typealias for untyped errors
 public typealias Result<T> = ResultType<T, Error>
