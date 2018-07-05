@@ -90,8 +90,10 @@ public class CameraPermission: Permission {
     switch AVCaptureDevice.authorizationStatus(for: .video) {
     case .notDetermined:
       return completionHandler(.notDetermined)
+
     case .restricted, .denied:
       return completionHandler(.denied)
+      
     case .authorized:
       return completionHandler(.authorized)
     }
