@@ -57,10 +57,10 @@ public final class Channel<Value> {
   ///   - completion: A block called once the object is subscribed.
   ///   - block: Block to call upon broadcast.
   /// - Note: A *nil* queue can cause a **race condition** if there are more than one posting threads; in that case solving the race issue is up to the developer (i.e. using a lock or another queue).
-  public func subscribe(_ object: AnyObject?, queue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
-    let subscription = Subscription(object: object, queue: queue, block: block)
+  public func subscribe(_ object: AnyObject?, queue dispatchQueue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
+    let subscription = Subscription(object: object, queue: dispatchQueue, block: block)
 
-    self.queue.async(flags: .barrier, execute: { [weak self] in
+    queue.async(flags: .barrier, execute: { [weak self] in
       self?.subscriptions.append(subscription)
       completion?()
     })
@@ -74,7 +74,7 @@ public final class Channel<Value> {
   ///   - object: Object to remove.
   ///   - completion: A block called once the object is unsubscribe.
   public func unsubscribe(_ object: AnyObject?, completion: (() -> Void)? = nil) {
-    self.queue.async(flags: .barrier, execute: { [weak self] in
+    queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
 
       if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
