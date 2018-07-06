@@ -123,7 +123,7 @@ extension Channel {
 
   /// **Bits**
   ///
-  /// A Subscription Token to cancel a subscription.
+  /// A `Channel` subscription token to cancel a subscription.
   public struct SubscriptionToken {
     private let cancellationClosure: ((() -> Void)?) -> Void
 
