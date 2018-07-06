@@ -139,7 +139,7 @@ class ChannelTests: XCTestCase {
     XCTAssertEqual(channel.subscriptions.count, 0)
   }
 
-  func testUnsuscribeUsingTokenAfterTheFirstEvent() {
+  func testUnsuscribeUsingTokenAfterTheAFixedNumberOfEvents() {
     // Given
     class Object { }
     let channel = Channel<Event>()
@@ -150,6 +150,8 @@ class ChannelTests: XCTestCase {
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation4 = self.expectation(description: "\(#function)\(#line)")
     let expectation5 = self.expectation(description: "\(#function)\(#line)")
+
+    var count = 0
 
     // When, Then
     channel.subscribe(object1, completion: { token in
@@ -163,12 +165,21 @@ class ChannelTests: XCTestCase {
     channel.subscribe(object2, completion: { token in
       expectation2.fulfill()
     }) { _, token in
-      token.cancel(completion: {
-        expectation5.fulfill()
-      })
+      if count == 2 {
+        token.cancel(completion: {
+          expectation5.fulfill()
+        })
+      } else if count > 2 {
+        XCTFail("Afther the first 3 events, the subscription should be cancelled.")
+      }
+      count += 1
     }
 
-    channel.broadcast(.event1)
+    channel.broadcast(.event1) // 0 -> object 1
+    channel.broadcast(.event1) // 1
+    channel.broadcast(.event1) // 2 -> object 2
+    channel.broadcast(.event1) // 3
+    channel.broadcast(.event1) // 4
 
     wait(for: [expectation1, expectation2, expectation4, expectation5], timeout: 2)
     XCTAssertEqual(channel.subscriptions.count, 0)
