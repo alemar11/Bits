@@ -93,7 +93,7 @@ public class CameraPermission: Permission {
 
     case .restricted, .denied:
       return completionHandler(.denied)
-      
+
     case .authorized:
       return completionHandler(.authorized)
     }
