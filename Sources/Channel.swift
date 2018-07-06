@@ -54,16 +54,23 @@ public final class Channel<Value> {
   /// - Parameters:
   ///   - object: Object to subscribe.
   ///   - queue: Queue for given block to be called in. If you pass nil, the block is run synchronously on the posting thread.
-  ///   - completion: A block called once the object is subscribed.
-  ///   - block: Block to call upon broadcast.
+  ///   - completion: A block called once the object is subscribed with a token to cancel the subscription is passed.
+  ///   - block: Block to call upon broadcast with a token to cancel the subscription.
   /// - Note: A *nil* queue can cause a **race condition** if there are more than one posting threads; in that case solving the race issue is up to the developer (i.e. using a lock or another queue).
-  public func subscribe(_ object: AnyObject?, queue dispatchQueue: DispatchQueue? = nil, completion: (() -> Void)? = nil, block: @escaping (Value) -> Void) {
-    let subscription = Subscription(object: object, queue: dispatchQueue, block: block)
+  public func subscribe(_ object: AnyObject?, queue dispatchQueue: DispatchQueue? = nil, completion: ((SubscriptionToken) -> Void)? = nil, block: @escaping (Value, SubscriptionToken) -> Void) {
+    let token = SubscriptionToken { [weak self, weak object = object] completion in
+      self?.unsubscribe(object, completion: {
+        completion?()
+      })
+    }
+
+    let subscription = Subscription(object: object, queue: dispatchQueue, token: token, block: block)
 
     queue.async(flags: .barrier, execute: { [weak self] in
       self?.subscriptions.append(subscription)
-      completion?()
+      completion?(token)
     })
+
   }
 
   /// **Bits**
@@ -78,6 +85,7 @@ public final class Channel<Value> {
       guard let `self` = self else { return }
 
       if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
+        print("🔴")
         self.subscriptions.remove(at: foundIndex)
       }
       completion?()
@@ -113,6 +121,26 @@ public final class Channel<Value> {
 
 extension Channel {
 
+  /// **Bits**
+  ///
+  /// A Subscription Token to cancel a subscription.
+  public struct SubscriptionToken {
+    private let cancellationClosure: ((() -> Void)?) -> Void
+
+    fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
+      self.cancellationClosure = cancellationClosure
+    }
+
+    /// **Bits**
+    ///
+    /// Cancels the subscription associated with this token.
+    ///
+    /// - Parameter completion: The block executed after the cancellation has completed.
+    public func cancel(completion: (() -> Void)? = nil) {
+      cancellationClosure(completion)
+    }
+  }
+
   // MARK: - Subscription
 
   /// **Bits**
@@ -123,13 +151,14 @@ extension Channel {
     internal weak var object: AnyObject?
     internal let uuid = UUID()
     internal var isValid: Bool { return object != nil }
-
+    internal let token: SubscriptionToken
     private let queue: DispatchQueue?
-    private let block: (Value) -> Void
+    private let block: (Value, SubscriptionToken) -> Void
 
-    internal init(object: AnyObject?, queue: DispatchQueue?, block: @escaping (Value) -> Void) {
+    internal init(object: AnyObject?, queue: DispatchQueue?, token: SubscriptionToken, block: @escaping (Value, SubscriptionToken) -> Void) {
       self.object = object
       self.queue = queue
+      self.token = token
       self.block = block
     }
 
@@ -139,12 +168,12 @@ extension Channel {
           guard let `self` = self else { return }
 
           if self.isValid {
-            self.block(value)
+            self.block(value, self.token)
           }
         }
       } else {
         if isValid {
-          block(value)
+          block(value, token)
         }
       }
     }
