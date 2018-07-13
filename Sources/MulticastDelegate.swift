@@ -37,7 +37,7 @@ open class MulticastDelegate<T> {
   ///
   /// Returns `true` if there are no delegates at all, `false` if there is at least one.
   public var isEmpty: Bool {
-    return delegates.allObjects.count == 0
+    return delegates.allObjects.isEmpty
   }
 
   /// **Bits**
