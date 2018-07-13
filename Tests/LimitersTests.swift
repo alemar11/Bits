@@ -26,12 +26,12 @@ import XCTest
 
 class ThrottlerTests: XCTestCase {
 
-  // MARK: - Throttling
+  // MARK: - Throttler
 
   func testThrottler() {
     var value = 0
     let block = { value += 1 }
-    let throttler = TimedLimiter(limit: .seconds(1))
+    let throttler = Throttler(limit: .seconds(1))
     let expectation = self.expectation(description: "\(#function)\(#line)")
 
     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)) {
@@ -55,7 +55,7 @@ class ThrottlerTests: XCTestCase {
     var value = 0
     let block = { value += 1 }
     let repeats = 10
-    let throttler = TimedLimiter(limit: .milliseconds(repeats))
+    let throttler = Throttler(limit: .milliseconds(repeats))
 
     let scheduler = Scheduler(timeInterval: Double(0.350), repeats: repeats) {
       throttler.execute { block() }
@@ -71,7 +71,7 @@ class ThrottlerTests: XCTestCase {
     var value = 0
     let block = { value += 1 }
     let repeats = 10
-    let throttler = TimedLimiter(limit: .milliseconds(850))
+    let throttler = Throttler(limit: .milliseconds(850))
 
     let scheduler = Scheduler(timeInterval: Double(0.300), repeats: repeats) {
       throttler.execute { block() }
@@ -83,7 +83,7 @@ class ThrottlerTests: XCTestCase {
     XCTAssertEqual(value, 4)
   }
 
-  // MARK: - Debouncing
+  // MARK: - Debouncer
 
   func testDebouncerHavingOnlyOneFunctionCallCompleted() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
@@ -123,9 +123,9 @@ class ThrottlerTests: XCTestCase {
     wait(for: [scheduler.completionExpectation, expectation], timeout: 6)
   }
 
-  // MARK: - Count limit
+  // MARK: - Max Limiter
 
-  func testCountLimiter() {
+  func testimiter() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     var value = 0
     let block = {
@@ -134,7 +134,7 @@ class ThrottlerTests: XCTestCase {
         expectation.fulfill()
       }
     }
-    let limiter = CountedLimiter(limit: 5)
+    let limiter = MaxLimiter(limit: 5)
 
     let repeats = 30
     let scheduler = Scheduler(timeInterval: Double(0.100), repeats: repeats) {

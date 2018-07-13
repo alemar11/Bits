@@ -28,7 +28,7 @@ class SchedulerTests: XCTestCase {
 
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let timer = Scheduler(interval: .milliseconds(500), mode: .infinite) { _ in }
+    let timer = RepeatingTimer(interval: .milliseconds(500), mode: .infinite) { _ in }
 
     timer.onStateChanged = { (_, state) in
       if state == .paused {
@@ -55,7 +55,7 @@ class SchedulerTests: XCTestCase {
   func testFireAndThenPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     var value = 0
-    let timer = Scheduler(interval: .milliseconds(500), mode: .infinite) { _ in
+    let timer = RepeatingTimer(interval: .milliseconds(500), mode: .infinite) { _ in
       value += 1
     }
 
@@ -76,7 +76,7 @@ class SchedulerTests: XCTestCase {
 
   func testFireOnce() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let timer = Scheduler.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
+    let timer = RepeatingTimer.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
       XCTAssertFalse(Thread.isMainThread)
       expectation.fulfill()
     }
@@ -90,7 +90,7 @@ class SchedulerTests: XCTestCase {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     var value = 0
     let count = 5
-    let timer = Scheduler.every(.seconds(1), count: count, queue: .main) { timer in
+    let timer = RepeatingTimer.every(.seconds(1), count: count, queue: .main) { timer in
       XCTAssertEqual(timer.remainingIterations, count-value)
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertTrue(timer.state.isRunning)
@@ -109,7 +109,7 @@ class SchedulerTests: XCTestCase {
   }
 
   func testAddAndRemoveObservers() {
-    let timer = Scheduler(interval: .milliseconds(500)) { _ in } // 1
+    let timer = RepeatingTimer(interval: .milliseconds(500)) { _ in } // 1
     let token1 = timer.addObserver { _ in } // 2
     timer.addObserver { _ in } // 3
     timer.addObserver { _ in } // 4
@@ -131,7 +131,7 @@ class SchedulerTests: XCTestCase {
     var value2 = 0
     var value3 = 0
 
-    let scheduler = Scheduler(interval: .milliseconds(250)) { _ in
+    let scheduler = RepeatingTimer(interval: .milliseconds(250)) { _ in
       value1 += 1
     }
 
@@ -164,7 +164,7 @@ class SchedulerTests: XCTestCase {
 
   func testInitializeWithAllTheOperationAndDefaultParameters() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let timer = Scheduler(interval: .nanoseconds(1_000), mode: .infinite, tolerance: .nanoseconds(0), queue: .main) { _ in
+    let timer = RepeatingTimer(interval: .nanoseconds(1_000), mode: .infinite, tolerance: .nanoseconds(0), queue: .main) { _ in
       XCTAssertTrue(Thread.isMainThread)
     }
     XCTAssertTrue(timer.mode.isInfinite)
@@ -191,7 +191,7 @@ class SchedulerTests: XCTestCase {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation3 = self.expectation(description: "\(#function)\(#line)")
-    let timer = Scheduler.every(.milliseconds(500), count: 10, queue: nil) { _ in }
+    let timer = RepeatingTimer.every(.milliseconds(500), count: 10, queue: nil) { _ in }
 
     var finishCount = 0
     var pauseCount = 0
@@ -230,7 +230,7 @@ class SchedulerTests: XCTestCase {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation3 = self.expectation(description: "\(#function)\(#line)")
-    let timer = Scheduler(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
+    let timer = RepeatingTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
 
     timer.onIntervalChanged = { (_, interval) in
       switch interval {

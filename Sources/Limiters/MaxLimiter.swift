@@ -1,4 +1,4 @@
-//
+// 
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -25,27 +25,44 @@ import Foundation
 
 /// **Bits**
 ///
-/// Represents a time interval.
-public enum Interval {
-  case nanoseconds(_: Int)
-  case microseconds(_: Int)
-  case milliseconds(_: Int)
-  case minutes(_: Int)
-  case seconds(_: Int)
-  case hours(_: Int)
-  case days(_: Int)
+/// Enforces a maximum number of times a function can be called. As in "execute this function at most 10 times."
+public final class MaxLimiter {
 
-  /// **Bits**
-  /// Returns a `DispatchTimeInterval` representation.
-  public var dispatchTimeInterval: DispatchTimeInterval {
-    switch self {
-    case .nanoseconds(let value): return .nanoseconds(value)
-    case .microseconds(let value): return .microseconds(value)
-    case .milliseconds(let value): return .milliseconds(value)
-    case .seconds(let value): return .seconds(value)
-    case .minutes(let value): return .seconds(value * 60)
-    case .hours(let value): return .seconds(value * 3600)
-    case .days(let value): return .seconds(value * 86400)
+  // MARK: - Properties
+
+  public let limit: UInt
+  public private(set) var count: UInt = 0
+
+  private let underlyingQueue = DispatchQueue(label: "\(identifier).Limiter")
+
+  // MARK: - Initializers
+
+  public init(limit: UInt) {
+    self.limit = limit
+  }
+
+  // MARK: - Limiter
+
+  @discardableResult
+  public func execute(_ block: () -> Void) -> Bool {
+    let executed = underlyingQueue.sync { () -> Bool in
+      if count < limit {
+        count += 1
+        return true
+      }
+      return false
+    }
+
+    if executed {
+      block()
+    }
+
+    return executed
+  }
+
+  public func reset() {
+    underlyingQueue.sync {
+      count = 0
     }
   }
 }

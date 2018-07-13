@@ -25,27 +25,52 @@ import Foundation
 
 /// **Bits**
 ///
-/// Represents a time interval.
-public enum Interval {
-  case nanoseconds(_: Int)
-  case microseconds(_: Int)
-  case milliseconds(_: Int)
-  case minutes(_: Int)
-  case seconds(_: Int)
-  case hours(_: Int)
-  case days(_: Int)
+/// Enforces a maximum number of times a function can be called over time. As in "execute this function at most once every 100 milliseconds." (Throttling)
+public final class Throttler {
 
-  /// **Bits**
-  /// Returns a `DispatchTimeInterval` representation.
-  public var dispatchTimeInterval: DispatchTimeInterval {
-    switch self {
-    case .nanoseconds(let value): return .nanoseconds(value)
-    case .microseconds(let value): return .microseconds(value)
-    case .milliseconds(let value): return .milliseconds(value)
-    case .seconds(let value): return .seconds(value)
-    case .minutes(let value): return .seconds(value * 60)
-    case .hours(let value): return .seconds(value * 3600)
-    case .days(let value): return .seconds(value * 86400)
+  // MARK: - Properties
+
+  public let limit: DispatchTimeInterval
+  public private(set) var lastExecutedAt: DispatchTime?
+
+  private let underlyingQueue = DispatchQueue(label: "\(identifier).Throttler")
+
+  // MARK: - Initializers
+
+  public init(limit: Interval) {
+    self.limit = limit.dispatchTimeInterval
+  }
+
+  // MARK: - Throttler
+
+  @discardableResult
+  public func execute(_ block: () -> Void) -> Bool {
+    let executed = underlyingQueue.sync { () -> Bool in
+      let now = DispatchTime.now()
+      var canBeExecuted = true
+
+      if let lastExecutionTime = lastExecutedAt {
+        let deadline = lastExecutionTime + limit
+        canBeExecuted = now > deadline
+      }
+
+      if canBeExecuted {
+        lastExecutedAt = now
+      }
+
+      return canBeExecuted
+    }
+
+    if executed {
+      block()
+    }
+
+    return executed
+  }
+
+  public func reset() {
+    underlyingQueue.sync {
+      lastExecutedAt = nil
     }
   }
 }

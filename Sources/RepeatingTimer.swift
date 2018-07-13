@@ -25,13 +25,13 @@ import Foundation
 
 /// **Bits**
 ///
-/// A scheduler based on a GCD timer.
-final class Scheduler: Equatable {
+/// A timer based on a GCD timer.
+final class RepeatingTimer: Equatable {
 
   // MARK: - Typealias
 
   /// Handler typealias
-  public typealias Observer = ((Scheduler) -> Void)
+  public typealias Observer = ((RepeatingTimer) -> Void)
 
   /// Token assigned to the observer
   public typealias Token = UUID
@@ -52,10 +52,10 @@ final class Scheduler: Equatable {
   }
 
   /// Callback called to intercept state's change of the timer
-  public var onStateChanged: ((_ timer: Scheduler, _ state: State) -> Void)?
+  public var onStateChanged: ((_ timer: RepeatingTimer, _ state: State) -> Void)?
 
   /// Callback called to intercept the interval change of the timer
-  internal var onIntervalChanged: ((_ timer: Scheduler, _ inteval: Interval) -> Void)?
+  internal var onIntervalChanged: ((_ timer: RepeatingTimer, _ inteval: Interval) -> Void)?
 
   /// Schduler observers
   private(set) internal var observers = [Token: Observer]()
@@ -78,7 +78,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Initializes a new `Scheduler` instance.
+  /// Initializes a new `RepeatingTimer` instance.
   ///
   /// - Parameters:
   ///   - interval: interval of the timer
@@ -91,17 +91,17 @@ final class Scheduler: Equatable {
     self.interval = interval
     self.tolerance = tolerance
     self.remainingIterations = mode.countIterations
-    self.queue = queue ?? DispatchQueue(label: "\(identifier).Scheduler")
+    self.queue = queue ?? DispatchQueue(label: "\(identifier).RepeatingTimer")
     self.timer = configureTimer()
     self.addObserver(observer)
   }
 
   /// **Bits**
   ///
-  /// Adds a new observer to the `Scheduler`.
+  /// Adds a new observer to the `RepeatingTimer`.
   ///
   /// - Parameter callback: callback to call for fire events.
-  /// - Returns: The token used to remove the observer from the scheduler
+  /// - Returns: The token used to remove the observer from the timer
   @discardableResult
   public func addObserver(_ observer: @escaping Observer) -> Token {
     let new = UUID()
@@ -111,7 +111,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Removes an observer from the the `Scheduler`.
+  /// Removes an observer from the the `RepeatingTimer`.
   ///
   /// - Parameter token: token of the observer to remove
   public func removeObserver(withToken token: Token) {
@@ -120,7 +120,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Removes all the observers of the `Scheduler`.
+  /// Removes all the observers of the `RepeatingTimer`.
   ///
   /// - Parameter stopTimer: `true` to also stop timer by calling `pause()` function.
   public func removeAllObservers(thenStop stopTimer: Bool = false) {
@@ -165,7 +165,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Creates and starts a new `Scheduler` that will call the `observer` once after the specified time.
+  /// Creates and starts a new `RepeatingTimer` that will call the `observer` once after the specified time.
   ///
   /// - Parameters:
   ///   - interval: interval delay for single fire
@@ -173,15 +173,15 @@ final class Scheduler: Equatable {
   ///   - observer: handler to call when timer fires.
   /// - Returns: timer instance
   @discardableResult
-  public class func once(after interval: Interval, queue: DispatchQueue? = nil, _ observer: @escaping Observer) -> Scheduler {
-    let timer = Scheduler(interval: interval, mode: .once, queue: queue, observer: observer)
+  public class func once(after interval: Interval, queue: DispatchQueue? = nil, _ observer: @escaping Observer) -> RepeatingTimer {
+    let timer = RepeatingTimer(interval: interval, mode: .once, queue: queue, observer: observer)
     timer.start()
     return timer
   }
 
   /// **Bits**
   ///
-  /// Creates and starts a `Scheduler` that will fire every interval optionally by limiting the number of fires.
+  /// Creates and starts a `RepeatingTimer` that will fire every interval optionally by limiting the number of fires.
   ///
   /// - Parameters:
   ///   - interval: interval of fire
@@ -190,9 +190,9 @@ final class Scheduler: Equatable {
   ///   - handler: handler to call on fire
   /// - Returns: timer
   @discardableResult
-  public class func every(_ interval: Interval, count: Int? = nil, queue: DispatchQueue? = nil, _ handler: @escaping Observer) -> Scheduler {
+  public class func every(_ interval: Interval, count: Int? = nil, queue: DispatchQueue? = nil, _ handler: @escaping Observer) -> RepeatingTimer {
     let mode: RunningMode = (count != nil ? .finite(count!) : .infinite)
-    let timer = Scheduler(interval: interval, mode: mode, queue: queue, observer: handler)
+    let timer = RepeatingTimer(interval: interval, mode: mode, queue: queue, observer: handler)
     timer.start()
     return timer
   }
@@ -212,7 +212,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Resets the state of the `Scheduler`, optionally changing the fire interval.
+  /// Resets the state of the `RepeatingTimer`, optionally changing the fire interval.
   ///
   /// - Parameters:
   ///   - interval: new fire interval; pass `nil` to keep the latest interval set.
@@ -245,7 +245,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Starts the `Scheduler`; if it is already running, it does nothing.
+  /// Starts the `RepeatingTimer`; if it is already running, it does nothing.
   @discardableResult
   public func start() -> Bool {
     guard state.isRunning == false else { return false }
@@ -265,7 +265,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Pauses a running `Scheduler`; if is paused, it does nothing.
+  /// Pauses a running `RepeatingTimer`; if is paused, it does nothing.
   @discardableResult
   public func pause() -> Bool {
     guard state != .paused && state != .finished else { return false }
@@ -275,7 +275,7 @@ final class Scheduler: Equatable {
 
   /// **Bits**
   ///
-  /// Pauses a running `Scheduler` optionally changing the state with regard to the current state.
+  /// Pauses a running `RepeatingTimer` optionally changing the state with regard to the current state.
   ///
   /// - Parameters:
   ///   - from: the state which the timer should only be paused if it is the current state
@@ -323,18 +323,18 @@ final class Scheduler: Equatable {
     destroyTimer()
   }
 
-  public static func == (lhs: Scheduler, rhs: Scheduler) -> Bool {
+  public static func == (lhs: RepeatingTimer, rhs: RepeatingTimer) -> Bool {
     return lhs === rhs
   }
 }
 
-extension Scheduler {
+extension RepeatingTimer {
 
-  // MARK: - Scheduler RunningMode
+  // MARK: - RepeatingTimer RunningMode
 
   /// **Bits**
   ///
-  /// `Scheduler` running mode.
+  /// `RepeatingTimer` running mode.
   ///
   /// - infinite: infinite number of repeats.
   /// - finite: finite number of repeats.
@@ -346,7 +346,7 @@ extension Scheduler {
 
     /// **Bits**
     ///
-    /// Is the `Scheduler` a repeating timer?
+    /// Is the `RepeatingTimer` a repeating timer?
     internal var isRepeating: Bool {
       switch self {
       case .once: return false
@@ -366,7 +366,7 @@ extension Scheduler {
 
     /// **Bits**
     ///
-    /// Returns tue if the `Scheduler` has an infinite number of repeats.
+    /// Returns tue if the `RepeatingTimer` has an infinite number of repeats.
     public var isInfinite: Bool {
       guard case .infinite = self else { return false }
       return true
@@ -375,18 +375,18 @@ extension Scheduler {
   }
 }
 
-extension Scheduler {
+extension RepeatingTimer {
 
-  // MARK: - Scheduler State
+  // MARK: - RepeatingTimer State
 
   /// **Bits**
   ///
-  /// State of the `Scheduler`
+  /// State of the `RepeatingTimer`
   ///
   /// - paused: idle (never started yet or paused)
-  /// - running: The `Scheduler` is running
+  /// - running: The `RepeatingTimer` is running
   /// - executing: The observers are being executed
-  /// - finished: The `Scheduler` lifetime is finished
+  /// - finished: The `RepeatingTimer` lifetime is finished
   public enum State: Equatable, CustomStringConvertible {
     case paused
     case running
@@ -407,7 +407,7 @@ extension Scheduler {
 
     /// **Bits**
     ///
-    /// Returns `true` if the `Scheduler` is currently running, including when the observers are being executed.
+    /// Returns `true` if the `RepeatingTimer` is currently running, including when the observers are being executed.
     public var isRunning: Bool {
       guard self == .running || self == .executing else { return false }
       return true
@@ -415,7 +415,7 @@ extension Scheduler {
 
     /// **Bits**
     ///
-    /// Returns `true` if the `Scheduler` is currently paused.
+    /// Returns `true` if the `RepeatingTimer` is currently paused.
     public var isPaused: Bool {
       return self == .paused
     }
@@ -430,12 +430,12 @@ extension Scheduler {
 
     /// **Bits**
     ///
-    /// Has the `Scheduler` finished its lifetime?
+    /// Has the `RepeatingTimer` finished its lifetime?
     ///
-    /// Returns always `false` for infinite `Scheduler`.
+    /// Returns always `false` for infinite `RepeatingTimer`.
     ///
-    /// Returns `true` after the first fire for the `.once` mode `Scheduler`,
-    /// and when `.remainingIterations` is zero for an `.finite` mode `Scheduler`.
+    /// Returns `true` after the first fire for the `.once` mode `RepeatingTimer`,
+    /// and when `.remainingIterations` is zero for an `.finite` mode `RepeatingTimer`.
     public var isFinished: Bool {
       guard case .finished = self else { return false }
       return true
