@@ -28,7 +28,7 @@ class ChannelTests: XCTestCase {
 
   func testSimpleBroadcast() {
     // Given
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let object1 = NSObject()
     let object2 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
@@ -57,7 +57,7 @@ class ChannelTests: XCTestCase {
 
   func testUnsuscribeSubscriptions() {
     // Given
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let object1 = NSObject()
     let object2 = NSObject()
     var object3: NSObject? = NSObject()
@@ -95,7 +95,7 @@ class ChannelTests: XCTestCase {
   func testUnsuscribeUsingToken() {
     // Given
     class Object { }
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let object1: NSObject? = NSObject()
     let object2: Object? = Object()
 
@@ -103,7 +103,7 @@ class ChannelTests: XCTestCase {
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation3 = self.expectation(description: "\(#function)\(#line)")
     let expectation4 = self.expectation(description: "\(#function)\(#line)")
-    var tokens = [Channel<Event>.SubscriptionToken]()
+    var tokens = [Subscription<Event>.Token]()
 
     // When, Then
     channel.subscribe(object1, completion: { token in
@@ -142,7 +142,7 @@ class ChannelTests: XCTestCase {
   func testUnsuscribeUsingTokenAfterTheAFixedNumberOfEvents() {
     // Given
     class Object { }
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let object1: NSObject? = NSObject()
     let object2: Object? = Object()
 
@@ -188,7 +188,7 @@ class ChannelTests: XCTestCase {
   func testUnsuscribeUsingTokenAfterTheFirstEventAfterTheObjectsHAveBeenNilledOut() {
     // Given
     class Object { }
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     var object1: NSObject? = NSObject()
     var object2: Object? = Object()
 
@@ -225,7 +225,7 @@ class ChannelTests: XCTestCase {
   func testUnsuscribeInvalidSubscriber() {
     // Given
     class Object { }
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     var object1: NSObject? = NSObject()
     var object2: Object? = Object()
 
@@ -284,7 +284,7 @@ class ChannelTests: XCTestCase {
 
   func testInvalidSubscriber() {
     // Given
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     var object: NSObject? = NSObject()
     let expectation = self.expectation(description: "\(#function)\(#line)")
     expectation.isInverted = true
@@ -303,7 +303,7 @@ class ChannelTests: XCTestCase {
 
   func testMultipleBroadcasts() {
     // Given
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let object1 = NSObject()
     let iterations = 1000
 
@@ -337,7 +337,7 @@ class ChannelTests: XCTestCase {
 
   func testUnsuscribeBetweenTheBroadcastingOfTwoEvents() {
     // Given
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
@@ -366,7 +366,7 @@ class ChannelTests: XCTestCase {
 
   func testUnsuscribeWhileBroadcasting() {
     // Given
-    let channel = Channel<Event>()
+    let channel = Subscription<Event>()
     let scheduler = ChannelScheduler(channel: channel, timeInterval: 0.1, repeats: 1000)
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
@@ -452,13 +452,13 @@ fileprivate enum Event {
 }
 
 fileprivate class ChannelScheduler {
-  let channel: Channel<Event>
+  let channel: Subscription<Event>
   let timeInterval: TimeInterval
   var timer: Timer!
   let repeats: Int
   var times = 0
 
-  init(channel: Channel<Event>, timeInterval: TimeInterval, repeats: Int = 1000) {
+  init(channel: Subscription<Event>, timeInterval: TimeInterval, repeats: Int = 1000) {
     self.channel = channel
     self.timeInterval = timeInterval
     self.repeats = repeats
