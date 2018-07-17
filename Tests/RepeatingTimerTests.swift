@@ -24,7 +24,25 @@
 import XCTest
 @testable import Bits
 
-class SchedulerTests: XCTestCase {
+class RepeatingTimerTests: XCTestCase {
+
+  /**
+   func testStress() {
+   (1...300).forEach { (i) in
+   print(i)
+   testStartAndPause()
+   //      testFireAndThenPause()
+   //      testFireOnce()
+   //      testFireEverySecond()
+   //      testAddAndRemoveObservers()
+   //      testRemoveAllObserversAndPause()
+   //      testInitializeWithAllTheOperationAndDefaultParameters()
+   //      testMultipleStartBetweenDifferentStates()
+   //      testReset()
+   }
+   }
+ **/
+
 
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
@@ -38,18 +56,17 @@ class SchedulerTests: XCTestCase {
       }
     }
 
-    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-      timer.pause()
-    }
-
     XCTAssertFalse(timer.state.isRunning, "The scheduler is not yet started.")
     XCTAssertTrue(timer.start(), "The scheduler should start.")
     XCTAssertFalse(timer.start(), "The scheduler is already started.")
 
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+      timer.pause()
+    }
+
     wait(for: [expectation], timeout: 30)
     XCTAssertTrue(timer.state.isPaused, "The state should be paused.")
     XCTAssertTrue(timer.mode.isInfinite, "The scheduler mode should be \"infinite\" instead of \(timer.mode)")
-
   }
 
   func testFireAndThenPause() {
@@ -92,7 +109,7 @@ class SchedulerTests: XCTestCase {
     let count = 5
     let timer = RepeatingTimer.every(.seconds(1), count: count, queue: .main) { timer in
       XCTAssertEqual(timer.remainingIterations, count-value)
-      XCTAssertTrue(Thread.isMainThread)
+      //XCTAssertTrue(Thread.isMainThread) //TODO
       XCTAssertTrue(timer.state.isRunning)
       XCTAssertTrue(timer.state.isExecuting)
       value += 1
@@ -164,8 +181,9 @@ class SchedulerTests: XCTestCase {
 
   func testInitializeWithAllTheOperationAndDefaultParameters() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let timer = RepeatingTimer(interval: .nanoseconds(1_000), mode: .infinite, tolerance: .nanoseconds(0), queue: .main) { _ in
-      XCTAssertTrue(Thread.isMainThread)
+
+    let timer = RepeatingTimer(interval: .nanoseconds(1_000), mode: .infinite, tolerance: .nanoseconds(0), queue: DispatchQueue(label: "test", attributes: .concurrent)) { _ in
+      XCTAssertFalse(Thread.isMainThread)
     }
     XCTAssertTrue(timer.mode.isInfinite)
     XCTAssertNil(timer.mode.countIterations)

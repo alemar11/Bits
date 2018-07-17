@@ -90,8 +90,14 @@ final class RepeatingTimer: Equatable {
     self.mode = mode
     self.interval = interval
     self.tolerance = tolerance
+
+
     self.remainingIterations = mode.countIterations
-    self.queue = queue ?? DispatchQueue(label: "\(identifier).RepeatingTimer")
+    /**
+     The idiomatic way to guarantee serialized execution on an arbitrary caller-provided queue in GCD is to create your own serial queue and set the caller-provided queue to be your queue's target queue (using the dispatch_set_target_queue(3) API).
+     */
+    //TODO: testing a concurrent a queue
+    self.queue = DispatchQueue(label: "\(identifier).RepeatingTimer", attributes: .concurrent) // DispatchQueue(label: "\(identifier).RepeatingTimer", target: queue) // queue ?? DispatchQueue(label: "\(identifier).RepeatingTimer"), TODO: test main thread
     self.timer = configureTimer()
     self.addObserver(observer)
   }
