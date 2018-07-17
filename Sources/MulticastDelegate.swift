@@ -25,7 +25,7 @@ import Foundation
 
 /// **Bits**
 ///
-/// `MulticastDelegate` lets you easily create a "multicast delegate" for a given protocol or class.
+/// `MulticastDelegate` lets you easily create a thread safe "multicast delegate" for a given protocol or class.
 open class MulticastDelegate<T> {
 
   /// **Bits**
@@ -35,16 +35,21 @@ open class MulticastDelegate<T> {
 
   /// **Bits**
   ///
+  /// The underlaying concurrent queue.
+  private let queue = DispatchQueue( label: "\(identifier).(\(type(of: MulticastDelegate.self))", attributes: .concurrent)
+
+  /// **Bits**
+  ///
   /// Returns `true` if there are no delegates at all, `false` if there is at least one.
   public var isEmpty: Bool {
-    return delegates.allObjects.isEmpty
+    return queue.sync { delegates.allObjects.isEmpty }
   }
 
   /// **Bits**
   ///
   /// Returns the number of delegates.
   public var count: Int {
-    return delegates.allObjects.count
+    return queue.sync { delegates.allObjects.count }
   }
 
   /// **Bits**
@@ -62,7 +67,9 @@ open class MulticastDelegate<T> {
   ///
   /// - Parameter delegate: The delegate to be added.
   public func addDelegate(_ delegate: T) {
-    delegates.add(delegate as AnyObject)
+    queue.sync(flags: .barrier) {
+      delegates.add(delegate as AnyObject)
+    }
   }
 
   /// **Bits**
@@ -71,10 +78,11 @@ open class MulticastDelegate<T> {
   ///
   /// - Parameter delegate: The delegate to be removed.
   public func removeDelegate(_ delegate: T) {
-    // TODO: swift 4.2 remove(where:)
-    for oneDelegate in delegates.allObjects.reversed() where oneDelegate === delegate as AnyObject {
+    queue.sync(flags: .barrier) {
+      // TODO: swift 4.2 remove(where:)
+      for oneDelegate in delegates.allObjects.reversed() where oneDelegate === delegate as AnyObject {
         delegates.remove(oneDelegate)
-    }
+      }}
   }
 
   /// **Bits**
@@ -83,9 +91,11 @@ open class MulticastDelegate<T> {
   ///
   /// - Parameter invocation: The closure to be invoked on each delegate.
   public func invoke(_ invocation: (T) -> Void) {
-    for delegate in delegates.allObjects {
-      // swiftlint:disable:next force_cast
-      invocation(delegate as! T)
+    queue.sync {
+      delegates.allObjects.forEach { delegate in
+        // swiftlint:disable:next force_cast
+        invocation(delegate as! T)
+      }
     }
   }
 
@@ -96,7 +106,7 @@ open class MulticastDelegate<T> {
   /// - Parameter delegate: The given delegate to check if it's contained
   /// - Returns: `true` if the delegate is found or `false` otherwise
   public func containsDelegate(_ delegate: T) -> Bool {
-    return delegates.contains(delegate as AnyObject)
+    return queue.sync { delegates.contains(delegate as AnyObject) }
   }
 }
 
