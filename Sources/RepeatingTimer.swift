@@ -161,7 +161,7 @@ final class RepeatingTimer: Equatable {
   private func destroyTimer() {
     timer?.setEventHandler(handler: nil)
     timer?.cancel()
-
+    
     if state == .paused || state == .finished {
       // If the timer is suspended, calling cancel without resuming triggers a crash.
       // This is documented here https://forums.developer.apple.com/thread/15902
