@@ -52,9 +52,9 @@ final class BackgroundTimer {
     set {
       _state.swap(newValue)
       //queue.async { [weak self] in
-        //guard let `self` = self else { return }
+      //guard let `self` = self else { return }
 
-        self.onStateChanged?(self, newValue)
+      self.onStateChanged?(self, newValue)
       //}
     }
   }
@@ -62,6 +62,7 @@ final class BackgroundTimer {
   /// Callback called to intercept state's change of the timer
   public var onStateChanged: ((_ timer: BackgroundTimer, _ state: State) -> Void)?
 
+  /// GCD event handler
   private let handler: Handler
 
   /// GCD timer
@@ -97,19 +98,7 @@ final class BackgroundTimer {
   }
 
   deinit {
-    if state == .running {
-    timer.modify { timer in
-      timer?.cancel()
-      timer?.setEventHandler(handler: nil)
-      return nil
-    }
-    } else {
-      timer.modify { timer in
-        timer?.resume()
-         timer?.setEventHandler(handler: nil)
-        return nil
-      }
-    }
+    destroyTimer()
   }
 
   // MARK: - Timer
@@ -137,15 +126,21 @@ final class BackgroundTimer {
 
   /// Destroys the current CGD Timer
   private func destroyTimer() {
-    timer.value?.setEventHandler(handler: nil)
-    timer.value?.cancel()
-
-    if state == .idle || state == .paused || state == .finished {
+    if state == .running {
+      timer.modify { timer in
+        timer?.cancel()
+        timer?.setEventHandler(handler: nil)
+        return nil
+      }
+    } else {
       // If the timer is suspended, calling cancel without resuming triggers a crash.
       // This is documented here https://forums.developer.apple.com/thread/15902
-      timer.value?.resume()
+      timer.modify { timer in
+        timer?.resume()
+        timer?.setEventHandler(handler: nil)
+        return nil
+      }
     }
-    //timer.value = Optional<DispatchSourceTimer>.none
   }
 
   /// Called when the GCD timer is fired
@@ -179,21 +174,22 @@ final class BackgroundTimer {
   /// Starts the `BackgroundTimer`; if it is already running, it does nothing.
   @discardableResult
   public func start() -> Bool {
-        let canBeStarted = _state.with { currentState -> Bool in
-          switch currentState {
-          case .running:
-            return false
-          case .finished:
-            timer.value?.resume()
-            //timer.value?.suspend()
-            reset(interval: nil, restart: true)
-            return true
-          default:
-            timer.value?.resume()
-            state = .running
-            return true
-          }
-        }
+    let canBeStarted = _state.with { currentState -> Bool in
+      switch currentState {
+      case .running:
+        return false
+
+      case .finished:
+        timer.value?.resume()
+        reset(interval: nil, restart: true)
+        return true
+
+      default:
+        timer.value?.resume()
+        state = .running
+        return true
+      }
+    }
 
     return canBeStarted
   }
@@ -207,11 +203,9 @@ final class BackgroundTimer {
   ///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
   public func reset(interval i: Interval?, restart: Bool = true) {
     pause()
+
     _state.with { currentState -> Void in
-//      if currentState == .running {
-//        print("🔴")
-//        pause()
-//      }
+
       // For finite counter we want to also reset the repeat count
       if case .finite(let count) = mode {
         remainingIterations = count
@@ -241,9 +235,9 @@ final class BackgroundTimer {
   @discardableResult
   public func pause() -> Bool {
     let canBePaused = _state.with { [weak self] currentState -> Bool in
-      guard currentState != .paused && currentState != .idle else { return false } //TODO: just added finished
+      guard currentState != .paused && currentState != .idle else { return false }
+
       self?.timer.value?.suspend()
-      print("suspended")
       state = .paused
       return true
     }
@@ -358,10 +352,10 @@ extension BackgroundTimer {
   ///
   /// State of the `BackgroundTimer`
   ///
-  /// - idle: yet to be started
-  /// - paused: paused
-  /// - running: The `BackgroundTimer` is running
-  /// - finished: The `BackgroundTimer` lifetime is finished
+  /// - idle: The `BackgroundTimer` is yet to be started.
+  /// - paused: The `BackgroundTimer` is paused.
+  /// - running: The `BackgroundTimer` is running.
+  /// - finished: The `BackgroundTimer` lifetime is finished.
   public enum State: Equatable, CustomStringConvertible {
     case idle
     case paused

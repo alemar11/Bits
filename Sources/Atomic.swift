@@ -25,7 +25,7 @@ import Foundation
 
 /// **Bits**
 ///
-///
+/// Thread-safe access using `NSLocking`.
 public final class Atomic<T> {
   private let _lock: NSLocking
   private var _value: T

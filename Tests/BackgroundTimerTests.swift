@@ -28,17 +28,17 @@ class BackgroundTimerTests: XCTestCase {
 
 
   func testStress() {
-    (1...100).forEach { (i) in
+    (1...2).forEach { (i) in
       print(i)
-      //testStartAndPause()
-      //testFireOnce()
-      //testFireEverySecond()
-      //testInitializeWithAllTheOperationAndDefaultParameters()
-      //testMultipleStartBetweenDifferentStates()
-      //testPauseAnIdleTimer()
+      testStartAndPause()
+      testFireOnce()
+      testFireEverySecond()
+      testInitializeWithAllTheOperationAndDefaultParameters()
+      testMultipleStartBetweenDifferentStates()
+      testPauseAnIdleTimer()
       testReset()
     }
-  }
+}
 
 
 
@@ -164,7 +164,7 @@ class BackgroundTimerTests: XCTestCase {
     XCTAssertTrue(timer.start())
 
     wait(for: [expectation2], timeout: 6)
-    XCTAssertTrue(timer.start()) // restart (it's a reset, so the state will change to pause
+    XCTAssertTrue(timer.start()) // restart (it's a reset, so the state will change to pause)
 
     wait(for: [expectation3], timeout: 6)
   }
@@ -185,11 +185,9 @@ class BackgroundTimerTests: XCTestCase {
           XCTFail("This reset shouldn't have started.")
           
         case (.seconds(let value), .running) where value == 3:
-           print(state)
           expectation1.fulfill()
 
         case (.nanoseconds(let value), .running) where value == 500:
-          print(state)
           expectation2.fulfill()
 
         default:
@@ -209,7 +207,6 @@ class BackgroundTimerTests: XCTestCase {
       timer.reset(interval: .nanoseconds(500), restart: true) // resets and (re)starts the timer again
 
       wait(for: [expectation2], timeout: 5)
-      //timer.pause()
     }
 
 }
