@@ -30,11 +30,13 @@ class BackgroundTimerTests: XCTestCase {
   func testStress() {
     (1...100).forEach { (i) in
       print(i)
-      testStartAndPause()
-      testFireOnce()
-      testFireEverySecond()
-      testInitializeWithAllTheOperationAndDefaultParameters()
-      testMultipleStartBetweenDifferentStates()
+      //testStartAndPause()
+      //testFireOnce()
+      //testFireEverySecond()
+      //testInitializeWithAllTheOperationAndDefaultParameters()
+      //testMultipleStartBetweenDifferentStates()
+      //testPauseAnIdleTimer()
+      testReset()
     }
   }
 
@@ -95,7 +97,7 @@ class BackgroundTimerTests: XCTestCase {
       }
     }
 
-    wait(for: [expectation], timeout: 6)
+    wait(for: [expectation], timeout: 7)
     XCTAssertTrue(timer.state == .finished)
     XCTAssertTrue(timer.mode.isRepeating)
     XCTAssertFalse(timer.state == .running)
@@ -177,26 +179,37 @@ class BackgroundTimerTests: XCTestCase {
       let expectation2 = self.expectation(description: "\(#function)\(#line)")
       let timer = BackgroundTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
 
-      timer.onIntervalChanged = { (_, interval) in
-        switch interval {
-        case .seconds(let value) where value == 2:
+      timer.onStateChanged = { (timer, state) in
+        switch (timer.interval, state) {
+           case (.seconds(let value), .running) where value == 2:
+          XCTFail("This reset shouldn't have started.")
+          
+        case (.seconds(let value), .running) where value == 3:
+           print(state)
           expectation1.fulfill()
 
-        case .nanoseconds(let value) where value == 500:
+        case (.nanoseconds(let value), .running) where value == 500:
+          print(state)
           expectation2.fulfill()
 
         default:
-          XCTFail("The timer should not have changed the interval in \(interval)")
-        }
+          break
+      }
+
       }
 
       timer.start()
       timer.reset(interval: .seconds(2), restart: false)
       XCTAssertTrue(timer.state == .paused)
-      timer.start()
-      timer.reset(interval: .nanoseconds(500), restart: true)
+      timer.reset(interval: .seconds(3), restart: false)
+      XCTAssertTrue(timer.state == .paused)
+      timer.start() // (re)starts the timer with a new interval
 
-      wait(for: [expectation1, expectation2], timeout: 5)
+      wait(for: [expectation1], timeout: 5)
+      timer.reset(interval: .nanoseconds(500), restart: true) // resets and (re)starts the timer again
+
+      wait(for: [expectation2], timeout: 5)
+      //timer.pause()
     }
 
 }

@@ -51,15 +51,16 @@ final class BackgroundTimer {
     }
     set {
       _state.swap(newValue)
-      onStateChanged?(self, state)
+      //queue.async { [weak self] in
+        //guard let `self` = self else { return }
+
+        self.onStateChanged?(self, newValue)
+      //}
     }
   }
 
   /// Callback called to intercept state's change of the timer
   public var onStateChanged: ((_ timer: BackgroundTimer, _ state: State) -> Void)?
-
-  /// Callback called to intercept the interval change of the timer
-  internal var onIntervalChanged: ((_ timer: BackgroundTimer, _ inteval: Interval) -> Void)?
 
   private let handler: Handler
 
@@ -67,11 +68,7 @@ final class BackgroundTimer {
   private var timer = Atomic<DispatchSourceTimer?>(nil)
 
   /// GCD timer interval
-  internal private(set) var interval: Interval {
-    didSet {
-      onIntervalChanged?(self, interval) //TODO
-    }
-  }
+  internal private(set) var interval: Interval
 
   /// GCD timer accuracy
   private var tolerance: DispatchTimeInterval
@@ -100,7 +97,19 @@ final class BackgroundTimer {
   }
 
   deinit {
-    destroyTimer()
+    if state == .running {
+    timer.modify { timer in
+      timer?.cancel()
+      timer?.setEventHandler(handler: nil)
+      return nil
+    }
+    } else {
+      timer.modify { timer in
+        timer?.resume()
+         timer?.setEventHandler(handler: nil)
+        return nil
+      }
+    }
   }
 
   // MARK: - Timer
@@ -136,7 +145,7 @@ final class BackgroundTimer {
       // This is documented here https://forums.developer.apple.com/thread/15902
       timer.value?.resume()
     }
-    timer.value = Optional<DispatchSourceTimer>.none
+    //timer.value = Optional<DispatchSourceTimer>.none
   }
 
   /// Called when the GCD timer is fired
@@ -147,18 +156,15 @@ final class BackgroundTimer {
 
     switch mode {
     case .once:
-      // once timer's lifetime is finished after the first fire
-      // you can reset it by calling `reset()` function.
       finish()
+
     case .finite:
-      // for finite intervals we decrement the left iterations count...
       remainingIterations! -= 1
       if remainingIterations! == 0 {
-        // ...if left count is zero we just pause the timer and stop
         finish()
       }
+
     case .infinite:
-      // infinite timer does nothing special on the state machine
       break
     }
 
@@ -179,7 +185,7 @@ final class BackgroundTimer {
             return false
           case .finished:
             timer.value?.resume()
-            timer.value?.suspend()
+            //timer.value?.suspend()
             reset(interval: nil, restart: true)
             return true
           default:
@@ -200,11 +206,12 @@ final class BackgroundTimer {
   ///   - interval: new fire interval; pass `nil` to keep the latest interval set.
   ///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
   public func reset(interval i: Interval?, restart: Bool = true) {
+    pause()
     _state.with { currentState -> Void in
-      if currentState == .running {
-        pause()
-      }
-
+//      if currentState == .running {
+//        print("🔴")
+//        pause()
+//      }
       // For finite counter we want to also reset the repeat count
       if case .finite(let count) = mode {
         remainingIterations = count
@@ -234,9 +241,9 @@ final class BackgroundTimer {
   @discardableResult
   public func pause() -> Bool {
     let canBePaused = _state.with { [weak self] currentState -> Bool in
-      guard currentState != .paused && currentState != .idle else { return false }
-
+      guard currentState != .paused && currentState != .idle else { return false } //TODO: just added finished
       self?.timer.value?.suspend()
+      print("suspended")
       state = .paused
       return true
     }
