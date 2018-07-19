@@ -135,7 +135,6 @@ class ChannelTests: XCTestCase {
     })
 
     wait(for: [expectation3, expectation4], timeout: 2)
-    print(channel.subscriptions)
     XCTAssertEqual(channel.subscriptions.count, 0)
   }
 

@@ -28,7 +28,7 @@ class BackgroundTimerTests: XCTestCase {
 
 
   func testStress() {
-    (1...30).forEach { (i) in
+    (1...100).forEach { (i) in
       print(i)
       testStartAndPause()
       testFireOnce()
@@ -95,7 +95,7 @@ class BackgroundTimerTests: XCTestCase {
       }
     }
 
-    wait(for: [expectation], timeout: 5)
+    wait(for: [expectation], timeout: 6)
     XCTAssertTrue(timer.state == .finished)
     XCTAssertTrue(timer.mode.isRepeating)
     XCTAssertFalse(timer.state == .running)
