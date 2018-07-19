@@ -26,9 +26,8 @@ import XCTest
 
 class BackgroundTimerTests: XCTestCase {
 
-
   func testStress() {
-    (1...2).forEach { (i) in
+    (1...10).forEach { (i) in
       print(i)
       testStartAndPause()
       testFireOnce()
@@ -39,8 +38,6 @@ class BackgroundTimerTests: XCTestCase {
       testReset()
     }
 }
-
-
 
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
@@ -181,7 +178,7 @@ class BackgroundTimerTests: XCTestCase {
 
       timer.onStateChanged = { (timer, state) in
         switch (timer.interval, state) {
-           case (.seconds(let value), .running) where value == 2:
+          case (.microseconds(let value), .running) where value == 2:
           XCTFail("This reset shouldn't have started.")
           
         case (.seconds(let value), .running) where value == 3:
@@ -197,7 +194,7 @@ class BackgroundTimerTests: XCTestCase {
       }
 
       timer.start()
-      timer.reset(interval: .seconds(2), restart: false)
+      timer.reset(interval: .microseconds(2), restart: false)
       XCTAssertTrue(timer.state == .paused)
       timer.reset(interval: .seconds(3), restart: false)
       XCTAssertTrue(timer.state == .paused)
@@ -207,6 +204,7 @@ class BackgroundTimerTests: XCTestCase {
       timer.reset(interval: .nanoseconds(500), restart: true) // resets and (re)starts the timer again
 
       wait(for: [expectation2], timeout: 5)
+      //timer.pause()
     }
 
 }

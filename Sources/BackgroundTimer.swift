@@ -51,11 +51,11 @@ final class BackgroundTimer {
     }
     set {
       _state.swap(newValue)
-      queue.async { [weak self] in
-        guard let `self` = self else { return }
-        
-        self.onStateChanged?(self, newValue)
-      }
+      //      queue.async { [weak self] in
+      //        guard let `self` = self else { return }
+      
+      self.onStateChanged?(self, newValue)
+      //      }
     }
   }
   
@@ -98,7 +98,30 @@ final class BackgroundTimer {
   }
   
   deinit {
+    //    if state == .running {
+    //      timer.modify { timer in
+    //        timer?.cancel()
+    //        timer?.setEventHandler(handler: nil)
+    //        return nil
+    //      }
+    //    } else {
+    //      timer.modify { timer in
+    //        timer?.resume()
+    //        timer?.setEventHandler(handler: nil)
+    //        return nil
+    //      }
+    //    }
     destroyTimer()
+    //    timer.modify { timer in
+    //      print("cancel - \(state)")
+    //      if state == .running {
+    //         timer?.cancel()
+    //      } else {
+    //         timer?.resume()
+    //      }
+    //      timer?.setEventHandler(handler: nil)
+    //      return nil
+    //    }
   }
   
   // MARK: - Timer
@@ -126,20 +149,19 @@ final class BackgroundTimer {
   
   /// Destroys the current CGD Timer
   private func destroyTimer() {
-    if state == .running {
-      timer.modify { timer in
-        timer?.cancel()
-        timer?.setEventHandler(handler: nil)
-        return nil
-      }
-    } else {
-      // If the timer is suspended, calling cancel without resuming triggers a crash.
-      // This is documented here https://forums.developer.apple.com/thread/15902
-      timer.modify { timer in
+    
+    
+    timer.modify { timer in
+      print("cancel - \(state)")
+      
+      timer?.cancel()
+      if state != .running {
+        // If the timer is suspended, calling cancel without resuming triggers a crash.
+        // This is documented here https://forums.developer.apple.com/thread/15902
         timer?.resume()
-        timer?.setEventHandler(handler: nil)
-        return nil
       }
+      timer?.setEventHandler(handler: nil)
+      return nil
     }
   }
   
