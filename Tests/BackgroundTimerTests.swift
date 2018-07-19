@@ -26,18 +26,18 @@ import XCTest
 
 class BackgroundTimerTests: XCTestCase {
 
-  func testStress() {
-    (1...10).forEach { (i) in
-      print(i)
-      testStartAndPause()
-      testFireOnce()
-      testFireEverySecond()
-      testInitializeWithAllTheOperationAndDefaultParameters()
-      testMultipleStartBetweenDifferentStates()
-      testPauseAnIdleTimer()
-      testReset()
-    }
-}
+//  func testStress() {
+//    (1...100).forEach { (i) in
+//      print(i)
+//      testStartAndPause()
+//      testFireOnce()
+//      testFireEverySecond()
+//      testInitializeWithAllTheOperationAndDefaultParameters()
+//      testMultipleStartBetweenDifferentStates()
+//      testPauseAnIdleTimer()
+//      testReset()
+//    }
+//}
 
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
@@ -180,7 +180,7 @@ class BackgroundTimerTests: XCTestCase {
         switch (timer.interval, state) {
           case (.microseconds(let value), .running) where value == 2:
           XCTFail("This reset shouldn't have started.")
-          
+
         case (.seconds(let value), .running) where value == 3:
           expectation1.fulfill()
 
