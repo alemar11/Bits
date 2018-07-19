@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -23,6 +23,9 @@
 
 import Foundation
 
+/// **Bits**
+///
+///
 public final class Atomic<T> {
   private let _lock: NSLocking
   private var _value: T

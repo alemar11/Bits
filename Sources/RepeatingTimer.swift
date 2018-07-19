@@ -90,14 +90,8 @@ final class RepeatingTimer: Equatable {
     self.mode = mode
     self.interval = interval
     self.tolerance = tolerance
-
-
     self.remainingIterations = mode.countIterations
-    /**
-     The idiomatic way to guarantee serialized execution on an arbitrary caller-provided queue in GCD is to create your own serial queue and set the caller-provided queue to be your queue's target queue (using the dispatch_set_target_queue(3) API).
-     */
-    //TODO: testing a concurrent a queue
-    self.queue = DispatchQueue(label: "\(identifier).RepeatingTimer", attributes: .concurrent) // DispatchQueue(label: "\(identifier).RepeatingTimer", target: queue) // queue ?? DispatchQueue(label: "\(identifier).RepeatingTimer"), TODO: test main thread
+    self.queue = DispatchQueue(label: "\(identifier).RepeatingTimer", attributes: .concurrent)
     self.timer = configureTimer()
     self.addObserver(observer)
   }
@@ -161,7 +155,7 @@ final class RepeatingTimer: Equatable {
   private func destroyTimer() {
     timer?.setEventHandler(handler: nil)
     timer?.cancel()
-    
+
     if state == .paused || state == .finished {
       // If the timer is suspended, calling cancel without resuming triggers a crash.
       // This is documented here https://forums.developer.apple.com/thread/15902

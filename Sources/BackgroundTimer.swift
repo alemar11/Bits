@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -41,6 +41,7 @@ final class BackgroundTimer {
   /// Number of remaining repeats count
   public private(set) var remainingIterations: Int?
 
+  // swiftlint:disable:next identifier_name
   private(set) var _state = Atomic<State>(.idle, lock: NSRecursiveLock())
 
   /// Current state of the timer
@@ -50,7 +51,6 @@ final class BackgroundTimer {
     }
     set {
       _state.swap(newValue)
-      print(newValue)
       onStateChanged?(self, state)
     }
   }
@@ -67,7 +67,7 @@ final class BackgroundTimer {
   private var timer = Atomic<DispatchSourceTimer?>(nil)
 
   /// GCD timer interval
-  private(set) internal var interval: Interval {
+  internal private(set) var interval: Interval {
     didSet {
       onIntervalChanged?(self, interval) //TODO
     }
@@ -119,6 +119,7 @@ final class BackgroundTimer {
 
     timer.setEventHandler { [weak self] in
       guard let `self` = self else { return }
+
       self.fire()
     }
 
@@ -135,7 +136,7 @@ final class BackgroundTimer {
       // This is documented here https://forums.developer.apple.com/thread/15902
       timer.value?.resume()
     }
-
+    timer.value = Optional<DispatchSourceTimer>.none
   }
 
   /// Called when the GCD timer is fired
@@ -154,7 +155,7 @@ final class BackgroundTimer {
       remainingIterations! -= 1
       if remainingIterations! == 0 {
         // ...if left count is zero we just pause the timer and stop
-       finish()
+        finish()
       }
     case .infinite:
       // infinite timer does nothing special on the state machine
@@ -165,49 +166,30 @@ final class BackgroundTimer {
 
   // MARK: - Commands
 
+  private let lock = NSRecursiveLock()
+
   /// **Bits**
   ///
   /// Starts the `BackgroundTimer`; if it is already running, it does nothing.
   @discardableResult
   public func start() -> Bool {
-    objc_sync_enter(self)
-    defer { objc_sync_exit(self) }
+        let canBeStarted = _state.with { currentState -> Bool in
+          switch currentState {
+          case .running:
+            return false
+          case .finished:
+            timer.value?.resume()
+            timer.value?.suspend()
+            reset(interval: nil, restart: true)
+            return true
+          default:
+            timer.value?.resume()
+            state = .running
+            return true
+          }
+        }
 
-//    let canBeStarted = _state.with { currentState -> Bool in
-//      switch currentState {
-//      case .running:
-//        return false
-//      case .finished:
-//        return true
-//      default:
-//        state = .running
-//        return true
-//      }
-//    }
-//
-//    if canBeStarted {
-//      timer.value?.resume()
-//    }
-
-    guard state != .running else { return false }
-
-    // If timer has not finished its lifetime, restart it from the current state.
-    guard state.isFinished == true else {
-      state = .running
-      timer.value?.resume()
-      return true
-    }
-
-    // Otherwise reset the state based upon the mode and start it again.
-    reset(nil, restart: true)
-
-//    if state == .finished {
-//      timer.value?.suspend()
-//      reset(nil, restart: true)
-//    }
-
-    //return canBeStarte
-    return true
+    return canBeStarted
   }
 
   /// **Bits**
@@ -217,32 +199,32 @@ final class BackgroundTimer {
   /// - Parameters:
   ///   - interval: new fire interval; pass `nil` to keep the latest interval set.
   ///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
-  public func reset(_ interval: Interval?, restart: Bool = true) {
-    objc_sync_enter(self)
-    defer { objc_sync_exit(self) }
+  public func reset(interval i: Interval?, restart: Bool = true) {
+    _state.with { currentState -> Void in
+      if currentState == .running {
+        pause()
+      }
 
-    if state.isRunning {
-      pause()
-    }
+      // For finite counter we want to also reset the repeat count
+      if case .finite(let count) = mode {
+        remainingIterations = count
+      }
 
-    // For finite counter we want to also reset the repeat count
-    if case .finite(let count) = mode {
-      remainingIterations = count
-    }
+      // Update the interval
+      if let newInterval = i {
+        interval = newInterval
+      }
 
-    // Update the interval
-    if let newInterval = interval {
-      self.interval = newInterval
-    }
+      // Create a new instance of timer configured
+      destroyTimer()
+      timer.swap(configureTimer())
+      state = .paused
 
-    // Create a new instance of timer configured
-    destroyTimer()
-    timer.swap(configureTimer())
-    state = .paused
+      if restart {
+        timer.value?.resume()
+        state = .running
+      }
 
-    if restart {
-      timer.value?.resume()
-      state = .running
     }
   }
 
@@ -251,58 +233,33 @@ final class BackgroundTimer {
   /// Pauses a running `BackgroundTimer`; if it is already paused, it does nothing.
   @discardableResult
   public func pause() -> Bool {
-    objc_sync_enter(self)
-    defer { objc_sync_exit(self) }
+    let canBePaused = _state.with { [weak self] currentState -> Bool in
+      guard currentState != .paused && currentState != .idle else { return false }
 
-    guard state != .paused && state != .idle else { return false }
-    timer.value?.suspend()
-    state = .paused
-    return true
-//    let canBePaused = _state.with { currentState -> Bool in
-//      guard currentState != .paused && currentState != .idle else { return false }
-//      state = .paused
-//      return true
-//    }
-//
-//    if canBePaused {
-//      timer.value?.suspend()
-//    }
-//
-//    return canBePaused
+      self?.timer.value?.suspend()
+      state = .paused
+      return true
+    }
+
+    return canBePaused
   }
 
   @discardableResult
   private func finish() -> Bool {
-    /// It's called only from one thread
-    //objc_sync_enter(self)
-    //defer { objc_sync_exit(self) }
+    let canBeFinished = _state.with { [weak self] currentState -> Bool in
+      guard currentState != .finished else { return false }
 
-    guard state != .finished else { return false }
-    timer.value?.suspend()
-    state = .finished
-    return true
+      self?.timer.value?.suspend()
+      state = .finished
+      return true
+    }
 
-//    let canBeFinished = _state.with { currentState -> Bool in
-//      guard currentState != .finished else { return false }
-//      state = .finished
-//      return true
-//    }
-//
-//    if canBeFinished {
-//      timer.value?.suspend()
-//    }
-//
-//    return canBeFinished
-  }
-}
-
-extension BackgroundTimer: Equatable  {
-  public static func == (lhs: BackgroundTimer, rhs: BackgroundTimer) -> Bool {
-    return lhs === rhs
+    return canBeFinished
   }
 }
 
 extension BackgroundTimer {
+
   // MARK: - Factory
 
   /// **Bits**
@@ -361,6 +318,7 @@ extension BackgroundTimer {
     /// Is the `BackgroundTimer` a repeating timer?
     internal var isRepeating: Bool {
       guard case .once = self else { return true }
+
       return true
     }
 
@@ -396,13 +354,11 @@ extension BackgroundTimer {
   /// - idle: yet to be started
   /// - paused: paused
   /// - running: The `BackgroundTimer` is running
-  /// - executing: The observers are being executed
   /// - finished: The `BackgroundTimer` lifetime is finished
   public enum State: Equatable, CustomStringConvertible {
     case idle
     case paused
     case running
-    case executing
     case finished
 
     public static func == (lhs: State, rhs: State) -> Bool {
@@ -410,48 +366,11 @@ extension BackgroundTimer {
       case (.idle, .idle),
            (.paused, .paused),
            (.running, .running),
-           (.executing, .executing),
            (.finished, .finished):
         return true
       default:
         return false
       }
-    }
-
-    /// **Bits**
-    ///
-    /// Returns `true` if the `BackgroundTimer` is currently running, including when the observers are being executed.
-    public var isRunning: Bool {
-      guard self == .running || self == .executing else { return false }
-      return true
-    }
-
-    /// **Bits**
-    ///
-    /// Returns `true` if the `BackgroundTimer` is currently paused.
-    public var isPaused: Bool {
-      return self == .paused
-    }
-
-    /// **Bits**
-    ///
-    /// Returns `true` if the observers are being executed.
-    public var isExecuting: Bool {
-      guard case .executing = self else { return false }
-      return true
-    }
-
-    /// **Bits**
-    ///
-    /// Has the `BackgroundTimer` finished its lifetime?
-    ///
-    /// Returns always `false` for infinite `BackgroundTimer`.
-    ///
-    /// Returns `true` after the first fire for the `.once` mode `BackgroundTimer`,
-    /// and when `.remainingIterations` is zero for an `.finite` mode `BackgroundTimer`.
-    public var isFinished: Bool {
-      guard case .finished = self else { return false }
-      return true
     }
 
     public var description: String {
@@ -460,7 +379,6 @@ extension BackgroundTimer {
       case .paused: return "paused"
       case .finished: return "finished"
       case .running: return "running"
-      case .executing: return "executing"
       }
     }
 
