@@ -26,20 +26,22 @@ import XCTest
 
 class BackgroundTimerTests: XCTestCase {
   
-  //  func testStress() {
-  //    (1...100).forEach { (i) in
-  //      print(i)
-  //      testStartAndPause()
-  //      testFireOnce()
-  //      testFireEverySecond()
-  //      testInitializeWithAllTheOperationAndDefaultParameters()
-  //      testMultipleStartBetweenDifferentStates()
-  //      testPauseAnIdleTimer()
-  //      testReset()
-  //      testResetAnIdleTimer()
-  //      testConcurrentAccess()
-  //    }
-  //}
+//  func testStress() {
+//    (1...10).forEach { (i) in
+//      print(i)
+//      testStartAndPause()
+//      testFireOnce()
+//      testFireEverySecond()
+//      testInitializeWithAllTheOperationAndDefaultParameters()
+//      testMultipleStartBetweenDifferentStates()
+//      testPauseAnIdleTimer()
+//      testReset()
+//      testResetAnIdleTimer()
+//      testConcurrentAccess()
+//      testResetFiniteTimer()
+//      testDeinitIdleTimer()
+//    }
+//  }
   
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
@@ -79,7 +81,18 @@ class BackgroundTimerTests: XCTestCase {
     XCTAssertTrue(timer.state == .finished)
     XCTAssertFalse(timer.state == .running)
   }
-  
+
+  //TODO
+//  func testStopAFireOnce() {
+//    let expectation = self.expectation(description: "\(#function)\(#line)")
+//    let timer = BackgroundTimer.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
+//      XCTAssertFalse(Thread.isMainThread)
+//      expectation.fulfill()
+//    }
+//    wait(for: [expectation], timeout: 2)
+//    timer.stop()
+//  }
+
   func testFireEverySecond() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     var value = 0
@@ -236,5 +249,49 @@ class BackgroundTimerTests: XCTestCase {
     XCTAssertTrue(timer.state == .running)
   }
   
+  
+  func testStopIdleTimer() {
+    let timer = BackgroundTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
+    timer.stop()
+    XCTAssertTrue(timer.state == .idle)
+  }
+  
+  
+  func testResetFiniteTimer() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    var count = 0
+    
+    var enable1 = true
+    var enable2 = false
+    let timer = BackgroundTimer(interval: .seconds(1), mode: .finite(5)) { currentTimer in
+      count += 1
+
+      if count >= 5 && enable2 {
+        expectation2.fulfill()
+        count = 0
+      }
+      if count >= 5 && enable1 {
+        expectation1.fulfill()
+        count = 0
+      }
+    }
+    
+    timer.start()
+    wait(for: [expectation1], timeout: 10)
+    timer.reset(interval: .seconds(2), restart: false)
+    enable1 = false
+    enable2 = true
+    timer.start()
+    wait(for: [expectation2], timeout: 10)
+  }
+  
+  func testDeinitIdleTimer() {
+    var timer: BackgroundTimer? = BackgroundTimer(interval: .seconds(1), mode: .finite(5)) { _ in }
+    weak var weakTimer = timer
+    timer = nil
+    XCTAssertNil(weakTimer)
+  }
+
 }
 
