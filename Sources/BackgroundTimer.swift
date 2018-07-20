@@ -42,7 +42,7 @@ final class BackgroundTimer {
   public private(set) var remainingIterations: Int?
 
   // swiftlint:disable:next identifier_name
-  private(set) var _state = Atomic<State>(.idle, lock: NSRecursiveLock())
+  private var _state = Atomic<State>(.idle, lock: NSRecursiveLock())
 
   /// Current state of the timer
   public private(set) var state: State {
@@ -50,12 +50,8 @@ final class BackgroundTimer {
       return _state.value
     }
     set {
-      _state.swap(newValue) // TODO
-      // queue.async { [weak self] in
-        // guard let `self` = self else { return }
-
-        self.onStateChanged?(self, newValue)
-      // }
+      _state.swap(newValue)
+      onStateChanged?(self, newValue)
     }
   }
 
@@ -170,7 +166,7 @@ final class BackgroundTimer {
   /// Starts the `BackgroundTimer`; if it is already running, it does nothing.
   @discardableResult
   public func start() -> Bool {
-    let canBeStarted = _state.with { currentState -> Bool in
+    let started = _state.with { currentState -> Bool in
       switch currentState {
       case .running:
         return false
@@ -187,7 +183,7 @@ final class BackgroundTimer {
       }
     }
 
-    return canBeStarted
+    return started
   }
 
   /// **Bits**
@@ -198,10 +194,9 @@ final class BackgroundTimer {
   ///   - interval: new fire interval; pass `nil` to keep the latest interval set.
   ///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
   public func reset(interval i: Interval?, restart: Bool = true) {
-    pause()
+    let isPaused = pause()
 
     _state.with { _ in
-
       // For finite counter we want to also reset the repeat count
       if case .finite(let count) = mode {
         remainingIterations = count
@@ -212,13 +207,16 @@ final class BackgroundTimer {
         interval = newInterval
       }
 
-      // Create a new instance of timer configured
-      destroyTimer()
-      timer.swap(configureTimer())
-      state = .paused
+        // Create a new instance of timer configured
+        destroyTimer()
+        timer.swap(configureTimer())
+        if !isPaused {
+          state = .paused
+        }
 
       if restart {
         timer.value?.resume()
+        assert(state != .running)
         state = .running
       }
 
@@ -230,15 +228,15 @@ final class BackgroundTimer {
   /// Pauses a running `BackgroundTimer`; if it is already paused, it does nothing.
   @discardableResult
   public func pause() -> Bool {
-    let canBePaused = _state.with { [weak self] currentState -> Bool in
+    let paused = _state.with { [weak self] currentState -> Bool in
       guard currentState != .paused && currentState != .idle else { return false }
 
       self?.timer.value?.suspend()
       state = .paused
       return true
     }
-
-    return canBePaused
+    
+    return paused
   }
 
   @discardableResult
