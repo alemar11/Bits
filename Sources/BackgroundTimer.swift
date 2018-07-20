@@ -88,7 +88,7 @@ final class BackgroundTimer {
     self.interval = interval
     self.tolerance = tolerance
     self.remainingIterations = mode.countIterations
-    self.queue = queue ?? DispatchQueue(label: "\(identifier).BackgroundTimer", attributes: .concurrent)
+    self.queue = queue ?? DispatchQueue(label: "\(identifier).(\(type(of: BackgroundTimer.self))", attributes: .concurrent)
     self.handler = handler
     self.timer.value = configureTimer()
   }
@@ -194,9 +194,9 @@ final class BackgroundTimer {
   ///   - interval: new fire interval; pass `nil` to keep the latest interval set.
   ///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
   public func reset(interval i: Interval?, restart: Bool = true) {
-    let isPaused = pause()
-
     _state.with { _ in
+      let isPaused = pause()
+
       // For finite counter we want to also reset the repeat count
       if case .finite(let count) = mode {
         remainingIterations = count
