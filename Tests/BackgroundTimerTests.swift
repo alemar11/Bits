@@ -25,7 +25,7 @@ import XCTest
 @testable import Bits
 
 class BackgroundTimerTests: XCTestCase {
-  
+
 //  func testStress() {
 //    (1...10).forEach { (i) in
 //      print(i)
@@ -42,11 +42,11 @@ class BackgroundTimerTests: XCTestCase {
 //      testDeinitIdleTimer()
 //    }
 //  }
-  
+
   func testStartAndPause() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let timer = BackgroundTimer(interval: .nanoseconds(5), mode: .infinite) { _ in }
-    
+
     timer.onStateChanged = { (t, state) in
       if state == .paused {
         expectation.fulfill()
@@ -54,29 +54,29 @@ class BackgroundTimerTests: XCTestCase {
         XCTAssertFalse(t.pause(), "A paused scheduler cannot be paused again.")
       }
     }
-    
+
     XCTAssertFalse(timer.state == .running, "The timer is not yet started.")
-    
+
     DispatchQueue.concurrentPerform(iterations: 10) { index in
       timer.start() //random concurrent start commands...
     }
-    
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
       timer.pause()
     }
-    
+
     wait(for: [expectation], timeout: 30)
     XCTAssertTrue(timer.state == .paused, "The state should be paused instead of \(timer.state).")
     XCTAssertTrue(timer.mode.isInfinite, "The timer mode should be \"infinite\" instead of \(timer.mode)")
   }
-  
+
   func testFireOnce() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let timer = BackgroundTimer.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
       XCTAssertFalse(Thread.isMainThread)
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 2)
     XCTAssertTrue(timer.state == .finished)
     XCTAssertFalse(timer.state == .running)
@@ -106,17 +106,17 @@ class BackgroundTimerTests: XCTestCase {
         expectation.fulfill()
       }
     }
-    
+
     wait(for: [expectation], timeout: 7)
     XCTAssertTrue(timer.state == .finished)
     XCTAssertTrue(timer.mode.isRepeating)
     XCTAssertFalse(timer.state == .running)
     XCTAssertFalse(timer.mode.isInfinite)
   }
-  
+
   func testInitializeWithAllTheOperationAndDefaultParameters() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    
+
     let timer = BackgroundTimer(interval: .nanoseconds(1_000), mode: .infinite, tolerance: .nanoseconds(0), queue: DispatchQueue(label: "test", attributes: .concurrent)) { _ in
       XCTAssertFalse(Thread.isMainThread)
     }
@@ -124,7 +124,7 @@ class BackgroundTimerTests: XCTestCase {
     XCTAssertNil(timer.mode.countIterations)
     XCTAssertTrue(timer.start())
     XCTAssertFalse(timer.start())
-    
+
     timer.onStateChanged = { (_, state) in
       if state == .paused {
         expectation.fulfill()
@@ -132,22 +132,22 @@ class BackgroundTimerTests: XCTestCase {
         XCTAssertFalse(timer.pause())
       }
     }
-    
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
       DispatchQueue.concurrentPerform(iterations: 10) { index in
         timer.pause() //random concurrent pause commands...
       }
     }
-    
+
     wait(for: [expectation], timeout: 6)
   }
-  
+
   func testMultipleStartBetweenDifferentStates() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation3 = self.expectation(description: "\(#function)\(#line)")
     let timer = BackgroundTimer.every(.milliseconds(500), count: 10, queue: nil) { _ in }
-    
+
     var finishCount = 0
     var pauseCount = 0
     timer.onStateChanged = { (_, state) in
@@ -168,59 +168,59 @@ class BackgroundTimerTests: XCTestCase {
         break
       }
     }
-    
+
     XCTAssertFalse(timer.start())
     XCTAssertTrue(timer.pause())
-    
+
     wait(for: [expectation1], timeout: 6)
     XCTAssertTrue(timer.start())
-    
+
     wait(for: [expectation2], timeout: 6)
     XCTAssertTrue(timer.start()) // restart (it's a reset, so the state will change to pause)
-    
+
     wait(for: [expectation3], timeout: 6)
   }
-  
+
   func testPauseAnIdleTimer() {
     let timer = BackgroundTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
     XCTAssertFalse(timer.pause())
   }
-  
+
   func testReset() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let timer = BackgroundTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
-    
+
     timer.onStateChanged = { (timer, state) in
       switch (timer.interval, state) {
       case (.microseconds(let value), .running) where value == 2:
         XCTFail("This reset shouldn't have started.")
-        
+
       case (.seconds(let value), .running) where value == 30:
         expectation1.fulfill()
-        
+
       case (.nanoseconds(let value), .running) where value == 500:
         expectation2.fulfill()
-        
+
       default:
         break
       }
-      
+
     }
-    
+
     timer.start()
     timer.reset(interval: .microseconds(2), restart: false)
     XCTAssertTrue(timer.state == .paused)
     timer.reset(interval: .seconds(30), restart: false)
     XCTAssertTrue(timer.state == .paused)
     timer.start() // (re)starts the timer with a new interval
-    
+
     wait(for: [expectation1], timeout: 5)
     timer.reset(interval: .nanoseconds(500), restart: true) // resets and (re)starts the timer again
-    
+
     wait(for: [expectation2], timeout: 5)
   }
-  
+
   func testResetAnIdleTimer() {
     let timer = BackgroundTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
     XCTAssertFalse(timer.pause())
@@ -230,38 +230,38 @@ class BackgroundTimerTests: XCTestCase {
     timer.reset(interval: .nanoseconds(100), restart: false)
     XCTAssertTrue(timer.state == .paused)
   }
-  
+
   func testConcurrentAccess() {
     let timer = BackgroundTimer(interval: .seconds(1), mode: .finite(100), queue: nil) { _ in }
     DispatchQueue.concurrentPerform(iterations: 10) { index in
       timer.start()
     }
     XCTAssertTrue(timer.state == .running)
-    
+
     DispatchQueue.concurrentPerform(iterations: 10) { index in
       timer.pause()
     }
     XCTAssertTrue(timer.state == .paused)
-    
+
     DispatchQueue.concurrentPerform(iterations: 10) { index in
       timer.reset(interval: .nanoseconds(500), restart: true)
     }
     XCTAssertTrue(timer.state == .running)
   }
-  
-  
+
+
   func testStopIdleTimer() {
     let timer = BackgroundTimer(interval: .seconds(1), mode: .infinite, queue: nil) { _ in }
     timer.stop()
     XCTAssertTrue(timer.state == .idle)
   }
-  
-  
+
+
   func testResetFiniteTimer() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     var count = 0
-    
+
     var enable1 = true
     var enable2 = false
     let timer = BackgroundTimer(interval: .seconds(1), mode: .finite(5)) { currentTimer in
@@ -276,7 +276,7 @@ class BackgroundTimerTests: XCTestCase {
         count = 0
       }
     }
-    
+
     timer.start()
     wait(for: [expectation1], timeout: 10)
     timer.reset(interval: .seconds(2), restart: false)
@@ -285,7 +285,7 @@ class BackgroundTimerTests: XCTestCase {
     timer.start()
     wait(for: [expectation2], timeout: 10)
   }
-  
+
   func testDeinitIdleTimer() {
     var timer: BackgroundTimer? = BackgroundTimer(interval: .seconds(1), mode: .finite(5)) { _ in }
     weak var weakTimer = timer
