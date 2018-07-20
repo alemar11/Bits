@@ -241,7 +241,7 @@ final class BackgroundTimer {
 
   @discardableResult
   private func finish() -> Bool {
-    let canBeFinished = _state.with { [weak self] currentState -> Bool in
+    let finished = _state.with { [weak self] currentState -> Bool in
       guard currentState != .finished else { return false }
 
       self?.timer.value?.suspend()
@@ -249,7 +249,7 @@ final class BackgroundTimer {
       return true
     }
 
-    return canBeFinished
+    return finished
   }
 }
 
