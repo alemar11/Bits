@@ -207,7 +207,7 @@ final class BackgroundTimer {
         interval = newInterval
       }
 
-        // Create a new instance of timer configured
+        // Create a new timer instance
         destroyTimer()
         timer.swap(configureTimer())
         if !isPaused {
