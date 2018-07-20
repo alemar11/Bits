@@ -193,7 +193,7 @@ final class BackgroundTimer {
   /// - Parameters:
   ///   - interval: new fire interval; pass `nil` to keep the latest interval set.
   ///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
-  public func reset(interval i: Interval?, restart: Bool = true) {
+  public func reset(interval: Interval?, restart: Bool = true) {
     _state.with { _ in
       let isPaused = pause()
 
@@ -203,8 +203,8 @@ final class BackgroundTimer {
       }
 
       // Update the interval
-      if let newInterval = i {
-        interval = newInterval
+      if let newInterval = interval {
+        self.interval = newInterval
       }
 
         // Create a new timer instance
@@ -226,6 +226,7 @@ final class BackgroundTimer {
   /// **Bits**
   ///
   /// Pauses a running `BackgroundTimer`; if it is already paused, it does nothing.
+  /// The timer will continue will its previous settings.
   @discardableResult
   public func pause() -> Bool {
     let paused = _state.with { [weak self] currentState -> Bool in
