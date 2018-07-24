@@ -23,8 +23,6 @@
 
 import Foundation
 
-//TODO: remove thread safety?
-
 /// **Bits**
 ///
 /// `MulticastDelegate` lets you easily create a thread safe "multicast delegate" for a given protocol or class.

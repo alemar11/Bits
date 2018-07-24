@@ -25,7 +25,7 @@ import XCTest
 @testable import Bits
 
 class GCDTimerTests: XCTestCase {
-  
+
   func testResume() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let timer = GCDTimer(interval: .seconds(1), infinite: false, tolerance: .nanoseconds(0), queue: .main) { timer in

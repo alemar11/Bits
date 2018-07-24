@@ -25,7 +25,7 @@ import XCTest
 @testable import Bits
 
 class AtomicTests: XCTestCase {
-  
+
   func testNSLock() {
     let array = Atomic<[Int]>([])
     let iterations = 1000
@@ -41,7 +41,7 @@ class AtomicTests: XCTestCase {
       array.value.append(1)
     }
   }
-  
+
   func testMutex() {
     let array = Atomic<[Int]>([], lock: Mutex())
     let iterations = 1000
@@ -57,5 +57,5 @@ class AtomicTests: XCTestCase {
       array.value.append(1)
     }
   }
-  
+
 }

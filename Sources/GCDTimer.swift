@@ -22,16 +22,21 @@
 // SOFTWARE.
 
 /**
- dispatch_time stops running when your computer goes to sleep. dispatch_walltime continues running. So if you want to do an action in one hour from now, but after 5 minutes your computer goes to sleep for 50 minutes, dispatch_walltime will execute an hour from now, 5 minutes after the computer wakes up. dispatch_time will execute after the computer is running for an hour, that is 55 minutes after it wakes up.
+ dispatch_time stops running when your computer goes to sleep. dispatch_walltime continues running.
+ So if you want to do an action in one hour from now, but after 5 minutes your computer goes to sleep for 50 minutes,
+ dispatch_walltime will execute an hour from now, 5 minutes after the computer wakes up. dispatch_time will execute
+ after the computer is running for an hour, that is 55 minutes after it wakes up.
 **/
 
 import Foundation
 
-fileprivate var AssociatedObjectDispatchSourceTimerKey: UInt8 = 0
+// swiftlint:disable:next private_over_fileprivate
+fileprivate let associatedObjectDispatchSourceTimerKey: UInt8 = 0
 
 extension DispatchSourceTimer {
   fileprivate var isSuspended: Bool {
     get {
+      // swiftlint:disable:next force_cast
       return objc_getAssociatedObject(self, &AssociatedObjectDispatchSourceTimerKey) as! Bool
     }
     set {
