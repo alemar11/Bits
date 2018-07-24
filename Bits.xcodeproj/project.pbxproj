@@ -58,7 +58,7 @@
 		23C8C15420FF27C700BD7A2A /* BackgroundTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15220FF27C700BD7A2A /* BackgroundTimerTests.swift */; };
 		23C8C15620FF29FC00BD7A2A /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15520FF29FC00BD7A2A /* Atomic.swift */; };
 		23C8C15720FF29FC00BD7A2A /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15520FF29FC00BD7A2A /* Atomic.swift */; };
-		23F3845E20ADD01A004983E5 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Subscription.swift */; };
+		23F3845E20ADD01A004983E5 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
 		23F97E0820E64164007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
 		23F97E2420E66012007C4889 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23F97E1B20E66012007C4889 /* Bits.framework */; };
 		23F97E3220E6616E007C4889 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -66,7 +66,7 @@
 		23F97E3420E6616E007C4889 /* WeakBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F6F209EFDF800910999 /* WeakBox.swift */; };
 		23F97E3520E6616E007C4889 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F73209F00BE00910999 /* Result.swift */; };
 		23F97E3620E6616E007C4889 /* Bits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F75209F026A00910999 /* Bits.swift */; };
-		23F97E3820E6616E007C4889 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Subscription.swift */; };
+		23F97E3820E6616E007C4889 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
 		23F97E3920E6616E007C4889 /* ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */; };
 		23F97E3A20E6616E007C4889 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2328D3AB20E50D66002CEEC9 /* Throttler.swift */; };
 		23F97E3C20E6616E007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
@@ -126,7 +126,7 @@
 		23C8C14F20FF215F00BD7A2A /* BackgroundTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTimer.swift; sourceTree = "<group>"; };
 		23C8C15220FF27C700BD7A2A /* BackgroundTimerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTimerTests.swift; sourceTree = "<group>"; };
 		23C8C15520FF29FC00BD7A2A /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
-		23F3845D20ADD01A004983E5 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
+		23F3845D20ADD01A004983E5 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
 		23F97E0720E64164007C4889 /* Interval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
 		23F97E1B20E66012007C4889 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23F97E2320E66012007C4889 /* Bits macOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bits macOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -246,7 +246,7 @@
 				23C45F73209F00BE00910999 /* Result.swift */,
 				23C45F75209F026A00910999 /* Bits.swift */,
 				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
-				23F3845D20ADD01A004983E5 /* Subscription.swift */,
+				23F3845D20ADD01A004983E5 /* Channel.swift */,
 				23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */,
 				23F97E0720E64164007C4889 /* Interval.swift */,
 				23F97E4620E6669F007C4889 /* Permissions.swift */,
@@ -470,7 +470,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23F97E3820E6616E007C4889 /* Subscription.swift in Sources */,
+				23F97E3820E6616E007C4889 /* Channel.swift in Sources */,
 				23F97E3220E6616E007C4889 /* Reachability.swift in Sources */,
 				23374AC120F8A1F000768B5D /* MaxLimiter.swift in Sources */,
 				23F97E3920E6616E007C4889 /* ThreadSafe.swift in Sources */,
@@ -522,7 +522,7 @@
 				23374ABD20F8A1D100768B5D /* Debouncer.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
 				23C45F74209F00BE00910999 /* Result.swift in Sources */,
-				23F3845E20ADD01A004983E5 /* Subscription.swift in Sources */,
+				23F3845E20ADD01A004983E5 /* Channel.swift in Sources */,
 				23C45F70209EFDF800910999 /* WeakBox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

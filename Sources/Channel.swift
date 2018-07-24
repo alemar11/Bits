@@ -26,7 +26,7 @@ import Foundation
 /// **Bits**
 ///
 /// An event bus object which provides an API to broadcast messages to its subscribers.
-public final class Subscription<Value> {
+public final class Channel<Value> {
 
   // MARK: - Properties
 
@@ -34,7 +34,7 @@ public final class Subscription<Value> {
   private let queue: DispatchQueue
 
   /// A list of all the subscriptions
-  internal var subscriptions = NSMapTable<AnyObject, SubscriptionHandler>.weakToStrongObjects()
+  internal var subscriptions = NSMapTable<AnyObject, Subscription>.weakToStrongObjects()
 
   // MARK: - Initializers
 
@@ -66,7 +66,7 @@ public final class Subscription<Value> {
       }
     }
 
-    let subscription = SubscriptionHandler(queue: dispatchQueue, token: token, block: block)
+    let subscription = Subscription(queue: dispatchQueue, token: token, block: block)
 
     queue.async(flags: .barrier, execute: { [weak self] in
       self?.subscriptions.setObject(subscription, forKey: object)
@@ -107,13 +107,13 @@ public final class Subscription<Value> {
           subscription.notify(value)
         }
       }
-      
+
     }
   }
 
 }
 
-extension Subscription {
+extension Channel {
 
   /// **Bits**
   ///
@@ -140,7 +140,7 @@ extension Subscription {
   /// **Bits**
   ///
   /// A subscription.
-  internal final class SubscriptionHandler {
+  internal final class Subscription {
 
     internal let uuid = UUID()
     internal let token: Token
