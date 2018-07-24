@@ -24,61 +24,38 @@
 import XCTest
 @testable import Bits
 
-class ThreadSafeTests: XCTestCase {
-
-  func testConcurrentReadExclusiveWrite() {
-    let safe = ThreadSafe.concurrentReadExclusiveWrite(qos: .default).make()
-    let expectation = self.expectation(description: "\(#function)\(#line)")
-    var array = [Int]()
+class AtomicTests: XCTestCase {
+  
+  func testNSLock() {
+    let array = Atomic<[Int]>([])
     let iterations = 1000
-
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      let last = safe.read { array.last ?? 0 }
-      safe.write {
-        array.append(last + 1)
-        if index == 1000-1 {
-          expectation.fulfill()
-        }
-      }
+      array.value.append(1)
     }
-
-    waitForExpectations(timeout: 3, handler: nil)
-    XCTAssertEqual(array.count, iterations)
   }
 
-  func testExclusiveReadExclusiveWrite() {
-    let safe = ThreadSafe.exclusiveReadExclusiveWrite(qos: .default).make()
-    let expectation = self.expectation(description: "\(#function)\(#line)")
-    var array = [Int]()
+  func testNSRecursiveLock() {
+    let array = Atomic<[Int]>([], lock: NSRecursiveLock())
     let iterations = 1000
-
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      let last = safe.read { array.last ?? 0 }
-      safe.write {
-        array.append(last + 1)
-        if index == 1000-1 {
-          expectation.fulfill()
-        }
-      }
+      array.value.append(1)
     }
-
-    waitForExpectations(timeout: 3, handler: nil)
-    XCTAssertEqual(array.count, iterations)
+  }
+  
+  func testMutex() {
+    let array = Atomic<[Int]>([], lock: Mutex())
+    let iterations = 1000
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      array.value.append(1)
+    }
   }
 
-  func testLocked() {
-    let safe = ThreadSafe.locked(lock: NSRecursiveLock()).make()
-    var array = [Int]()
+  func testSpinLock() {
+    let array = Atomic<[Int]>([], lock: SpinLock())
     let iterations = 1000
-
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      safe.write {
-        let last = safe.read { array.last ?? 0 } // recursive locking
-        array.append(last + 1)
-      }
+      array.value.append(1)
     }
-
-    XCTAssertEqual(array.count, iterations)
   }
-
+  
 }

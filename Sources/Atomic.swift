@@ -23,50 +23,90 @@
 
 import Foundation
 
+public protocol Lock {
+  func lock()
+  func unlock()
+}
+
+extension NSLock: Lock {}
+extension NSRecursiveLock: Lock {}
+
+/// An object that coordinates the operation of multiple threads of execution within the same application.
+public final class SpinLock: Lock {
+
+  private var unfairLock = os_unfair_lock_s()
+
+  public func lock() {
+    os_unfair_lock_lock(&unfairLock)
+  }
+
+  public func unlock() {
+    os_unfair_lock_unlock(&unfairLock)
+  }
+}
+
+/// An object that coordinates the operation of multiple threads of execution within the same application.
+public final class Mutex: Lock {
+
+  private var mutex: pthread_mutex_t = {
+    var mutex = pthread_mutex_t()
+    pthread_mutex_init(&mutex, nil)
+    return mutex
+  }()
+
+  public func lock() {
+    pthread_mutex_lock(&mutex)
+  }
+
+  public func unlock() {
+    pthread_mutex_unlock(&mutex)
+  }
+}
+
 /// **Bits**
 ///
-/// Thread-safe access using `NSLocking`.
+/// Thread-safe access using a locking mechanism conforming to `Lock` protocol.
 public final class Atomic<T> {
-  private let _lock: NSLocking
+  private let lock: Lock
   private var _value: T
 
-  public init(_ value: T, lock: NSLocking = NSLock()) {
-    _value = value
-    _lock = lock
+  public init(_ value: T, lock: Lock = NSLock()) {
+    self.lock = lock
+    self._value = value
   }
 
   public func with<U>(_ value: (T) -> U) -> U {
-    _lock.lock()
-    defer { _lock.unlock() }
+    lock.lock()
+    defer { lock.unlock() }
     return value(_value)
   }
 
   public func modify(_ modify: (T) -> T) {
-    _lock.lock()
+    lock.lock()
     _value = modify(_value)
-    _lock.unlock()
+    lock.unlock()
   }
 
   @discardableResult
   public func swap(_ value: T) -> T {
-    _lock.lock()
+    lock.lock()
     let current = _value
     _value = value
-    _lock.unlock()
+    lock.unlock()
     return current
   }
 
   public var value: T {
     get {
-      _lock.lock()
+      lock.lock()
       let value = _value
-      _lock.unlock()
+      lock.unlock()
       return value
     }
     set {
-      _lock.lock()
+      lock.lock()
       _value = newValue
-      _lock.unlock()
+      lock.unlock()
     }
   }
 }
