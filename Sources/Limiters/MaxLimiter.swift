@@ -33,7 +33,7 @@ public final class MaxLimiter {
   public let limit: UInt
   public private(set) var count: UInt = 0
 
-  private let underlyingQueue = DispatchQueue(label: "\(identifier).Limiter")
+  private let underlyingQueue = DispatchQueue(label: "\(identifier).MaxLimiter")
 
   // MARK: - Initializers
 
