@@ -23,16 +23,33 @@
 
 import Foundation
 
-public protocol Lock {
-  func lock()
+internal protocol Lock {
+  func writeLock()
+  func readLock()
   func unlock()
 }
 
-extension NSLock: Lock {}
-extension NSRecursiveLock: Lock {}
+extension NSLock: Lock {
+  internal func writeLock() {
+    lock()
+  }
+  internal func readLock() {
+    lock()
+  }
+}
+
+extension NSRecursiveLock: Lock {
+  internal func writeLock() {
+    lock()
+  }
+  internal func readLock() {
+    lock()
+  }
+}
 
 /// An object that coordinates the operation of multiple threads of execution within the same application.
-public final class SpinLock: Lock {
+/// Causes a thread trying to acquire a lock to wait in a loop while checking if the lock is available. It is efficient if waiting is rare, but wasteful if waiting is common.
+public final class SpinLock {
 
   private var unfairLock = os_unfair_lock_s()
 
@@ -45,8 +62,19 @@ public final class SpinLock: Lock {
   }
 }
 
+extension SpinLock: Lock {
+  func writeLock() {
+    lock()
+  }
+
+  func readLock() {
+    lock()
+  }
+}
+
 /// An object that coordinates the operation of multiple threads of execution within the same application.
-public final class Mutex: Lock {
+/// Eensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
+public final class Mutex {
 
   private var mutex: pthread_mutex_t = {
     var mutex = pthread_mutex_t()
@@ -63,33 +91,87 @@ public final class Mutex: Lock {
   }
 }
 
+extension Mutex: Lock {
+  func writeLock() {
+    lock()
+  }
+
+  func readLock() {
+    lock()
+  }
+}
+
+/// Lower-level read-write lock
+final class ReadWriteLock {
+  private var rwlock: pthread_rwlock_t = {
+    var rwlock = pthread_rwlock_t()
+    pthread_rwlock_init(&rwlock, nil)
+    return rwlock
+  }()
+
+  func writeLock() {
+    pthread_rwlock_wrlock(&rwlock)
+  }
+
+  func readLock() {
+    pthread_rwlock_rdlock(&rwlock)
+  }
+
+  func unlock() {
+    pthread_rwlock_unlock(&rwlock)
+  }
+}
+
+extension ReadWriteLock: Lock { }
+
 /// **Bits**
 ///
 /// Thread-safe access using a locking mechanism conforming to `Lock` protocol.
 public final class Atomic<T> {
+
+  public enum LockType {
+    case lock
+    case recursive
+    case spin
+    case mutex
+    case readWrite
+  }
+
   private let lock: Lock
+  private let type: LockType
   private var _value: T
 
-  public init(_ value: T, lock: Lock = NSLock()) {
-    self.lock = lock
+  public init(_ value: T, lockType: LockType = .lock) {
+    self.type = lockType
+    self.lock = Atomic.lockForType(lockType)
     self._value = value
   }
 
+  static func lockForType(_ type: LockType) -> Lock {
+    switch type {
+    case .lock: return NSLock()
+    case .recursive: return NSRecursiveLock()
+    case .spin: return SpinLock()
+    case .mutex: return Mutex()
+    case .readWrite: return ReadWriteLock()
+    }
+  }
+
   public func with<U>(_ value: (T) -> U) -> U {
-    lock.lock()
+    lock.readLock()
     defer { lock.unlock() }
     return value(_value)
   }
 
   public func modify(_ modify: (T) -> T) {
-    lock.lock()
+    lock.writeLock()
     _value = modify(_value)
     lock.unlock()
   }
 
   @discardableResult
   public func swap(_ value: T) -> T {
-    lock.lock()
+    lock.writeLock()
     let current = _value
     _value = value
     lock.unlock()
@@ -98,13 +180,13 @@ public final class Atomic<T> {
 
   public var value: T {
     get {
-      lock.lock()
+      lock.readLock()
       let value = _value
       lock.unlock()
       return value
     }
     set {
-      lock.lock()
+      lock.writeLock()
       _value = newValue
       lock.unlock()
     }

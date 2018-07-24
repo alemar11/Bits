@@ -38,10 +38,14 @@ class AtomicTests: XCTestCase {
       })
     }
     XCTAssertEqual(array.value.count, iterations)
+    let prev = array.swap([1])
+    XCTAssertEqual(prev.count, iterations)
+    XCTAssertEqual(array.value.count, 1)
+    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
 
   func testNSRecursiveLock() {
-    let array = Atomic<[Int]>([], lock: NSRecursiveLock())
+    let array = Atomic<[Int]>([], lockType: .recursive)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
@@ -51,10 +55,14 @@ class AtomicTests: XCTestCase {
       })
     }
     XCTAssertEqual(array.value.count, iterations)
+    let prev = array.swap([1])
+    XCTAssertEqual(prev.count, iterations)
+    XCTAssertEqual(array.value.count, 1)
+    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
 
   func testMutex() {
-    let array = Atomic<[Int]>([], lock: Mutex())
+    let array = Atomic<[Int]>([], lockType: .mutex)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
@@ -64,10 +72,14 @@ class AtomicTests: XCTestCase {
       })
     }
     XCTAssertEqual(array.value.count, iterations)
+    let prev = array.swap([1])
+    XCTAssertEqual(prev.count, iterations)
+    XCTAssertEqual(array.value.count, 1)
+    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
 
   func testSpinLock() {
-    let array = Atomic<[Int]>([], lock: SpinLock())
+    let array = Atomic<[Int]>([], lockType: .spin)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
@@ -77,6 +89,27 @@ class AtomicTests: XCTestCase {
       })
     }
     XCTAssertEqual(array.value.count, iterations)
+    let prev = array.swap([1])
+    XCTAssertEqual(prev.count, iterations)
+    XCTAssertEqual(array.value.count, 1)
+    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+  }
+
+  func testReadWriteLock() {
+    let array = Atomic<[Int]>([], lockType: .readWrite)
+    let iterations = 1000
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      array.modify({ array -> [Int] in
+        var copy = array
+        copy.append(index)
+        return copy
+      })
+    }
+    XCTAssertEqual(array.value.count, iterations)
+    let prev = array.swap([1])
+    XCTAssertEqual(prev.count, iterations)
+    XCTAssertEqual(array.value.count, 1)
+    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
 
 }
