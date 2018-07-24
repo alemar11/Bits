@@ -52,8 +52,9 @@ class ThrottlerTests: XCTestCase {
   }
 
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
-    var value = 0
-    let block = { value += 1 }
+    let value = Atomic<Int>(0)
+
+    let block = { value.value += 1 }
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(repeats))
 
@@ -64,12 +65,12 @@ class ThrottlerTests: XCTestCase {
     scheduler.start()
 
     wait(for: [scheduler.completionExpectation], timeout: 60)
-    XCTAssertEqual(value, repeats, "Only \(value) blocks have been called, expecting \(repeats) blocks.")
+    XCTAssertEqual(value.value, repeats, "Only \(value.value) blocks have been called, expecting \(repeats) blocks.")
   }
 
   func testThrottlerHavingOneThirdOfTheFunctionCallsCompleted() {
-    var value = 0
-    let block = { value += 1 }
+    let value = Atomic<Int>(0)
+    let block = { value.value += 1 }
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(850))
 
@@ -80,7 +81,7 @@ class ThrottlerTests: XCTestCase {
     scheduler.start()
 
     wait(for: [scheduler.completionExpectation], timeout: 60)
-    XCTAssertEqual(value, 4)
+    XCTAssertEqual(value.value, 4)
   }
 
   // MARK: - Debouncer
@@ -125,12 +126,12 @@ class ThrottlerTests: XCTestCase {
 
   // MARK: - Max Limiter
 
-  func testimiter() {
+  func testLimiter() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
-    var value = 0
+    let value = Atomic<Int>(0)
     let block = {
-      value += 1
-      if value >= 5 {
+      value.value += 1
+      if value.value >= 5 {
         expectation.fulfill()
       }
     }
