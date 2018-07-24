@@ -36,6 +36,16 @@ private class Listener: DispatcherDelegate {
   }
 }
 
+private class ExpectationListener: DispatcherDelegate {
+  var failIfCalled = false
+
+  func didDispatch() {
+    if failIfCalled {
+      XCTFail("The delegate shouldn't be called.")
+    }
+  }
+}
+
 class MulticastDelegateTests: XCTestCase {
 
   func testCallingSingleDelegate() {
@@ -124,26 +134,32 @@ class MulticastDelegateTests: XCTestCase {
     XCTAssertFalse(delegates.containsDelegate(listener3))
   }
 
+  func testWeakReference() {
+    var listener: ExpectationListener? = ExpectationListener()
+    listener?.failIfCalled = true
+    weak var weakListener = listener
+    let delegates = MulticastDelegate<DispatcherDelegate>()
+    delegates.addDelegate(weakListener!)
+    listener = nil
+    delegates.invoke { $0.didDispatch() }
+  }
+
   func testWeakReferences() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
-    autoreleasepool {
       (0...9).forEach { _ in
         let listener = Listener()
         delegates.addDelegate(listener)
       }
-    }
 
     XCTAssertTrue(delegates.isEmpty)
   }
 
   func testStrongReferences() {
     let delegates = MulticastDelegate<DispatcherDelegate>(usingStrongReferences: true)
-    autoreleasepool {
       (0...9).forEach { _ in
         let listener = Listener()
         delegates.addDelegate(listener)
       }
-    }
 
     XCTAssertEqual(delegates.count, 10)
   }
