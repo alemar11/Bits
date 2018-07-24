@@ -159,8 +159,6 @@ final class BackgroundTimer {
 
   // MARK: - Commands
 
-  private let lock = NSRecursiveLock()
-
   /// **Bits**
   ///
   /// Starts the `BackgroundTimer`; if it is already running, it does nothing.
