@@ -31,16 +31,16 @@
 import Foundation
 
 // swiftlint:disable:next private_over_fileprivate
-fileprivate let associatedObjectDispatchSourceTimerKey: UInt8 = 0
+fileprivate var associatedObjectDispatchSourceTimerKey: UInt8 = 0
 
 extension DispatchSourceTimer {
   fileprivate var isSuspended: Bool {
     get {
       // swiftlint:disable:next force_cast
-      return objc_getAssociatedObject(self, &AssociatedObjectDispatchSourceTimerKey) as! Bool
+      return objc_getAssociatedObject(self, &associatedObjectDispatchSourceTimerKey) as! Bool
     }
     set {
-      objc_setAssociatedObject(self, &AssociatedObjectDispatchSourceTimerKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+      objc_setAssociatedObject(self, &associatedObjectDispatchSourceTimerKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
   }
 }
