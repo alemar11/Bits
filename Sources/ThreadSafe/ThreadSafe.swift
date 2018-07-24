@@ -23,6 +23,8 @@
 
 import Foundation
 
+//TODO: Atomic protocol?
+
 /// **Bits**
 ///
 /// ThreadSafe

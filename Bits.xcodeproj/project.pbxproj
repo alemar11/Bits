@@ -186,6 +186,15 @@
 			path = Limiters;
 			sourceTree = "<group>";
 		};
+		23C175DB21072E86000A76AD /* ThreadSafe */ = {
+			isa = PBXGroup;
+			children = (
+				23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */,
+				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
+			);
+			path = ThreadSafe;
+			sourceTree = "<group>";
+		};
 		23DF7881209E149000C10834 /* Support */ = {
 			isa = PBXGroup;
 			children = (
@@ -247,12 +256,11 @@
 				23C45F75209F026A00910999 /* Bits.swift */,
 				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
-				23B1376F20DEAB1D00D50A3A /* ThreadSafe.swift */,
+				23C175DB21072E86000A76AD /* ThreadSafe */,
 				23F97E0720E64164007C4889 /* Interval.swift */,
 				23F97E4620E6669F007C4889 /* Permissions.swift */,
 				2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */,
 				23C8C14F20FF215F00BD7A2A /* BackgroundTimer.swift */,
-				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
