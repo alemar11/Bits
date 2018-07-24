@@ -40,7 +40,7 @@ extension DispatchSourceTimer {
   }
 }
 
-final class GCDTimer {
+public final class GCDTimer {
 
   // MARK: - Typealias
 
