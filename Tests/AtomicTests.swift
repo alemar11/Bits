@@ -30,32 +30,53 @@ class AtomicTests: XCTestCase {
     let array = Atomic<[Int]>([])
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.value.append(1)
+      // array.value.append(1) isn't thread safe, the only way to mutate the array is using 'modify'
+      array.modify({ array -> [Int] in
+        var copy = array
+        copy.append(index)
+        return copy
+      })
     }
+    XCTAssertEqual(array.value.count, iterations)
   }
 
   func testNSRecursiveLock() {
     let array = Atomic<[Int]>([], lock: NSRecursiveLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.value.append(1)
+      array.modify({ array -> [Int] in
+        var copy = array
+        copy.append(index)
+        return copy
+      })
     }
+    XCTAssertEqual(array.value.count, iterations)
   }
 
   func testMutex() {
     let array = Atomic<[Int]>([], lock: Mutex())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.value.append(1)
+      array.modify({ array -> [Int] in
+        var copy = array
+        copy.append(index)
+        return copy
+      })
     }
+    XCTAssertEqual(array.value.count, iterations)
   }
 
   func testSpinLock() {
     let array = Atomic<[Int]>([], lock: SpinLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.value.append(1)
+      array.modify({ array -> [Int] in
+        var copy = array
+        copy.append(index)
+        return copy
+      })
     }
+    XCTAssertEqual(array.value.count, iterations)
   }
 
 }
