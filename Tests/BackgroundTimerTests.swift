@@ -79,19 +79,17 @@ class BackgroundTimerTests: XCTestCase {
 
     wait(for: [expectation], timeout: 2)
     XCTAssertTrue(timer.state == .finished)
-    XCTAssertFalse(timer.state == .running)
   }
 
-  //TODO
-//  func testStopAFireOnce() {
-//    let expectation = self.expectation(description: "\(#function)\(#line)")
-//    let timer = BackgroundTimer.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
-//      XCTAssertFalse(Thread.isMainThread)
-//      expectation.fulfill()
-//    }
-//    wait(for: [expectation], timeout: 2)
-//    timer.stop()
-//  }
+  func testStopAfterAFireOnceTimer() {
+    let expectation = self.expectation(description: "\(#function)\(#line)")
+    let timer = BackgroundTimer.once(after: .milliseconds(500), queue: DispatchQueue(label: "\(#function)\(#file)")) { _ in
+      XCTAssertFalse(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    wait(for: [expectation], timeout: 2)
+    timer.stop()
+  }
 
   func testFireEverySecond() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
@@ -108,9 +106,8 @@ class BackgroundTimerTests: XCTestCase {
     }
 
     wait(for: [expectation], timeout: 7)
-    XCTAssertTrue(timer.state == .finished)
+    XCTAssertTrue(timer.state == .finished, "The timer should be in finished state instead of \(timer.state)")
     XCTAssertTrue(timer.mode.isRepeating)
-    XCTAssertFalse(timer.state == .running)
     XCTAssertFalse(timer.mode.isInfinite)
   }
 
