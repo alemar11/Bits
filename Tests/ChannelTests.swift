@@ -260,70 +260,6 @@ class ChannelTests: XCTestCase {
     XCTAssertEqual(channel.subscriptions.keyEnumerator().allObjects.count, 0)
   }
 
-//  func testUnsuscribeInvalidSubscriber() {
-//    // Given
-//    class Object { }
-//    let channel = Subscription<Event>()
-//    var object1: NSObject? = NSObject()
-//    var object2: Object? = Object()
-//
-//    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation3 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation4 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation5 = self.expectation(description: "\(#function)\(#line)")
-//    let expectation6 = self.expectation(description: "\(#function)\(#line)")
-//
-//    expectation3.isInverted = true
-//    expectation4.isInverted = true
-//
-//    // When, Then
-//    channel.subscribe(object1, completion: { token in
-//      expectation1.fulfill()
-//    }) { _, _ in
-//      expectation3.fulfill()
-//    }
-//
-//    channel.subscribe(object2, completion: { token in
-//      expectation2.fulfill()
-//    }) { _, _ in
-//      expectation4.fulfill()
-//    }
-//
-//    wait(for: [expectation1, expectation2], timeout: 2)
-//    XCTAssertEqual(channel.subscriptions.keyEnumerator().allObjects.count, 2)
-//
-//    /// making sure that a nil object can still be used to unsuscribe
-//
-//    //let subscriptionUUIDObject1 = channel.subscriptions.filter { $0.object === object1 }[0].uuid
-//    //let subscriptionUUIDObject2 = channel.subscriptions.filter { $0.object === object2 }[0].uuid
-//
-//    let subscriptionUUIDObject1 = channel.subscriptions.object(forKey: object1)!.uuid
-//    let subscriptionUUIDObject2 = channel.subscriptions.object(forKey: object2)!.uuid
-//
-//    //object2 = nil
-//    channel.unsubscribe(object2) {
-//      expectation5.fulfill()
-//    }
-//
-//    wait(for: [expectation5], timeout: 2)
-//    XCTAssertEqual(channel.subscriptions.keyEnumerator().allObjects.count, 1)
-//
-//    //XCTAssertEqual(channel.subscriptions.filter { $0.uuid == subscriptionUUIDObject1 }.count, 1)
-//    //XCTAssertTrue(channel.subscriptions.filter { $0.uuid == subscriptionUUIDObject2 }.isEmpty)
-//
-//    //object1 = nil
-//    channel.unsubscribe(object1) {
-//      expectation6.fulfill()
-//    }
-//
-//    wait(for: [expectation6], timeout: 2)
-//    XCTAssertTrue(channel.subscriptions.keyEnumerator().allObjects.isEmpty)
-//
-//    waitForExpectations(timeout: 1, handler: nil)
-//    XCTAssertTrue(channel.subscriptions.keyEnumerator().allObjects.isEmpty)
-//  }
-
   func testInvalidSubscriber() {
     // Given
     let channel = Subscription<Event>()
@@ -441,47 +377,47 @@ class ChannelTests: XCTestCase {
     XCTAssertTrue(channel.subscriptions.keyEnumerator().allObjects.isEmpty)
   }
 
-  //  func testUnsuscribeWhileBroadcastingWithRaceCondition() {
-  //    // Given
-  //    let channel = Channel<Event>()
-  //    let scheduler = BroadCastScheduler(channel: channel, timeInterval: 0.1)
-  //    let object1 = NSObject()
-  //    let iterations = 1000
-  //    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-  //
-  //    var count = 0
-  //    let lock = NSLock()
-  //
-  //    // When
-  //    scheduler.start()
-  //
-  //    channel.subscribe(object1, queue: nil) { event in
-  //      switch event {
-  //      case .event1:
-  //        /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
-  //        lock.lock(); defer { lock.unlock() }
-  //        count += 1
-  //      default: break
-  //      }
-  //    }
-  //
-  //    /// Object1 will receive some events
-  //    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
-  //      channel.unsubscribe(object1) {
-  //        expectation1.fulfill()
-  //      }
-  //    }
-  //
-  //    // Then
-  //    waitForExpectations(timeout: 2)
-  //    scheduler.stop()
-  //    lock.lock();
-  //    let result = count
-  //    let isEmpty = channel.subscriptions.isEmpty
-  //    XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
-  //    XCTAssertTrue(isEmpty)
-  //    lock.unlock()
-  //  }
+    func testUnsuscribeWhileBroadcastingWithRaceCondition() {
+      // Given
+      let channel = Subscription<Event>()
+      let scheduler = ChannelScheduler(channel: channel, timeInterval: 0.1)
+      let object1 = NSObject()
+      let iterations = 1000
+      let expectation1 = self.expectation(description: "\(#function)\(#line)")
+
+      var count = 0
+      let lock = NSLock()
+
+      // When
+      scheduler.start()
+
+      channel.subscribe(object1, queue: nil) { event, token in
+        switch event {
+        case .event1:
+          /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
+          lock.lock(); defer { lock.unlock() }
+          count += 1
+        default: break
+        }
+      }
+
+      /// Object1 will receive some events
+      DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+        channel.unsubscribe(object1) {
+          expectation1.fulfill()
+        }
+      }
+
+      // Then
+      waitForExpectations(timeout: 2)
+      scheduler.stop()
+      lock.lock();
+      let result = count
+      let isEmpty = channel.subscriptions.keyEnumerator().allObjects.isEmpty
+      XCTAssertTrue(1...999 ~= result, "\(result) should be >= 1 and <= 999")
+      XCTAssertTrue(isEmpty)
+      lock.unlock()
+    }
 
 }
 
