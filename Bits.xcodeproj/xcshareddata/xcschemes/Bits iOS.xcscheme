@@ -44,9 +44,6 @@
                <Test
                   Identifier = "BackgroundTimerTests">
                </Test>
-               <Test
-                  Identifier = "ChannelTests">
-               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>

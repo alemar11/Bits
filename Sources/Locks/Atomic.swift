@@ -50,6 +50,12 @@ public final class Atomic<T> {
     lock.unlock()
   }
 
+  public func mutate(_ transform: (inout T) -> Void) {
+    lock.writeLock()
+     transform(&_value)
+    lock.unlock()
+  }
+
   @discardableResult
   public func swap(_ value: T) -> T {
     lock.writeLock()

@@ -30,7 +30,7 @@ class AtomicTests: XCTestCase {
     let array = Atomic<[Int]>([])
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      // array.value.append(1) isn't thread safe, the only way to mutate the array is using 'modify'
+      // array.value.append(1) isn't thread safe, the only way to mutate the array is using 'modify' or `mutate`
       array.modify({ array -> [Int] in
         var copy = array
         copy.append(index)
