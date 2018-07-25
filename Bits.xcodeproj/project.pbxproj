@@ -32,6 +32,14 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		2300A7E521085A8B0067577B /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E421085A8B0067577B /* SpinLock.swift */; };
+		2300A7E621085A8B0067577B /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E421085A8B0067577B /* SpinLock.swift */; };
+		2300A7E821085AAB0067577B /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E721085AAB0067577B /* Mutex.swift */; };
+		2300A7E921085AAB0067577B /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E721085AAB0067577B /* Mutex.swift */; };
+		2300A7EB21085AC00067577B /* ReadWriteLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7EA21085AC00067577B /* ReadWriteLock.swift */; };
+		2300A7EC21085AC00067577B /* ReadWriteLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7EA21085AC00067577B /* ReadWriteLock.swift */; };
+		2300A7EE21085AF90067577B /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7ED21085AF90067577B /* Lock.swift */; };
+		2300A7EF21085AF90067577B /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7ED21085AF90067577B /* Lock.swift */; };
 		2328D3AC20E50D66002CEEC9 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2328D3AB20E50D66002CEEC9 /* Throttler.swift */; };
 		23374ABD20F8A1D100768B5D /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23374ABC20F8A1D100768B5D /* Debouncer.swift */; };
 		23374ABE20F8A1D100768B5D /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23374ABC20F8A1D100768B5D /* Debouncer.swift */; };
@@ -103,6 +111,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2300A7E421085A8B0067577B /* SpinLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinLock.swift; sourceTree = "<group>"; };
+		2300A7E721085AAB0067577B /* Mutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutex.swift; sourceTree = "<group>"; };
+		2300A7EA21085AC00067577B /* ReadWriteLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadWriteLock.swift; sourceTree = "<group>"; };
+		2300A7ED21085AF90067577B /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
 		2328D3AB20E50D66002CEEC9 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 		23374ABC20F8A1D100768B5D /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		23374ABF20F8A1F000768B5D /* MaxLimiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxLimiter.swift; sourceTree = "<group>"; };
@@ -173,6 +185,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2300A7E021085A5D0067577B /* Locks */ = {
+			isa = PBXGroup;
+			children = (
+				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
+				2300A7E421085A8B0067577B /* SpinLock.swift */,
+				2300A7E721085AAB0067577B /* Mutex.swift */,
+				2300A7EA21085AC00067577B /* ReadWriteLock.swift */,
+				2300A7ED21085AF90067577B /* Lock.swift */,
+			);
+			path = Locks;
+			sourceTree = "<group>";
+		};
 		23374ABB20F8A1B400768B5D /* Limiters */ = {
 			isa = PBXGroup;
 			children = (
@@ -236,9 +260,9 @@
 		23FB40D2208C6D11002F5428 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				2300A7E021085A5D0067577B /* Locks */,
 				23374ABB20F8A1B400768B5D /* Limiters */,
 				23FB40D6208C71D9002F5428 /* Reachability.swift */,
-				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
 				23C45F6B209EFB1300910999 /* Box.swift */,
 				23C45F6F209EFDF800910999 /* WeakBox.swift */,
 				23C45F73209F00BE00910999 /* Result.swift */,
@@ -471,13 +495,17 @@
 				23374AC120F8A1F000768B5D /* MaxLimiter.swift in Sources */,
 				23C8C15720FF29FC00BD7A2A /* Atomic.swift in Sources */,
 				23F97E3C20E6616E007C4889 /* Interval.swift in Sources */,
+				2300A7E921085AAB0067577B /* Mutex.swift in Sources */,
 				23C8C15120FF215F00BD7A2A /* GCDTimer.swift in Sources */,
 				23374ABE20F8A1D100768B5D /* Debouncer.swift in Sources */,
 				23F97E3620E6616E007C4889 /* Bits.swift in Sources */,
+				2300A7EF21085AF90067577B /* Lock.swift in Sources */,
 				23F97E3320E6616E007C4889 /* Box.swift in Sources */,
 				23F97E3520E6616E007C4889 /* Result.swift in Sources */,
 				2339BA5920EBB22A005C0898 /* MulticastDelegate.swift in Sources */,
 				23F97E3A20E6616E007C4889 /* Throttler.swift in Sources */,
+				2300A7E621085A8B0067577B /* SpinLock.swift in Sources */,
+				2300A7EC21085AC00067577B /* ReadWriteLock.swift in Sources */,
 				23F97E3420E6616E007C4889 /* WeakBox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -504,6 +532,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
+				2300A7E821085AAB0067577B /* Mutex.swift in Sources */,
+				2300A7EE21085AF90067577B /* Lock.swift in Sources */,
 				23C8C15020FF215F00BD7A2A /* GCDTimer.swift in Sources */,
 				2328D3AC20E50D66002CEEC9 /* Throttler.swift in Sources */,
 				23C8C15620FF29FC00BD7A2A /* Atomic.swift in Sources */,
@@ -514,7 +544,9 @@
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				2339BA5820EBB22A005C0898 /* MulticastDelegate.swift in Sources */,
 				23374ABD20F8A1D100768B5D /* Debouncer.swift in Sources */,
+				2300A7EB21085AC00067577B /* ReadWriteLock.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
+				2300A7E521085A8B0067577B /* SpinLock.swift in Sources */,
 				23C45F74209F00BE00910999 /* Result.swift in Sources */,
 				23F3845E20ADD01A004983E5 /* Channel.swift in Sources */,
 				23C45F70209EFDF800910999 /* WeakBox.swift in Sources */,
