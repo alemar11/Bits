@@ -32,28 +32,18 @@ extension Notification {
   /// UIKeyboard Notification Payload.
   public struct UIKeyboardPayload: NotificationPayload {
 
-    /// **Bits**
-    ///
     /// Identifies whether the keyboard belongs to the current app.
     public let isLocal: Bool
 
-    /// **Bits**
-    ///
     /// Identifies the start frame of the keyboard in screen coordinates.
     public let startFrame: CGRect
 
-    /// **Bits**
-    ///
     /// Identifies the end frame of the keyboard in screen coordinates.
     public let endFrame: CGRect
 
-    /// **Bits**
-    ///
     /// Defines how the keyboard will be animated onto or off the screen.
     public let animationCurve: UIViewAnimationCurve
 
-    /// **Bits**
-    ///
     /// Identifies the duration of the keyboard animation in seconds.
     public let animationDuration: TimeInterval
 

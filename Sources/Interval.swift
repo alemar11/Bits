@@ -35,7 +35,6 @@ public enum Interval {
   case hours(_: Int)
   case days(_: Int)
 
-  /// **Bits**
   /// Returns a `DispatchTimeInterval` representation.
   public var dispatchTimeInterval: DispatchTimeInterval {
     switch self {

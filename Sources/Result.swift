@@ -37,43 +37,31 @@ extension ResultType {
 
   // MARK: Constructors
 
-  /// **Bits**
-  ///
   /// Constructs a success wrapping a `value`.
   public init(value: T) {
     self = .success(value)
   }
 
-  /// **Bits**
-  ///
   /// Constructs a failure wrapping an `error`.
   public init(error: E) {
     self = .failure(error)
   }
 
-  /// **Bits**
-  ///
   /// Returns the success value.
   public var success: T? {
     if case .success(let success) = self { return success }
     return nil
   }
 
-  /// **Bits**
-  ///
   /// Returns the error.
   public var failure: E? {
     if case .failure(let error) = self { return error }
     return nil
   }
 
-  /// **Bits**
-  ///
   /// Returns `true` if the result is successfull.
   public var isSuccess: Bool { return self.success != nil }
 
-  /// **Bits**
-  ///
   /// Returns `true` if the result is not successfull.
   public var isError: Bool { return self.failure != nil }
 }
@@ -95,8 +83,6 @@ public extension ResultType where E: Swift.Error {
 
 extension ResultType: CustomStringConvertible {
 
-  /// **Bits**
-  ///
   /// The textual representation used when written to an output stream, which includes whether the result was a
   /// success or failure.
   public var description: String {
@@ -151,8 +137,6 @@ public extension ResultType where E == Swift.Error {
 
 public extension Result {
 
-  /// **Bits**
-  ///
   /// Maps the result type to a new value
   ///
   /// - Parameter transform: A mapping closure.
@@ -166,8 +150,6 @@ public extension Result {
     }
   }
 
-  /// **Bits**
-  ///
   /// Maps the result type to a new value.
   ///
   /// - Parameter transform: A mapping closure.

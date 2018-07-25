@@ -29,6 +29,7 @@ import Foundation
 public final class Channel<Value> {
 
   // MARK: - Properties
+
   /// An internal queue for concurrent readings and exclusive writing.
   private let queue: DispatchQueue
 
@@ -43,16 +44,14 @@ public final class Channel<Value> {
   }
 
   // MARK: - Initializers
-  /// **Bits**
-  ///
+
   /// Creates a subscription instance.
   public init() {
     self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: .default, attributes: .concurrent)
   }
 
   // MARK: - Subscription
-  /// **Bits**
-  ///
+
   /// Subscribes a given object.
   ///
   /// - Parameters:
@@ -77,8 +76,6 @@ public final class Channel<Value> {
 
   }
 
-  /// **Bits**
-  ///
   /// Unsubscribes given object.
   ///
   /// - Parameters:
@@ -95,8 +92,6 @@ public final class Channel<Value> {
     })
   }
 
-  /// **Bits**
-  ///
   /// Broadcasts given value to subscribers.
   ///
   /// - Parameters:
@@ -124,8 +119,6 @@ public final class Channel<Value> {
 
 extension Channel {
 
-  /// **Bits**
-  ///
   /// A subscription token to cancel a subscription.
   public struct Token {
     private let cancellationClosure: ((() -> Void)?) -> Void
@@ -134,8 +127,6 @@ extension Channel {
       self.cancellationClosure = cancellationClosure
     }
 
-    /// **Bits**
-    ///
     /// Cancels the subscription associated with this token.
     ///
     /// - Parameter completion: The block executed after the cancellation has completed.
@@ -145,8 +136,7 @@ extension Channel {
   }
 
   // MARK: - Subscription
-  /// **Bits**
-  ///
+
   /// A subscription.
   internal final class Subscription {
 

@@ -81,8 +81,7 @@ public final class Atomic<T> {
 }
 
 extension Atomic {
-  /// **Bits**
-  ///
+
   /// All the available locking mechanism.
   ///
   /// - nslock: `NSLock`
@@ -107,4 +106,5 @@ extension Atomic {
     case .readWriteLock: return ReadWriteLock()
     }
   }
+
 }

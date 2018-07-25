@@ -28,32 +28,22 @@ import Foundation
 /// `MulticastDelegate` lets you easily create a thread safe "multicast delegate" for a given protocol or class.
 open class MulticastDelegate<T> {
 
-  /// **Bits**
-  ///
   /// The delegates hash table.
   private let delegates: NSHashTable<AnyObject>
 
-  /// **Bits**
-  ///
   /// The underlaying concurrent queue.
   private let queue = DispatchQueue( label: "\(identifier).(\(type(of: MulticastDelegate.self))", attributes: .concurrent)
 
-  /// **Bits**
-  ///
   /// Returns `true` if there are no delegates at all, `false` if there is at least one.
   public var isEmpty: Bool {
     return queue.sync { delegates.allObjects.isEmpty }
   }
 
-  /// **Bits**
-  ///
   /// Returns the number of delegates.
   public var count: Int {
     return queue.sync { delegates.allObjects.count }
   }
 
-  /// **Bits**
-  ///
   /// Initializes a new `MulticastDelegate` specifying whether delegate references should be weak or strong.
   ///
   /// - Parameter usingStrongReferences: Whether delegates should be strongly referenced, false by default.
@@ -61,8 +51,6 @@ open class MulticastDelegate<T> {
     delegates = usingStrongReferences ? NSHashTable<AnyObject>() : NSHashTable<AnyObject>.weakObjects()
   }
 
-  /// **Bits**
-  ///
   /// Adds a delelgate.
   ///
   /// - Parameter delegate: The delegate to be added.
@@ -72,8 +60,6 @@ open class MulticastDelegate<T> {
     }
   }
 
-  /// **Bits**
-  ///
   /// Removes a previously-added delegate.
   ///
   /// - Parameter delegate: The delegate to be removed.
@@ -86,8 +72,6 @@ open class MulticastDelegate<T> {
     }
   }
 
-  /// **Bits**
-  ///
   /// Invokes a closure on each delegate.
   ///
   /// - Parameter invocation: The closure to be invoked on each delegate.
@@ -100,8 +84,6 @@ open class MulticastDelegate<T> {
     }
   }
 
-  /// **Bits**
-  ///
   /// Returns a Boolean value that indicates whether the multicast delegate contains a given delegate.
   ///
   /// - Parameter delegate: The given delegate to check if it's contained

@@ -127,8 +127,6 @@ public final class GCDTimer {
     return timer
   }
 
-  /// **Bits**
-  ///
   /// Starts the `GCDTimer`; if it is already running, it does nothing.
   public func resume() {
     if isSuspended {
@@ -140,8 +138,6 @@ public final class GCDTimer {
     }
   }
 
-  /// **Bits**
-  ///
   /// Suspends the `GCDTimer`.
   public func suspend() {
     if !isSuspended {
@@ -150,16 +146,12 @@ public final class GCDTimer {
     }
   }
 
-  /// **Bits**
-  ///
   /// Cancels the `GCDTimer`.
   public func cancel() {
     timer.cancel()
     timer.isSuspended = false
   }
 
-  /// **Bits**
-  ///
   /// Stops the `GCDTimer`; the timer will be reset.
   public func stop() {
     invalidate()
@@ -171,15 +163,11 @@ public final class GCDTimer {
     handler(self)
   }
 
-  /// **Bits**
-  ///
   /// Returns `true` if the `GCDTimer` is cancelled.
   public var isCancelled: Bool {
     return timer.isCancelled
   }
 
-  /// **Bits**
-  ///
   /// Returns `true` if the `GCDTimer` is isSuspended.
   public var isSuspended: Bool {
     return timer.isSuspended
