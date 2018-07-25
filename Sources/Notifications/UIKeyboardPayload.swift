@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -25,67 +25,68 @@
 
 import UIKit
 
-
-/// **Bits**
-///
-/// UIKeyboard Notification Payload.
-public struct UIKeyboardPayload: NotificationPayload {
+extension Notification {
 
   /// **Bits**
   ///
-  /// Identifies whether the keyboard belongs to the current app.
-  public let isLocal: Bool
+  /// UIKeyboard Notification Payload.
+  public struct UIKeyboardPayload: NotificationPayload {
 
-  /// **Bits**
-  ///
-  /// Identifies the start frame of the keyboard in screen coordinates.
-  public let startFrame: CGRect
+    /// **Bits**
+    ///
+    /// Identifies whether the keyboard belongs to the current app.
+    public let isLocal: Bool
 
-  /// **Bits**
-  ///
-  /// Identifies the end frame of the keyboard in screen coordinates.
-  public let endFrame: CGRect
+    /// **Bits**
+    ///
+    /// Identifies the start frame of the keyboard in screen coordinates.
+    public let startFrame: CGRect
 
-  /// **Bits**
-  ///
-  /// Defines how the keyboard will be animated onto or off the screen.
-  public let animationCurve: UIViewAnimationCurve
+    /// **Bits**
+    ///
+    /// Identifies the end frame of the keyboard in screen coordinates.
+    public let endFrame: CGRect
 
-  /// **Bits**
-  ///
-  /// Identifies the duration of the keyboard animation in seconds.
-  public let animationDuration: TimeInterval
+    /// **Bits**
+    ///
+    /// Defines how the keyboard will be animated onto or off the screen.
+    public let animationCurve: UIViewAnimationCurve
 
-  public init?(userInfo: [AnyHashable : Any]) {
-    if
-      let isLocal = userInfo[UIKeyboardIsLocalUserInfoKey] as? Bool,
-      let startFrame = userInfo[UIKeyboardFrameBeginUserInfoKey] as? CGRect,
-      let endFrame = userInfo[UIKeyboardFrameEndUserInfoKey] as? CGRect,
-      let rawAnimationCurve = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationCurve.RawValue,
-      let animationDuration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval
-    {
-      self.isLocal = isLocal
-      self.startFrame = startFrame
-      self.endFrame = endFrame
-      // swiftlint:disable force_cast
-      self.animationCurve = UIViewAnimationCurve(rawValue: rawAnimationCurve)!
-      // swiftlint:enable force_cast
-      self.animationDuration = animationDuration
-    } else {
-      return nil
+    /// **Bits**
+    ///
+    /// Identifies the duration of the keyboard animation in seconds.
+    public let animationDuration: TimeInterval
+
+    public init?(userInfo: [AnyHashable: Any]) {
+      if
+        let isLocal = userInfo[UIKeyboardIsLocalUserInfoKey] as? Bool,
+        let startFrame = userInfo[UIKeyboardFrameBeginUserInfoKey] as? CGRect,
+        let endFrame = userInfo[UIKeyboardFrameEndUserInfoKey] as? CGRect,
+        let rawAnimationCurve = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationCurve.RawValue,
+        let animationDuration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval
+      {
+        self.isLocal = isLocal
+        self.startFrame = startFrame
+        self.endFrame = endFrame
+        self.animationCurve = UIViewAnimationCurve(rawValue: rawAnimationCurve)!
+        self.animationDuration = animationDuration
+      } else {
+        return nil
+      }
     }
-  }
 
-  public init?(notification: Notification) {
-    guard let userInfo = notification.userInfo else { return nil }
-    self.init(userInfo: userInfo)
-  }
+    public init?(notification: Notification) {
+      guard let userInfo = notification.userInfo else { return nil }
 
+      self.init(userInfo: userInfo)
+    }
+
+  }
 }
 
-extension UIKeyboardPayload {
+extension Notification.UIKeyboardPayload {
 
-  public var userInfo: [AnyHashable : Any] {
+  public var userInfo: [AnyHashable: Any] {
     var userInfo = [AnyHashable: Any]()
 
     userInfo[UIKeyboardIsLocalUserInfoKey] = isLocal

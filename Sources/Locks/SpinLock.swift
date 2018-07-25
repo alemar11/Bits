@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -36,5 +36,5 @@ public final class SpinLock {
   public func unlock() {
     os_unfair_lock_unlock(&unfairLock)
   }
-  
+
 }

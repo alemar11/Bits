@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -25,5 +25,5 @@ import Foundation
 
 protocol NotificationPayload {
   init?(notification: Notification)
-  init?(userInfo: [AnyHashable : Any])
+  init?(userInfo: [AnyHashable: Any])
 }
