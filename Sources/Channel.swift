@@ -32,8 +32,15 @@ public final class Channel<Value> {
   /// An internal queue for concurrent readings and exclusive writing.
   private let queue: DispatchQueue
 
-  /// A list of all the subscriptions
-  internal var subscriptions = [Subscription]()
+  /// A list of all the subscriptions.
+  private var _subscriptions = [Subscription]()
+
+  /// A list of all the subscriptions.
+  internal var subscriptions: [Subscription] {
+    return queue.sync(flags: .barrier) {
+      return _subscriptions
+    }
+  }
 
   // MARK: - Initializers
   /// **Bits**
@@ -64,7 +71,7 @@ public final class Channel<Value> {
     let subscription = Subscription(object: object, queue: dispatchQueue, token: token, block: block)
 
     queue.async(flags: .barrier, execute: { [weak self] in
-      self?.subscriptions.append(subscription)
+      self?._subscriptions.append(subscription)
       completion?(token)
     })
 
@@ -81,8 +88,8 @@ public final class Channel<Value> {
     queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
 
-      if let foundIndex = self.subscriptions.index(where: { $0.object === object }) {
-        self.subscriptions.remove(at: foundIndex)
+      if let foundIndex = self._subscriptions.index(where: { $0.object === object }) {
+        self._subscriptions.remove(at: foundIndex)
       }
       completion?()
     })
@@ -101,7 +108,7 @@ public final class Channel<Value> {
     queue.sync { [weak self] in
       guard let `self` = self else { return }
 
-      self.subscriptions.forEach { $0.notify(value) }
+      self._subscriptions.forEach { $0.notify(value) }
     }
   }
 
@@ -110,7 +117,7 @@ public final class Channel<Value> {
     queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
 
-      self.subscriptions = self.subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
+      self._subscriptions = self._subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
     })
   }
 }
