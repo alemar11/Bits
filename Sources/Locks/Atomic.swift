@@ -28,32 +28,14 @@ import Foundation
 /// Thread-safe access using a locking mechanism conforming to `Lock` protocol.
 public final class Atomic<T> {
 
-  public enum LockType {
-    case lock
-    case recursive
-    case spin
-    case mutex
-    case readWrite
-  }
-
   private let lock: Lock
-  private let type: LockType
+  private let lockingType: LockingType
   private var _value: T
 
-  public init(_ value: T, lockType: LockType = .lock) {
-    self.type = lockType
-    self.lock = Atomic.lock(for: lockType)
+  public init(_ value: T, lockingType: LockingType = .nslock) {
+    self.lockingType = lockingType
+    self.lock = Atomic.lock(for: lockingType)
     self._value = value
-  }
-
-  static func lock(for type: LockType) -> Lock {
-    switch type {
-    case .lock: return NSLock()
-    case .recursive: return NSRecursiveLock()
-    case .spin: return SpinLock()
-    case .mutex: return Mutex()
-    case .readWrite: return ReadWriteLock()
-    }
   }
 
   public func with<U>(_ value: (T) -> U) -> U {
@@ -88,6 +70,35 @@ public final class Atomic<T> {
       lock.writeLock()
       _value = newValue
       lock.unlock()
+    }
+  }
+}
+
+extension Atomic {
+  /// **Bits**
+  ///
+  /// All the available locking mechanism.
+  ///
+  /// - nslock: `NSLock`
+  /// - nsrecursiveLock: `NSRecursiveLock`
+  /// - spinLock: `SpinLock` (Bits)
+  /// - mutex: `Mutex` (Bits)
+  /// - readWriteLock: `ReadWriteLock` (Bits)
+  public enum LockingType {
+    case nslock
+    case nsrecursiveLock
+    case spinLock
+    case mutex
+    case readWriteLock
+  }
+
+  static func lock(for type: LockingType) -> Lock {
+    switch type {
+    case .nslock: return NSLock()
+    case .nsrecursiveLock: return NSRecursiveLock()
+    case .spinLock: return SpinLock()
+    case .mutex: return Mutex()
+    case .readWriteLock: return ReadWriteLock()
     }
   }
 }

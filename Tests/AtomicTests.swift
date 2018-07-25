@@ -45,7 +45,7 @@ class AtomicTests: XCTestCase {
   }
 
   func testNSRecursiveLock() {
-    let array = Atomic<[Int]>([], lockType: .recursive)
+    let array = Atomic<[Int]>([], lockingType: .nsrecursiveLock)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
@@ -62,7 +62,7 @@ class AtomicTests: XCTestCase {
   }
 
   func testMutex() {
-    let array = Atomic<[Int]>([], lockType: .mutex)
+    let array = Atomic<[Int]>([], lockingType: .mutex)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
@@ -79,7 +79,7 @@ class AtomicTests: XCTestCase {
   }
 
   func testSpinLock() {
-    let array = Atomic<[Int]>([], lockType: .spin)
+    let array = Atomic<[Int]>([], lockingType: .spinLock)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
@@ -96,7 +96,7 @@ class AtomicTests: XCTestCase {
   }
 
   func testReadWriteLock() {
-    let array = Atomic<[Int]>([], lockType: .readWrite)
+    let array = Atomic<[Int]>([], lockingType: .readWriteLock)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.modify({ array -> [Int] in
