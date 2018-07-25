@@ -85,9 +85,11 @@ class GCDTimerTests: XCTestCase {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let count = Atomic(0)
+    let lock = NSLock()
     let timer = GCDTimer(interval: .nanoseconds(1), queue: .main) { timer  in
-      let t = timer.ticks
-      print(t)
+//      let t = timer.ticks
+//      print(t)
+
       XCTAssertEqual(timer.ticks, 1)
 
       switch count.value {
