@@ -26,6 +26,19 @@ import XCTest
 
 class GCDTimerTests: XCTestCase {
 
+//  func testStress() {
+//    (1...100).forEach { index in
+//      print(index)
+////      testResume()
+////      testSuspend()
+////      testCancel()
+//      testOnce()
+////      testStop()
+////      testDeinit()
+////      testMultiStop()
+//    }
+//  }
+
   func testResume() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let timer = GCDTimer(interval: .seconds(1), infinite: false, tolerance: .nanoseconds(0), queue: .main) { timer in
@@ -55,9 +68,9 @@ class GCDTimerTests: XCTestCase {
     timer.resume()
   }
 
-  func testOnce() {
+  func testOnce() { // FIXME: race if we don't pass the .main queue
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let timer = GCDTimer(interval: .seconds(1), queue: .main) { timer in
+    let timer = GCDTimer(interval: .milliseconds(1), queue: .main) { timer in
       timer.cancel()
       expectation.fulfill()
     }
@@ -68,13 +81,16 @@ class GCDTimerTests: XCTestCase {
     XCTAssertTrue(timer.isCancelled)
   }
 
-  func testStop() {
+  func testStop() { // FIXME: race if we don't pass the .main queue
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    var count = 0
-    let timer = GCDTimer(interval: .seconds(1), queue: .main) { timer  in
+    let count = Atomic(0)
+    let timer = GCDTimer(interval: .nanoseconds(1), queue: .main) { timer  in
+      let t = timer.ticks
+      print(t)
       XCTAssertEqual(timer.ticks, 1)
-      switch count {
+
+      switch count.value {
       case 0:
         timer.stop()
         timer.resume()
@@ -83,7 +99,7 @@ class GCDTimerTests: XCTestCase {
       case 1: expectation2.fulfill()
       default: XCTFail("Unexpected event")
       }
-      count += 1
+      count.mutate { $0 += 1 }
     }
 
     timer.resume()

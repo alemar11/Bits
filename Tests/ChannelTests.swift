@@ -368,7 +368,7 @@ class ChannelTests: XCTestCase {
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     
-    let count = Atomic<Int>(0)
+    let count = Atomic(0)
     let queue = DispatchQueue(label: "\(#function)\(#line)")
     
     // When
@@ -402,7 +402,7 @@ class ChannelTests: XCTestCase {
     let scheduler = ChannelScheduler(channel: channel, timeInterval: 0.1)
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let count = Atomic<Int>(0)
+    let count = Atomic(0)
     
     // When
     scheduler.start()

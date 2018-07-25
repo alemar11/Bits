@@ -52,7 +52,7 @@ public final class Atomic<T> {
 
   public func mutate(_ transform: (inout T) -> Void) {
     lock.writeLock()
-     transform(&_value)
+    transform(&_value)
     lock.unlock()
   }
 

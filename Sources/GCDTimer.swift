@@ -116,6 +116,7 @@ public final class GCDTimer {
       timer.schedule(deadline: deadline, leeway: tolerance)
     }
 
+    ticks = 0
     timer.setEventHandler { [weak self] in
       guard let `self` = self else { return }
 
@@ -123,7 +124,6 @@ public final class GCDTimer {
     }
 
     timer.isSuspended = true
-    ticks = 0
     return timer
   }
 
@@ -159,7 +159,7 @@ public final class GCDTimer {
   }
 
   private func fire() {
-    ticks += 1
+    ticks += 1 // FIXME: race condition
     handler(self)
   }
 

@@ -52,7 +52,7 @@ class ThrottlerTests: XCTestCase {
   }
 
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
-    let value = Atomic<Int>(0)
+    let value = Atomic(0)
 
     let block = { value.value += 1 }
     let repeats = 10
@@ -69,7 +69,7 @@ class ThrottlerTests: XCTestCase {
   }
 
   func testThrottlerHavingOneThirdOfTheFunctionCallsCompleted() {
-    let value = Atomic<Int>(0)
+    let value = Atomic(0)
     let block = { value.value += 1 }
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(850))
@@ -128,7 +128,7 @@ class ThrottlerTests: XCTestCase {
 
   func testLimiter() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
-    let value = Atomic<Int>(0)
+    let value = Atomic(0)
     let block = {
       value.value += 1
       if value.value >= 5 {
