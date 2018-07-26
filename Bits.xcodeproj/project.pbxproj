@@ -65,10 +65,6 @@
 		23C45F74209F00BE00910999 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F73209F00BE00910999 /* Result.swift */; };
 		23C45F76209F026A00910999 /* Bits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F75209F026A00910999 /* Bits.swift */; };
 		23C45F78209F037500910999 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C45F77209F037500910999 /* ResultTests.swift */; };
-		23C8C15020FF215F00BD7A2A /* GCDTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C14F20FF215F00BD7A2A /* GCDTimer.swift */; };
-		23C8C15120FF215F00BD7A2A /* GCDTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C14F20FF215F00BD7A2A /* GCDTimer.swift */; };
-		23C8C15320FF27C700BD7A2A /* GCDTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15220FF27C700BD7A2A /* GCDTimerTests.swift */; };
-		23C8C15420FF27C700BD7A2A /* GCDTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15220FF27C700BD7A2A /* GCDTimerTests.swift */; };
 		23C8C15620FF29FC00BD7A2A /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15520FF29FC00BD7A2A /* Atomic.swift */; };
 		23C8C15720FF29FC00BD7A2A /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15520FF29FC00BD7A2A /* Atomic.swift */; };
 		23F3845E20ADD01A004983E5 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
@@ -141,8 +137,6 @@
 		23C45F73209F00BE00910999 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		23C45F75209F026A00910999 /* Bits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bits.swift; sourceTree = "<group>"; };
 		23C45F77209F037500910999 /* ResultTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
-		23C8C14F20FF215F00BD7A2A /* GCDTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDTimer.swift; sourceTree = "<group>"; };
-		23C8C15220FF27C700BD7A2A /* GCDTimerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDTimerTests.swift; sourceTree = "<group>"; };
 		23C8C15520FF29FC00BD7A2A /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		23F3845D20ADD01A004983E5 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
 		23F97E0720E64164007C4889 /* Interval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
@@ -270,7 +264,6 @@
 				239CCC9520E229B0007782E5 /* ChannelTests.swift */,
 				235535B720E3C42C00C69B70 /* LimitersTests.swift */,
 				2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */,
-				23C8C15220FF27C700BD7A2A /* GCDTimerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -281,7 +274,6 @@
 				23C45F75209F026A00910999 /* Bits.swift */,
 				23C45F6B209EFB1300910999 /* Box.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
-				23C8C14F20FF215F00BD7A2A /* GCDTimer.swift */,
 				23F97E0720E64164007C4889 /* Interval.swift */,
 				23374ABB20F8A1B400768B5D /* Limiters */,
 				2300A7E021085A5D0067577B /* Locks */,
@@ -517,7 +509,6 @@
 				23F97E3C20E6616E007C4889 /* Interval.swift in Sources */,
 				2300A7E921085AAB0067577B /* Mutex.swift in Sources */,
 				23B80DF62108C14F00C2D2A9 /* UIKeyboardPayload.swift in Sources */,
-				23C8C15120FF215F00BD7A2A /* GCDTimer.swift in Sources */,
 				23374ABE20F8A1D100768B5D /* Debouncer.swift in Sources */,
 				23F97E3620E6616E007C4889 /* Bits.swift in Sources */,
 				2300A7EF21085AF90067577B /* Lock.swift in Sources */,
@@ -538,7 +529,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23F97E3F20E6617D007C4889 /* WeakBoxTests.swift in Sources */,
-				23C8C15420FF27C700BD7A2A /* GCDTimerTests.swift in Sources */,
 				23F97E4320E6617D007C4889 /* ChannelTests.swift in Sources */,
 				23F97E4420E6617D007C4889 /* LimitersTests.swift in Sources */,
 				23F97E3D20E6617D007C4889 /* ReachabilityTests.swift in Sources */,
@@ -557,7 +547,6 @@
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
 				2300A7E821085AAB0067577B /* Mutex.swift in Sources */,
 				2300A7EE21085AF90067577B /* Lock.swift in Sources */,
-				23C8C15020FF215F00BD7A2A /* GCDTimer.swift in Sources */,
 				2328D3AC20E50D66002CEEC9 /* Throttler.swift in Sources */,
 				23B80DF52108C14F00C2D2A9 /* UIKeyboardPayload.swift in Sources */,
 				23C8C15620FF29FC00BD7A2A /* Atomic.swift in Sources */,
@@ -584,7 +573,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
-				23C8C15320FF27C700BD7A2A /* GCDTimerTests.swift in Sources */,
 				239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */,
 				235535B820E3C42C00C69B70 /* LimitersTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
