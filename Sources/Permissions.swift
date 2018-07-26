@@ -86,6 +86,8 @@ public class MicrophonePermission: Permission {
 
 public class CameraPermission: Permission {
 
+  public init() { }
+
   public func check(completionHandler: @escaping PermissionCallback) {
     switch AVCaptureDevice.authorizationStatus(for: .video) {
     case .notDetermined:
