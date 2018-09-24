@@ -42,23 +42,23 @@ extension Notification {
     public let endFrame: CGRect
 
     /// Defines how the keyboard will be animated onto or off the screen.
-    public let animationCurve: UIViewAnimationCurve
+    public let animationCurve: UIView.AnimationCurve
 
     /// Identifies the duration of the keyboard animation in seconds.
     public let animationDuration: TimeInterval
 
     public init?(userInfo: [AnyHashable: Any]) {
       if
-        let isLocal = userInfo[UIKeyboardIsLocalUserInfoKey] as? Bool,
-        let startFrame = userInfo[UIKeyboardFrameBeginUserInfoKey] as? CGRect,
-        let endFrame = userInfo[UIKeyboardFrameEndUserInfoKey] as? CGRect,
-        let rawAnimationCurve = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? UIViewAnimationCurve.RawValue,
-        let animationDuration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval
+        let isLocal = userInfo[UIResponder.keyboardIsLocalUserInfoKey] as? Bool,
+        let startFrame = userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as? CGRect,
+        let endFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+        let rawAnimationCurve = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? UIView.AnimationCurve.RawValue,
+        let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
       {
         self.isLocal = isLocal
         self.startFrame = startFrame
         self.endFrame = endFrame
-        self.animationCurve = UIViewAnimationCurve(rawValue: rawAnimationCurve)!
+        self.animationCurve = UIView.AnimationCurve(rawValue: rawAnimationCurve)!
         self.animationDuration = animationDuration
       } else {
         return nil
@@ -79,11 +79,11 @@ extension Notification.UIKeyboardPayload {
   public var userInfo: [AnyHashable: Any] {
     var userInfo = [AnyHashable: Any]()
 
-    userInfo[UIKeyboardIsLocalUserInfoKey] = isLocal
-    userInfo[UIKeyboardFrameBeginUserInfoKey] = startFrame
-    userInfo[UIKeyboardFrameEndUserInfoKey] = endFrame
-    userInfo[UIKeyboardAnimationCurveUserInfoKey] = animationCurve.rawValue
-    userInfo[UIKeyboardAnimationDurationUserInfoKey] = animationDuration
+    userInfo[UIResponder.keyboardIsLocalUserInfoKey] = isLocal
+    userInfo[UIResponder.keyboardFrameBeginUserInfoKey] = startFrame
+    userInfo[UIResponder.keyboardFrameEndUserInfoKey] = endFrame
+    userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] = animationCurve.rawValue
+    userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] = animationDuration
 
     return userInfo
   }

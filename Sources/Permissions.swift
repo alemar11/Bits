@@ -34,6 +34,7 @@ public protocol Permission {
 
 public enum PermissionStatus: String {
   case authorized = "Authorized"
+  case provisional = "Provisional"
   case denied = "Denied"
   case notDetermined = "Not Determined"
   case notAvailable = "Not Available"
@@ -60,14 +61,14 @@ public class MicrophonePermission: Permission {
   }
 
   public func check(completionHandler: @escaping PermissionCallback) {
-    switch audioSession.recordPermission() {
-    case AVAudioSessionRecordPermission.denied:
+    switch audioSession.recordPermission {
+    case AVAudioSession.RecordPermission.denied:
       return completionHandler(.denied)
 
-    case AVAudioSessionRecordPermission.undetermined:
+    case AVAudioSession.RecordPermission.undetermined:
       return completionHandler(.notDetermined)
 
-    case AVAudioSessionRecordPermission.granted:
+    case AVAudioSession.RecordPermission.granted:
       return completionHandler(.authorized)
     }
   }
@@ -121,7 +122,6 @@ import UserNotifications
 // MARK: - UserNotifications
 
 public class UNUserNotificationPermission: Permission {
-
   private let notificationCenter: UNUserNotificationCenter
   public var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
@@ -141,6 +141,9 @@ public class UNUserNotificationPermission: Permission {
 
         case .authorized:
           return completionHandler(.authorized)
+
+        case .provisional:
+          completionHandler(.provisional)
         }
       }
     }
@@ -219,9 +222,14 @@ public func registerForRemoteNotifications() {
 
 @available(iOSApplicationExtension, unavailable)
 public func openSettings() {
-  if let appSettings = URL(string: UIApplicationOpenSettingsURLString) {
-    UIApplication.shared.open(appSettings, options: [:], completionHandler: nil)
+  if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+    UIApplication.shared.open(appSettings, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
   }
 }
 
 #endif
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+}
