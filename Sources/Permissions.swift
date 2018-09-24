@@ -121,6 +121,7 @@ import UserNotifications
 
 // MARK: - UserNotifications
 
+@available(OSX 10.14, *)
 public class UNUserNotificationPermission: Permission {
   private let notificationCenter: UNUserNotificationCenter
   public var authorizationStatus: UNAuthorizationStatus = .notDetermined
@@ -223,13 +224,10 @@ public func registerForRemoteNotifications() {
 @available(iOSApplicationExtension, unavailable)
 public func openSettings() {
   if let appSettings = URL(string: UIApplication.openSettingsURLString) {
-    UIApplication.shared.open(appSettings, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+    UIApplication.shared.open(appSettings, options: [:], completionHandler: nil)
   }
 }
 
 #endif
 
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
-}
+
