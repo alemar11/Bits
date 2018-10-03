@@ -179,6 +179,8 @@ import Contacts
 
 public class ContactsPermission: Permission {
 
+  public init() { }
+
   public func check(completionHandler: @escaping PermissionCallback) {
     switch Contacts.CNContactStore.authorizationStatus(for: CNEntityType.contacts) {
     case .authorized:
