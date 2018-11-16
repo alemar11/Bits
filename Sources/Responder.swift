@@ -21,15 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if canImport(UIKit)
+import UIKit
+typealias Responder = UIResponder
+
+#elseif canImport(AppKit)
+import AppKit
+
+typealias Responder = NSResponder
+
+extension Responder {
+  /// The next responder after this one, or nil if it has none.
+  var next : NSResponder? {
+    set {
+      nextResponder = newValue
+    }
+    get {
+      return nextResponder
+    }
+  }
+}
+#endif
+
 public protocol ResponderAction {
   associatedtype Responder
   func execute(responder: Responder)
 }
 
-#if canImport(UIKit)
-import UIKit
-
-public extension UIResponder {
+public extension Responder {
 
   @discardableResult
   public func execute<A: ResponderAction>(action: A) -> A.Responder? {
@@ -41,7 +60,7 @@ public extension UIResponder {
   }
 
   public func find<A: ResponderAction>(action: A) -> A.Responder? {
-    var responder: UIResponder? = self
+    var responder: Responder? = self
     while responder != nil {
       if let responder = responder as? A.Responder {
         return responder
@@ -52,4 +71,3 @@ public extension UIResponder {
   }
 
 }
-#endif
