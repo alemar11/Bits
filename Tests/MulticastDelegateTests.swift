@@ -30,7 +30,7 @@ private protocol DispatcherDelegate: class {
 
 private class Listener: DispatcherDelegate {
   var didDispatch_callsCount = 0
-
+  
   func didDispatch() {
     didDispatch_callsCount += 1
   }
@@ -38,7 +38,7 @@ private class Listener: DispatcherDelegate {
 
 private class ExpectationListener: DispatcherDelegate {
   var failIfCalled = false
-
+  
   func didDispatch() {
     if failIfCalled {
       XCTFail("The delegate shouldn't be called.")
@@ -46,40 +46,40 @@ private class ExpectationListener: DispatcherDelegate {
   }
 }
 
-class MulticastDelegateTests: XCTestCase {
-
+final class MulticastDelegateTests: XCTestCase {
+  
   func testCallingSingleDelegate() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener = Listener()
-
+    
     delegates.addDelegate(listener)
     delegates.invoke { $0.didDispatch() }
-
+    
     XCTAssertEqual(listener.didDispatch_callsCount, 1)
   }
-
+  
   func testAddingDelegates() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener1 = Listener()
     let listener2 = Listener()
     let listener3 = Listener()
-
+    
     delegates.addDelegate(listener1)
     delegates.addDelegate(listener2)
     delegates.addDelegate(listener3)
     delegates.invoke { $0.didDispatch() }
-
+    
     XCTAssertEqual(listener1.didDispatch_callsCount, 1)
     XCTAssertEqual(listener2.didDispatch_callsCount, 1)
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
-
+  
   func testRemovingDelegates() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener1 = Listener()
     let listener2 = Listener()
     let listener3 = Listener()
-
+    
     delegates.addDelegate(listener1)
     delegates.addDelegate(listener2)
     delegates.addDelegate(listener3)
@@ -88,28 +88,28 @@ class MulticastDelegateTests: XCTestCase {
     delegates.invoke { $0.didDispatch() }
     delegates.removeDelegate(listener2)
     delegates.invoke { $0.didDispatch() }
-
+    
     XCTAssertEqual(listener1.didDispatch_callsCount, 3)
     XCTAssertEqual(listener2.didDispatch_callsCount, 2)
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
-
+  
   func testKeepingWeakReferences() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener1 = Listener()
     delegates.addDelegate(listener1)
-
+    
     autoreleasepool {
       let listener2 = Listener()
       delegates.addDelegate(listener2)
     }
-
+    
     var numberOfCallsMade = 0
     delegates.invoke { _ in numberOfCallsMade += 1 }
-
+    
     XCTAssertEqual(numberOfCallsMade, 1)
   }
-
+  
   func testOperators() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener1 = Listener() as DispatcherDelegate
@@ -118,22 +118,22 @@ class MulticastDelegateTests: XCTestCase {
     delegates += listener1
     delegates += listener2
     delegates += listener3
-
+    
     XCTAssertEqual(delegates.count, 3)
     XCTAssertTrue(delegates.containsDelegate(listener1))
     XCTAssertTrue(delegates.containsDelegate(listener2))
     XCTAssertTrue(delegates.containsDelegate(listener3))
-
+    
     delegates -= listener1
     delegates -= listener2
     delegates -= listener3
-
+    
     XCTAssertEqual(delegates.count, 0)
     XCTAssertFalse(delegates.containsDelegate(listener1))
     XCTAssertFalse(delegates.containsDelegate(listener2))
     XCTAssertFalse(delegates.containsDelegate(listener3))
   }
-
+  
   func testWeakReference() {
     var listener: ExpectationListener? = ExpectationListener()
     listener?.failIfCalled = true
@@ -143,7 +143,7 @@ class MulticastDelegateTests: XCTestCase {
     listener = nil
     delegates.invoke { $0.didDispatch() }
   }
-
+  
   func testWeakReferences() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     autoreleasepool {
@@ -152,10 +152,10 @@ class MulticastDelegateTests: XCTestCase {
         delegates.addDelegate(listener)
       }
     }
-
+    
     XCTAssertTrue(delegates.isEmpty)
   }
-
+  
   func testStrongReferences() {
     let delegates = MulticastDelegate<DispatcherDelegate>(usingStrongReferences: true)
     autoreleasepool {
@@ -164,7 +164,7 @@ class MulticastDelegateTests: XCTestCase {
         delegates.addDelegate(listener)
       }
     }
-
+    
     XCTAssertEqual(delegates.count, 10)
   }
 }

@@ -24,7 +24,7 @@
 import XCTest
 @testable import Bits
 
-class ChannelTests: XCTestCase {
+final class ChannelTests: XCTestCase {
   
   func testSimpleBroadcast() {
     // Given
@@ -395,7 +395,7 @@ class ChannelTests: XCTestCase {
     XCTAssertTrue(1...999 ~= count.value, "\(count.value) should be >= 1 and <= 999")
     XCTAssertTrue(channel.subscriptions.isEmpty)
   }
-
+  
   func testUnsuscribeWhileBroadcastingWithRaceCondition() {
     // Given
     let channel = Channel<Event>()

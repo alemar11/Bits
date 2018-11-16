@@ -24,23 +24,23 @@
 import XCTest
 @testable import Bits
 
-class WeakBoxTests: XCTestCase {
-
+final class WeakBoxTests: XCTestCase {
+  
   func testThatValueIsWeaklyReferenced() {
     var object: NSObject? = NSObject()
     let weakBox = WeakBox(object!)
-
+    
     object = nil
-
+    
     XCTAssertNil(weakBox.value)
   }
-
+  
   func testThatMultipleWeakBoxReferencingTheSameObjectAreEqual() {
     let object = NSObject()
     let weakBox1 = WeakBox(object)
     let weakBox2 = WeakBox(object)
-
+    
     XCTAssertEqual(weakBox1, weakBox2)
   }
-
+  
 }

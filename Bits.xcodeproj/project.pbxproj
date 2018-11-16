@@ -219,6 +219,14 @@
 			path = Boxes;
 			sourceTree = "<group>";
 		};
+		234838AD219F1C9600073A96 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
 		23B80DF02108C12400C2D2A9 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
@@ -280,6 +288,7 @@
 		23FB40D2208C6D11002F5428 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				234838AD219F1C9600073A96 /* iOS */,
 				234838AC219F15CD00073A96 /* Boxes */,
 				23C45F75209F026A00910999 /* Bits.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
@@ -287,7 +296,6 @@
 				23374ABB20F8A1B400768B5D /* Limiters */,
 				2300A7E021085A5D0067577B /* Locks */,
 				2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */,
-				93EBB53D20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift */,
 				23B80DF02108C12400C2D2A9 /* Notifications */,
 				23F97E4620E6669F007C4889 /* Permissions.swift */,
 				23FB40D6208C71D9002F5428 /* Reachability.swift */,

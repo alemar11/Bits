@@ -25,15 +25,15 @@ import XCTest
 @testable import Bits
 
 final class ThrottlerTests: XCTestCase {
-
+  
   // MARK: - Throttler
-
+  
   func testThrottler() {
     var value = 0
     let block = { value += 1 }
     let throttler = Throttler(limit: .seconds(1))
     let expectation = self.expectation(description: "\(#function)\(#line)")
-
+    
     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)) {
       if value == 1 {
         expectation.fulfill()
@@ -41,51 +41,51 @@ final class ThrottlerTests: XCTestCase {
         XCTFail("Failed to throttle, \(value) calls were not ignored instead of 1.")
       }
     }
-
+    
     throttler.execute { block() }
     throttler.execute { block() }
     throttler.execute { block() }
     throttler.execute { block() }
     throttler.execute { block() }
-
+    
     wait(for: [expectation], timeout: 2)
   }
-
+  
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
     let value = Atomic(0)
-
+    
     let block = { value.value += 1 }
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(repeats))
-
+    
     let scheduler = TestScheduler(timeInterval: Double(0.350), repeats: repeats) {
       throttler.execute { block() }
     }
-
+    
     scheduler.start()
-
+    
     wait(for: [scheduler.completionExpectation], timeout: 60)
     XCTAssertEqual(value.value, repeats, "Only \(value.value) blocks have been called, expecting \(repeats) blocks.")
   }
-
+  
   func testThrottlerHavingOneThirdOfTheFunctionCallsCompleted() {
     let value = Atomic(0)
     let block = { value.value += 1 }
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(850))
-
+    
     let scheduler = TestScheduler(timeInterval: Double(0.300), repeats: repeats) {
       throttler.execute { block() }
     }
-
+    
     scheduler.start()
-
+    
     wait(for: [scheduler.completionExpectation], timeout: 60)
     XCTAssertEqual(value.value, 4)
   }
-
+  
   // MARK: - Debouncer
-
+  
   func testDebouncerHavingOnlyOneFunctionCallCompleted() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
@@ -93,39 +93,39 @@ final class ThrottlerTests: XCTestCase {
     }
     let repeats = 10
     let throttler = Debouncer(limit: .milliseconds(800))
-
+    
     let scheduler = TestScheduler(timeInterval: Double(0.200), repeats: repeats) {
       throttler.execute { block() }
     }
-
+    
     scheduler.start()
-
+    
     wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
   }
-
+  
   func testDebouncerHavingAllTheFunctionCallsCompleted() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     var value = 0
     let block = {
       value += 1
       if value >= 10 {
-      expectation.fulfill()
+        expectation.fulfill()
       }
     }
     let repeats = 10
     let throttler = Debouncer(limit: .milliseconds(400))
-
+    
     let scheduler = TestScheduler(timeInterval: Double(0.500), repeats: repeats) {
       throttler.execute { block() }
     }
-
+    
     scheduler.start()
-
+    
     wait(for: [scheduler.completionExpectation, expectation], timeout: 6)
   }
-
+  
   // MARK: - Max Limiter
-
+  
   func testLimiter() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let value = Atomic(0)
@@ -136,17 +136,17 @@ final class ThrottlerTests: XCTestCase {
       }
     }
     let limiter = MaxLimiter(limit: 5)
-
+    
     let repeats = 30
     let scheduler = TestScheduler(timeInterval: Double(0.100), repeats: repeats) {
       limiter.execute { block() }
     }
-
+    
     scheduler.start()
-
+    
     wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
   }
-
+  
 }
 
 fileprivate final class TestScheduler {
@@ -156,30 +156,30 @@ fileprivate final class TestScheduler {
   var timer: Timer!
   let block: () -> Void
   private(set) var times = 0
-
+  
   init(timeInterval: TimeInterval, repeats: Int = 100, block: @escaping () -> Void) {
     self.timeInterval = timeInterval
     self.repeats = repeats
     self.block = block
   }
-
+  
   func start() {
     timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(broadcast), userInfo: nil, repeats: true)
   }
-
+  
   func stop() {
     timer.invalidate()
   }
-
+  
   @objc
   func broadcast(timer: Timer) {
     block()
-
+    
     times += 1
     if times == repeats {
       timer.invalidate()
       completionExpectation.fulfill()
     }
   }
-
+  
 }

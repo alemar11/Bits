@@ -24,38 +24,38 @@
 import XCTest
 @testable import Bits
 
-class BoxTests: XCTestCase {
-
+final class BoxTests: XCTestCase {
+  
   final class TestContainer<T: Any> {
     let box: Box<T>
-
+    
     init(box: Box<T>) {
       self.box = box
     }
   }
-
+  
   func testThatBoxedStructIsSharedAmongMultipleContainers() {
     struct User: Equatable {
       var name: String
       var age: Int
     }
-
+    
     let user = User(name: "Robot", age: 30)
     let box = Box(user)
     let container1 = TestContainer<User>(box: box)
     let container2 = TestContainer<User>(box: box)
-
+    
     XCTAssertEqual(container1.box.value.name, "Robot")
     XCTAssertEqual(container2.box.value.name, "Robot")
     XCTAssertEqual(container1.box, container2.box)
-
+    
     box.value.name = "_Robot_"
-
+    
     XCTAssertEqual(container1.box.value.name, "_Robot_")
     XCTAssertEqual(container2.box.value.name, "_Robot_")
     XCTAssertEqual(container1.box, container2.box)
     XCTAssertEqual(container1.box, container2.box)
   }
-
+  
 }
 
