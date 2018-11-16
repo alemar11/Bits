@@ -22,7 +22,7 @@
 // SOFTWARE.
 
 // Credits:
-// https://forums.swift.org/t/adding-result-to-the-standard-library/6932/206
+// https://forums.swift.org/t/se-0235-add-result-to-the-standard-library/17752
 // https://github.com/Alamofire/Alamofire/blob/master/Source/Result.swift
 // https://github.com/antitypical/Result/blob/master/Result/AnyError.swift
 

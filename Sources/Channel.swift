@@ -112,7 +112,7 @@ public final class Channel<Value> {
     queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
 
-      self._subscriptions = self._subscriptions.filter { $0.isValid } //TODO: swift 4.2, removeAll(where:)
+      self._subscriptions.removeAll { !$0.isValid }
     })
   }
 }
