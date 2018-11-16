@@ -23,8 +23,10 @@
 
 import Foundation
 
-/// Lower-level read-write lock
-final class ReadWriteLock {
+// TODO: add errors http://pubs.opengroup.org/onlinepubs/009696899/functions/pthread_rwlock_trywrlock.html
+
+/// A pthread-based read-write lock
+public final class ReadWriteLock {
 
   private var rwlock: pthread_rwlock_t = {
     var rwlock = pthread_rwlock_t()
@@ -42,6 +44,11 @@ final class ReadWriteLock {
 
   func unlock() {
     pthread_rwlock_unlock(&rwlock)
+  }
+
+  deinit {
+    assert(pthread_rwlock_trywrlock(&self.rwlock) == 0 && pthread_rwlock_unlock(&self.rwlock) == 0, "Deinitialization of a locked read-write lock results in undefined behavior.")
+    pthread_rwlock_destroy(&self.rwlock)
   }
 
 }

@@ -49,6 +49,8 @@
 		2339BA5920EBB22A005C0898 /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */; };
 		2339BA5B20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */; };
 		2339BA5C20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */; };
+		234838AF219F220000073A96 /* RecursiveMutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234838AE219F220000073A96 /* RecursiveMutex.swift */; };
+		234838B0219F220000073A96 /* RecursiveMutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234838AE219F220000073A96 /* RecursiveMutex.swift */; };
 		235535B820E3C42C00C69B70 /* LimitersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 235535B720E3C42C00C69B70 /* LimitersTests.swift */; };
 		2371896520DD3B4400350F6E /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* AtomicTests.swift */; };
 		239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
@@ -122,6 +124,7 @@
 		23374ABF20F8A1F000768B5D /* MaxLimiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxLimiter.swift; sourceTree = "<group>"; };
 		2339BA5720EBB22A005C0898 /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
 		2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegateTests.swift; sourceTree = "<group>"; };
+		234838AE219F220000073A96 /* RecursiveMutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecursiveMutex.swift; sourceTree = "<group>"; };
 		235535B720E3C42C00C69B70 /* LimitersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitersTests.swift; sourceTree = "<group>"; };
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
@@ -196,6 +199,7 @@
 				2300A7E721085AAB0067577B /* Mutex.swift */,
 				2300A7EA21085AC00067577B /* ReadWriteLock.swift */,
 				2300A7ED21085AF90067577B /* Lock.swift */,
+				234838AE219F220000073A96 /* RecursiveMutex.swift */,
 			);
 			path = Locks;
 			sourceTree = "<group>";
@@ -525,6 +529,7 @@
 				23C8C15720FF29FC00BD7A2A /* Atomic.swift in Sources */,
 				23F97E3C20E6616E007C4889 /* Interval.swift in Sources */,
 				2300A7E921085AAB0067577B /* Mutex.swift in Sources */,
+				234838B0219F220000073A96 /* RecursiveMutex.swift in Sources */,
 				23B80DF62108C14F00C2D2A9 /* UIKeyboardPayload.swift in Sources */,
 				23374ABE20F8A1D100768B5D /* Debouncer.swift in Sources */,
 				23F97E3620E6616E007C4889 /* Bits.swift in Sources */,
@@ -565,6 +570,7 @@
 				2300A7E821085AAB0067577B /* Mutex.swift in Sources */,
 				2300A7EE21085AF90067577B /* Lock.swift in Sources */,
 				2328D3AC20E50D66002CEEC9 /* Throttler.swift in Sources */,
+				234838AF219F220000073A96 /* RecursiveMutex.swift in Sources */,
 				23B80DF52108C14F00C2D2A9 /* UIKeyboardPayload.swift in Sources */,
 				23C8C15620FF29FC00BD7A2A /* Atomic.swift in Sources */,
 				23F97E0820E64164007C4889 /* Interval.swift in Sources */,

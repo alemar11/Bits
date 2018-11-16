@@ -23,8 +23,11 @@
 
 import Foundation
 
+// TODO: add errors
+
+/// A pthread-based mutex lock.
 /// An object that coordinates the operation of multiple threads of execution within the same application.
-/// Eensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
+/// Ensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
 public final class Mutex {
 
   private var mutex: pthread_mutex_t = {
@@ -39,5 +42,10 @@ public final class Mutex {
 
   public func unlock() {
     pthread_mutex_unlock(&mutex)
+  }
+
+  deinit {
+    assert(pthread_mutex_trylock(&self.mutex) == 0 && pthread_mutex_unlock(&self.mutex) == 0, "Deinitialization of a locked mutex results in undefined behavior.")
+    pthread_mutex_destroy(&self.mutex)
   }
 }
