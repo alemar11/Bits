@@ -33,6 +33,7 @@ import SystemConfiguration
 /// **Bits**
 ///
 /// The `Reachability` class listens for reachability changes of hosts and addresses for both WWAN and WiFi network interfaces.
+/// - Note: The Apple `Network Framework` can be used to achieve the same results.
 final public class Reachability {
 
   // MARK: - Properties
