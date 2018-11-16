@@ -24,7 +24,7 @@
 import XCTest
 @testable import Bits
 
-class ThrottlerTests: XCTestCase {
+final class ThrottlerTests: XCTestCase {
 
   // MARK: - Throttler
 
@@ -58,7 +58,7 @@ class ThrottlerTests: XCTestCase {
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(repeats))
 
-    let scheduler = Scheduler(timeInterval: Double(0.350), repeats: repeats) {
+    let scheduler = TestScheduler(timeInterval: Double(0.350), repeats: repeats) {
       throttler.execute { block() }
     }
 
@@ -74,7 +74,7 @@ class ThrottlerTests: XCTestCase {
     let repeats = 10
     let throttler = Throttler(limit: .milliseconds(850))
 
-    let scheduler = Scheduler(timeInterval: Double(0.300), repeats: repeats) {
+    let scheduler = TestScheduler(timeInterval: Double(0.300), repeats: repeats) {
       throttler.execute { block() }
     }
 
@@ -94,7 +94,7 @@ class ThrottlerTests: XCTestCase {
     let repeats = 10
     let throttler = Debouncer(limit: .milliseconds(800))
 
-    let scheduler = Scheduler(timeInterval: Double(0.200), repeats: repeats) {
+    let scheduler = TestScheduler(timeInterval: Double(0.200), repeats: repeats) {
       throttler.execute { block() }
     }
 
@@ -115,7 +115,7 @@ class ThrottlerTests: XCTestCase {
     let repeats = 10
     let throttler = Debouncer(limit: .milliseconds(400))
 
-    let scheduler = Scheduler(timeInterval: Double(0.500), repeats: repeats) {
+    let scheduler = TestScheduler(timeInterval: Double(0.500), repeats: repeats) {
       throttler.execute { block() }
     }
 
@@ -138,7 +138,7 @@ class ThrottlerTests: XCTestCase {
     let limiter = MaxLimiter(limit: 5)
 
     let repeats = 30
-    let scheduler = Scheduler(timeInterval: Double(0.100), repeats: repeats) {
+    let scheduler = TestScheduler(timeInterval: Double(0.100), repeats: repeats) {
       limiter.execute { block() }
     }
 
@@ -149,23 +149,13 @@ class ThrottlerTests: XCTestCase {
 
 }
 
-fileprivate class Scheduler {
+fileprivate final class TestScheduler {
   let timeInterval: TimeInterval
-  var timer: Timer!
   let repeats: Int
-  let completionExpectation = XCTestExpectation(description: "scheduler")
+  let completionExpectation = XCTestExpectation(description: "TestScheduler")
+  var timer: Timer!
   let block: () -> Void
-
-  private var _times = 0
-  var times: Int {
-    get { return _times }
-    set {
-      _times = newValue
-      if _times >= repeats {
-        completionExpectation.fulfill()
-      }
-    }
-  }
+  private(set) var times = 0
 
   init(timeInterval: TimeInterval, repeats: Int = 100, block: @escaping () -> Void) {
     self.timeInterval = timeInterval
@@ -174,7 +164,7 @@ fileprivate class Scheduler {
   }
 
   func start() {
-    timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(broadcast), userInfo: nil, repeats: false)
+    timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(broadcast), userInfo: nil, repeats: true)
   }
 
   func stop() {
@@ -182,13 +172,13 @@ fileprivate class Scheduler {
   }
 
   @objc
-  func broadcast() {
-    DispatchQueue(label: "\(#function)\(#line)").async { [weak self] in
-      self?.block()
-    }
+  func broadcast(timer: Timer) {
+    block()
+
     times += 1
-    if times < repeats {  // set the next timer
-      self.start()
+    if times == repeats {
+      timer.invalidate()
+      completionExpectation.fulfill()
     }
   }
 

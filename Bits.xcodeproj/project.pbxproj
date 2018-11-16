@@ -210,6 +210,15 @@
 			path = Limiters;
 			sourceTree = "<group>";
 		};
+		234838AC219F15CD00073A96 /* Boxes */ = {
+			isa = PBXGroup;
+			children = (
+				23C45F6B209EFB1300910999 /* Box.swift */,
+				23C45F6F209EFDF800910999 /* WeakBox.swift */,
+			);
+			path = Boxes;
+			sourceTree = "<group>";
+		};
 		23B80DF02108C12400C2D2A9 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
@@ -271,8 +280,8 @@
 		23FB40D2208C6D11002F5428 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				234838AC219F15CD00073A96 /* Boxes */,
 				23C45F75209F026A00910999 /* Bits.swift */,
-				23C45F6B209EFB1300910999 /* Box.swift */,
 				23F3845D20ADD01A004983E5 /* Channel.swift */,
 				23F97E0720E64164007C4889 /* Interval.swift */,
 				23374ABB20F8A1B400768B5D /* Limiters */,
@@ -284,7 +293,6 @@
 				23FB40D6208C71D9002F5428 /* Reachability.swift */,
 				23B80DF72108C1A300C2D2A9 /* Responder.swift */,
 				23C45F73209F00BE00910999 /* Result.swift */,
-				23C45F6F209EFDF800910999 /* WeakBox.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
