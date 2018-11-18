@@ -124,5 +124,8 @@ script:
       fi
     fi
 
-after_success:
-  - sleep 5      
+after_failure:
+  - cat ~/Library/Developer/Xcode/DerivedData/Bits-*/Logs/Test/*/*/*/Bits*/*/Session-Bits*.log
+
+#after_success:
+  #- sleep 5         
