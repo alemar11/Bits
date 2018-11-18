@@ -209,7 +209,7 @@ final class ReachabilityTests: XCTestCase {
     XCTAssertEqual(networkStatus, .reachable(.ethernetOrWiFi))
   }
   
-  func testThatReachiabilityReturnsReachableOnWiFiStatusWhenConnectionIsOnTraffic() {
+  func testThatReachabilityReturnsReachableOnWiFiStatusWhenConnectionIsOnTraffic() {
     // Given
     let reachability = Reachability()
     let flags: SCNetworkReachabilityFlags = [.reachable, .connectionRequired, .connectionOnTraffic]
