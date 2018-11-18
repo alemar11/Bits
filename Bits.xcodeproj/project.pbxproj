@@ -514,7 +514,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\ndirectories=(Sources Tests)\n\nfor directory in \"${directories[@]}\"\ndo\necho \"Cleaning whitespace in directory: $directory\"\nfind $directory -iregex '.*\\.swift' -exec sed -E -i '' -e 's/[[:blank:]]*$//' {} \\;\ndone";
+			shellScript = "#!/bin/sh\ndirectories=(Sources Tests)\n\nfor directory in \"${directories[@]}\"\ndo\necho \"Cleaning whitespace in directory: $directory\"\nfind $directory -iregex '.*\\.swift' -exec sed -E -i '' -e 's/[[:blank:]]*$//' {} \\;\ndone\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -914,6 +914,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = Support/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
