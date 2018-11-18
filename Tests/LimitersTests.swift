@@ -117,7 +117,7 @@ final class ThrottlerTests: XCTestCase {
   }
   
   func testDebouncerHavingAllTheFunctionCallsCompleted() {
-    let expectation = self.expectation(description: "\(#file)\(#line)")
+    let expectation = self.expectation(description: "\(#file)\(#line)") //TODO: fix this test
     let repeats = 10
     var value = 0
     let block = {
@@ -136,6 +136,7 @@ final class ThrottlerTests: XCTestCase {
     scheduler.start()
     
     wait(for: [expectation], timeout: 6)
+    print(value)
   }
   
   // MARK: - Max Limiter
