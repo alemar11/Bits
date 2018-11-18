@@ -53,9 +53,15 @@ final class ThrottlerTests: XCTestCase {
   
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
     let value = Atomic(0)
-    
-    let block = { value.value += 1 }
     let repeats = 10
+    let expectation = self.expectation(description: "repeats completed")
+    let block = {
+      value.value += 1
+      if value.value == repeats {
+        expectation.fulfill()
+      }
+    }
+
     let throttler = Throttler(limit: .milliseconds(repeats))
     
     let scheduler = TestScheduler(timeInterval: Double(0.350), repeats: repeats) {
@@ -64,15 +70,22 @@ final class ThrottlerTests: XCTestCase {
     
     scheduler.start()
     
-    wait(for: [scheduler.completionExpectation], timeout: 60)
+    wait(for: [expectation], timeout: 60)
     XCTAssertEqual(value.value, repeats, "Only \(value.value) blocks have been called, expecting \(repeats) blocks.")
   }
   
   func testThrottlerHavingOneThirdOfTheFunctionCallsCompleted() {
     let value = Atomic(0)
-    let block = { value.value += 1 }
     let repeats = 10
-    let throttler = Throttler(limit: .milliseconds(850))
+    let expectation = self.expectation(description: "repeats completed")
+    let block = {
+      value.value += 1
+      if value.value >= 4 {
+        expectation.fulfill()
+      }
+    }
+
+    let throttler = Throttler(limit: .milliseconds(800))
     
     let scheduler = TestScheduler(timeInterval: Double(0.300), repeats: repeats) {
       throttler.execute { block() }
@@ -80,7 +93,7 @@ final class ThrottlerTests: XCTestCase {
     
     scheduler.start()
     
-    wait(for: [scheduler.completionExpectation], timeout: 60)
+    wait(for: [expectation], timeout: 5)
     XCTAssertEqual(value.value, 4)
   }
   
@@ -100,19 +113,20 @@ final class ThrottlerTests: XCTestCase {
     
     scheduler.start()
     
-    wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
+    wait(for: [expectation], timeout: 5)
   }
   
   func testDebouncerHavingAllTheFunctionCallsCompleted() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
+    let repeats = 10
     var value = 0
     let block = {
       value += 1
-      if value >= 10 {
+      if value >= repeats {
         expectation.fulfill()
       }
     }
-    let repeats = 10
+
     let throttler = Debouncer(limit: .milliseconds(400))
     
     let scheduler = TestScheduler(timeInterval: Double(0.500), repeats: repeats) {
@@ -121,7 +135,7 @@ final class ThrottlerTests: XCTestCase {
     
     scheduler.start()
     
-    wait(for: [scheduler.completionExpectation, expectation], timeout: 6)
+    wait(for: [expectation], timeout: 6)
   }
   
   // MARK: - Max Limiter
@@ -144,7 +158,7 @@ final class ThrottlerTests: XCTestCase {
     
     scheduler.start()
     
-    wait(for: [scheduler.completionExpectation, expectation], timeout: 5)
+    wait(for: [expectation], timeout: 5)
   }
   
 }
@@ -152,7 +166,6 @@ final class ThrottlerTests: XCTestCase {
 fileprivate final class TestScheduler {
   let timeInterval: TimeInterval
   let repeats: Int
-  let completionExpectation = XCTestExpectation(description: "TestScheduler")
   var timer: Timer!
   let block: () -> Void
   private(set) var times = 0
@@ -176,9 +189,9 @@ fileprivate final class TestScheduler {
     block()
     
     times += 1
+
     if times == repeats {
       timer.invalidate()
-      completionExpectation.fulfill()
     }
   }
   
