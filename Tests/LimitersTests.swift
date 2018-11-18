@@ -28,29 +28,29 @@ final class ThrottlerTests: XCTestCase {
   
   // MARK: - Throttler
   
-  func testThrottler() {
-    var value = 0
-    let block = { value += 1 }
-    let throttler = Throttler(limit: .seconds(1))
-    let expectation = self.expectation(description: "\(#function)\(#line)")
-    
-    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)) {
-      if value == 1 {
-        expectation.fulfill()
-      } else {
-        XCTFail("Failed to throttle, \(value) calls were not ignored instead of 1.")
-      }
-    }
-    
-    throttler.execute { block() }
-    throttler.execute { block() }
-    throttler.execute { block() }
-    throttler.execute { block() }
-    throttler.execute { block() }
-    
-    wait(for: [expectation], timeout: 2)
-  }
-  
+//  func testThrottler() {
+//    var value = 0
+//    let block = { value += 1 }
+//    let throttler = Throttler(limit: .seconds(1))
+//    let expectation = self.expectation(description: "\(#function)\(#line)")
+//
+//    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)) {
+//      if value == 1 {
+//        expectation.fulfill()
+//      } else {
+//        XCTFail("Failed to throttle, \(value) calls were not ignored instead of 1.")
+//      }
+//    }
+//
+//    throttler.execute { block() }
+//    throttler.execute { block() }
+//    throttler.execute { block() }
+//    throttler.execute { block() }
+//    throttler.execute { block() }
+//
+//    wait(for: [expectation], timeout: 2)
+//  }
+
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
     let value = Atomic(0)
     let repeats = 10
@@ -140,7 +140,7 @@ final class ThrottlerTests: XCTestCase {
   
   // MARK: - Max Limiter
   
-  func testLimiter() {
+  func testLimiter() { //TODO: rename this test
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let value = Atomic(0)
     let block = {
