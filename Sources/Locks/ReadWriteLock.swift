@@ -28,11 +28,17 @@ import Foundation
 /// A pthread-based read-write lock
 public final class ReadWriteLock {
 
-  private var rwlock: pthread_rwlock_t = {
-    var rwlock = pthread_rwlock_t()
+//  private var rwlock: pthread_rwlock_t = {
+//    var rwlock = pthread_rwlock_t()
+//    pthread_rwlock_init(&rwlock, nil)
+//    return rwlock
+//  }()
+
+  private var rwlock: pthread_rwlock_t = pthread_rwlock_t()
+
+  init() {
     pthread_rwlock_init(&rwlock, nil)
-    return rwlock
-  }()
+  }
 
   func writeLock() {
     pthread_rwlock_wrlock(&rwlock)

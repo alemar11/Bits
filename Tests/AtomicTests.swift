@@ -99,11 +99,11 @@ final class AtomicTests: XCTestCase {
     let array = Atomic<[Int]>([], lockingType: .readWriteLock)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.modify({ array -> [Int] in
+      array.modify { array -> [Int] in
         var copy = array
         copy.append(index)
         return copy
-      })
+      }
     }
     XCTAssertEqual(array.value.count, iterations)
     let prev = array.swap([1])
@@ -113,3 +113,75 @@ final class AtomicTests: XCTestCase {
   }
   
 }
+
+// http://www.vadimbulavin.com/atomic-properties/
+
+//class ReadWriteLockAtomicProperty {
+//  private var underlyingFoo = 0
+//  private let lock = ReadWriteLock()
+//
+//  var foo: Int {
+//    get {
+//      lock.readLock()
+//      let value = underlyingFoo
+//      lock.unlock()
+//      return value
+//    }
+//    set {
+//      lock.writeLock()
+//      underlyingFoo = newValue
+//      lock.unlock()
+//    }
+//  }
+//}
+//
+//public final class ReadWriteLockAtomic<T> {
+//
+//  private let lock = ReadWriteLock()
+//  private var _value: T
+//
+//  public init(_ value: T) {
+//    self._value = value
+//  }
+//
+//  public func with<U>(_ value: (T) -> U) -> U {
+//    lock.readLock()
+//    defer { lock.unlock() }
+//    return value(_value)
+//  }
+//
+//  public func modify(_ modify: (T) -> T) {
+//    lock.writeLock()
+//    _value = modify(_value)
+//    lock.unlock()
+//  }
+//
+//  public func mutate(_ transform: (inout T) -> Void) {
+//    lock.writeLock()
+//    transform(&_value)
+//    lock.unlock()
+//  }
+//
+//  @discardableResult
+//  public func swap(_ value: T) -> T {
+//    lock.writeLock()
+//    let current = _value
+//    _value = value
+//    lock.unlock()
+//    return current
+//  }
+//
+//  public var value: T {
+//    get {
+//      lock.readLock()
+//      let value = _value
+//      lock.unlock()
+//      return value
+//    }
+//    set {
+//      lock.writeLock()
+//      _value = newValue
+//      lock.unlock()
+//    }
+//  }
+//}
