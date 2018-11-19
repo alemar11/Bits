@@ -26,7 +26,7 @@
 import XCTest
 @testable import Bits
 
-final class NetworkActivityIndicatorManagerTests: XCTestCase {
+final class NetworkActivityIndicatorManagerTests: XCTestCase
   
   // MARK: - Tests - Manual Activity Count Updates
   func testThatManagerCanTurnOnAndOffIndicatorWhenManuallyIncrementingAndDecrementingActivityCount() {
@@ -209,124 +209,7 @@ final class NetworkActivityIndicatorManagerTests: XCTestCase {
       XCTAssertFalse(visibilityStates[1])
     }
   }
-  
-  // MARK: - Tests - Request Observation
-  
-  //    func testThatManagerCanTurnOnAndOffIndicatorWhenRequestSucceeds() {
-  //        // Given
-  //        let manager = NetworkActivityIndicatorManager()
-  //        manager.startDelay = 0.0
-  //        manager.completionDelay = 0.0
-  //
-  //        let expectation = self.expectation(description: "visibility should change twice")
-  //
-  //        var visibilityStates: [Bool] = []
-  //
-  //        manager.networkActivityIndicatorVisibilityChanged = { isVisible in
-  //            visibilityStates.append(isVisible)
-  //            if visibilityStates.count == 2 { expectation.fulfill() }
-  //        }
-  //
-  //        // When
-  //        let _ = Alamofire.request("https://httpbin.org/delay/1")
-  //        waitForExpectations(timeout: timeout, handler: nil)
-  //
-  //        // Then
-  //        XCTAssertEqual(visibilityStates.count, 2)
-  //
-  //        if visibilityStates.count == 2 {
-  //            XCTAssertTrue(visibilityStates[0])
-  //            XCTAssertFalse(visibilityStates[1])
-  //        }
-  //    }
-  //
-  //    func testThatManagerCanTurnOnAndOffIndicatorWhenRequestFails() {
-  //        // Given
-  //        let manager = NetworkActivityIndicatorManager()
-  //        manager.startDelay = 0.0
-  //        manager.completionDelay = 0.0
-  //
-  //        let expectation = self.expectation(description: "visibility should change twice")
-  //
-  //        var visibilityStates: [Bool] = []
-  //
-  //        manager.networkActivityIndicatorVisibilityChanged = { isVisible in
-  //            visibilityStates.append(isVisible)
-  //            if visibilityStates.count == 2 { expectation.fulfill() }
-  //        }
-  //
-  //        // When
-  //        let _ = Alamofire.request("https://httpbin.org/status/404")
-  //        waitForExpectations(timeout: timeout, handler: nil)
-  //
-  //        // Then
-  //        XCTAssertEqual(visibilityStates.count, 2)
-  //
-  //        if visibilityStates.count == 2 {
-  //            XCTAssertTrue(visibilityStates[0])
-  //            XCTAssertFalse(visibilityStates[1])
-  //        }
-  //    }
-  //
-  //    func testThatManagerAppliesVisibilityDelaysWhenMakingRequests() {
-  //        // Given
-  //        let manager = NetworkActivityIndicatorManager()
-  //        manager.startDelay = 1.0
-  //        manager.completionDelay = 1.0
-  //
-  //        let expectation = self.expectation(description: "visibility should change twice")
-  //
-  //        var visibilityStates: [Bool] = []
-  //
-  //        manager.networkActivityIndicatorVisibilityChanged = { isVisible in
-  //            visibilityStates.append(isVisible)
-  //            if visibilityStates.count == 2 { expectation.fulfill() }
-  //        }
-  //
-  //        // When
-  //        let _ = Alamofire.request("https://httpbin.org/delay/2")
-  //        waitForExpectations(timeout: timeout, handler: nil)
-  //
-  //        // Then
-  //        XCTAssertEqual(visibilityStates.count, 2)
-  //
-  //        if visibilityStates.count == 2 {
-  //            XCTAssertTrue(visibilityStates[0])
-  //            XCTAssertFalse(visibilityStates[1])
-  //        }
-  //    }
-  //
-  //    func testThatManagerOnlyTurnsOnAndOffIndicatorOnceWhenMultipleRequestsAreMade() {
-  //        // Given
-  //        let manager = NetworkActivityIndicatorManager()
-  //        manager.startDelay = 0.5
-  //        manager.completionDelay = 0.5
-  //
-  //        let expectation = self.expectation(description: "visibility should change twice")
-  //
-  //        var visibilityStates: [Bool] = []
-  //
-  //        manager.networkActivityIndicatorVisibilityChanged = { isVisible in
-  //            visibilityStates.append(isVisible)
-  //            if visibilityStates.count == 2 { expectation.fulfill() }
-  //        }
-  //
-  //        // When
-  //        let _ = Alamofire.request("https://httpbin.org/delay/1")
-  //        let _ = Alamofire.request("https://httpbin.org/delay/2")
-  //        let _ = Alamofire.request("https://httpbin.org/delay/3")
-  //
-  //        waitForExpectations(timeout: timeout, handler: nil)
-  //
-  //        // Then
-  //        XCTAssertEqual(visibilityStates.count, 2)
-  //
-  //        if visibilityStates.count == 2 {
-  //            XCTAssertTrue(visibilityStates[0])
-  //            XCTAssertFalse(visibilityStates[1])
-  //        }
-  //    }
-  
+
 }
 
 // MARK: -
