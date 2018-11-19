@@ -24,11 +24,12 @@
 import Foundation
 
 // http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_mutex_lock.html
+
 /// A pthread-based recursive mutex lock.
-public final class RecursiveMutex {
+public final class RecursiveMutex: Mutex {
   private var mutex: pthread_mutex_t = pthread_mutex_t()
 
-  public init() {
+  public override init() {
     var attributes: pthread_mutexattr_t = pthread_mutexattr_t()
     pthread_mutexattr_init(&attributes)
     pthread_mutexattr_settype(&attributes, PTHREAD_MUTEX_RECURSIVE)
@@ -37,79 +38,14 @@ public final class RecursiveMutex {
     pthread_mutexattr_destroy(&attributes)
 
     switch error {
-    case 0:
-      break // Success
-
-    case EAGAIN:
-      fatalError("Could not create mutex: the system temporarily lacks the resources to create another mutex.")
-
-    case EINVAL:
-      fatalError("Could not create mutex: invalid attributes.")
-
-    case ENOMEM:
-      fatalError("Could not create mutex: no memory.")
-
-    default:
-      fatalError("Could not create mutex, unspecified error \(error).")
+    case 0: break // Success
+    case EAGAIN: fatalError("The system lacked the necessary resources (other than memory) to initialise another mutex.")
+    case ENOMEM: fatalError("Insufficient memory exists to initialise the mutex.")
+    case EPERM: fatalError("The caller does not have the privilege to perform the operation.")
+    case EBUSY: fatalError("The implementation has detected an attempt to re-initialise the object referenced by mutex, a previously initialised, but not yet destroyed, mutex.")
+    case EINVAL: fatalError("Invalid attributes.")
+    default: fatalError("Could not create mutex, unspecified error \(error).")
     }
   }
 
-  private final func lock() {
-    let result = pthread_mutex_lock(&self.mutex)
-    switch result {
-    case 0:
-      break // Success
-
-    case EDEADLK:
-      fatalError("Could not lock mutex: a deadlock would have occurred.")
-
-    case EINVAL:
-      fatalError("Could not lock mutex: the mutex is invalid.")
-
-    default:
-      fatalError("Could not lock mutex: unspecified error \(result).")
-    }
-  }
-
-  private final func unlock() {
-    let result = pthread_mutex_unlock(&self.mutex)
-    switch result {
-    case 0:
-      // Success
-      break
-
-    case EPERM:
-      fatalError("Could not unlock mutex: thread does not hold this mutex.")
-
-    case EINVAL:
-      fatalError("Could not unlock mutex: the mutex is invalid.")
-
-    default:
-      fatalError("Could not unlock mutex: unspecified error \(result).")
-    }
-  }
-
-  deinit {
-    assert(pthread_mutex_trylock(&self.mutex) == 0 && pthread_mutex_unlock(&self.mutex) == 0, "Deinitialization of a locked mutex results in undefined behavior.")
-    pthread_mutex_destroy(&self.mutex)
-  }
-
-  //  @discardableResult public final func locked<T>(_ block: () throws -> (T)) throws -> T {
-  //    return try self.tryLocked(block)
-  //  }
-  //
-  //  @discardableResult public final func locked<T>(_ block: () -> (T)) -> T {
-  //    return try! self.tryLocked(block)
-  //  }
-  //
-  //  /** Execute the given block while holding a lock to this mutex. */
-  //  @discardableResult public final func tryLocked<T>(_ block: () throws -> (T)) throws -> T {
-  //    self.lock()
-  //
-  //    defer {
-  //      self.unlock()
-  //    }
-  //    let ret: T = try block()
-  //    return ret
-  //  }
 }

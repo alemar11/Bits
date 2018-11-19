@@ -23,48 +23,21 @@
 
 import Foundation
 
-internal protocol Lock {
-  func writeLock()
-  func readLock()
+public protocol Lock {
+  func lock()
   func unlock()
 }
 
-extension NSLock: Lock {
-  internal func writeLock() {
-    lock()
-  }
-  internal func readLock() {
-    lock()
-  }
-}
+extension NSLock: Lock { }
+extension NSRecursiveLock: Lock { }
+extension SpinLock: Lock { }
+extension Mutex: Lock { }
 
-extension NSRecursiveLock: Lock {
-  internal func writeLock() {
-    lock()
-  }
-  internal func readLock() {
-    lock()
-  }
-}
 
-extension ReadWriteLock: Lock { }
-
-extension SpinLock: Lock {
-  func writeLock() {
-    lock()
-  }
-
-  func readLock() {
-    lock()
-  }
-}
-
-extension Mutex: Lock {
-  func writeLock() {
-    lock()
-  }
-
-  func readLock() {
-    lock()
-  }
-}
+//public protocol _ReadWriteLock {
+//  func writeLock()
+//  func readLock()
+//  func unlock()
+//}
+//
+//extension ReadWriteLock: _ReadWriteLock { }

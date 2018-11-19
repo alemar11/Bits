@@ -29,82 +29,52 @@ import Foundation
 public final class Atomic<T> {
 
   private let lock: Lock
-  private let lockingType: LockingType
   private var _value: T
 
-  public init(_ value: T, lockingType: LockingType = .nslock) {
-    self.lockingType = lockingType
-    self.lock = Atomic.lock(for: lockingType)
+  public var value: T {
+    get {
+      lock.lock()
+      defer { lock.unlock() }
+      let value = _value
+      return value
+    }
+    set {
+      lock.lock()
+      defer { lock.unlock() }
+      _value = newValue
+    }
+  }
+
+  public init(_ value: T, lock: Lock = NSLock()) {
+    self.lock = lock
     self._value = value
   }
 
   public func with<U>(_ value: (T) -> U) -> U {
-    lock.readLock()
+    lock.lock()
     defer { lock.unlock() }
     return value(_value)
   }
 
   public func modify(_ modify: (T) -> T) {
-    lock.writeLock()
+    lock.lock()
+    defer { lock.unlock() }
     _value = modify(_value)
-    lock.unlock()
   }
 
   public func mutate(_ transform: (inout T) -> Void) {
-    lock.writeLock()
+    lock.lock()
+    defer { lock.unlock() }
     transform(&_value)
-    lock.unlock()
   }
 
   @discardableResult
   public func swap(_ value: T) -> T {
-    lock.writeLock()
+    lock.lock()
+    defer { lock.unlock() }
     let current = _value
     _value = value
-    lock.unlock()
     return current
-  }
-
-  public var value: T {
-    get {
-      lock.readLock()
-      let value = _value
-      lock.unlock()
-      return value
-    }
-    set {
-      lock.writeLock()
-      _value = newValue
-      lock.unlock()
-    }
-  }
-}
-
-extension Atomic {
-
-  /// All the available locking mechanism.
-  ///
-  /// - nslock: `NSLock`
-  /// - nsrecursiveLock: `NSRecursiveLock`
-  /// - spinLock: `SpinLock` (Bits)
-  /// - mutex: `Mutex` (Bits)
-  /// - readWriteLock: `ReadWriteLock` (Bits)
-  public enum LockingType {
-    case nslock
-    case nsrecursiveLock
-    case spinLock
-    case mutex
-    case readWriteLock
-  }
-
-  static func lock(for type: LockingType) -> Lock {
-    switch type {
-    case .nslock: return NSLock()
-    case .nsrecursiveLock: return NSRecursiveLock()
-    case .spinLock: return SpinLock()
-    case .mutex: return Mutex()
-    case .readWriteLock: return ReadWriteLock()
-    }
   }
 
 }

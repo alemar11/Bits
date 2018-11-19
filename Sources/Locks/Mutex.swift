@@ -21,31 +21,67 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+// http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_mutex_init.html
 
-// TODO: add errors
+import Foundation
 
 /// A pthread-based mutex lock.
 /// An object that coordinates the operation of multiple threads of execution within the same application.
 /// Ensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
-public final class Mutex {
-
-  private var mutex: pthread_mutex_t = {
-    var mutex = pthread_mutex_t()
-    pthread_mutex_init(&mutex, nil)
-    return mutex
-  }()
-
+public class Mutex {
+  
+  private var mutex: pthread_mutex_t = pthread_mutex_t()
+  
+  public init() {
+    let error = pthread_mutex_init(&self.mutex, nil)
+    
+    switch error {
+    case 0: break // Success
+    case EAGAIN: fatalError("The system lacked the necessary resources (other than memory) to initialise another mutex.")
+    case ENOMEM: fatalError("Insufficient memory exists to initialise the mutex.")
+    case EPERM: fatalError("The caller does not have the privilege to perform the operation.")
+    case EBUSY: fatalError("The implementation has detected an attempt to re-initialise the object referenced by mutex, a previously initialised, but not yet destroyed, mutex.")
+    case EINVAL: fatalError("Invalid attributes.")
+    default: fatalError("Could not create mutex, unspecified error \(error).")
+    }
+  }
+  
   public func lock() {
-    pthread_mutex_lock(&mutex)
+    let error = pthread_mutex_lock(&mutex)
+    
+    switch error {
+    case 0:
+    break // Success
+    case EINVAL: fatalError("The value specified by mutex does not refer to an initialised mutex object.")
+    case EAGAIN: fatalError("The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.")
+    case EDEADLK: fatalError("The current thread already owns the mutex. (Deadlock)")
+    default: fatalError("Could not create mutex, unspecified error \(error).")
+    }
   }
-
+  
   public func unlock() {
-    pthread_mutex_unlock(&mutex)
+    let error =  pthread_mutex_unlock(&mutex)
+    
+    switch error {
+    case 0: break // Success
+    case EINVAL: fatalError("The mutex was created with the protocol attribute having the value PTHREAD_PRIO_PROTECT and the calling thread's priority is higher than the mutex's current priority ceiling.")
+    case EAGAIN: fatalError("The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.")
+    case EPERM: fatalError("The current thread does not own the mutex.")
+    default: fatalError("Could not create mutex, unspecified error \(error).")
+    }
   }
-
+  
   deinit {
-    assert(pthread_mutex_trylock(&self.mutex) == 0 && pthread_mutex_unlock(&self.mutex) == 0, "Deinitialization of a locked mutex results in undefined behavior.")
-    pthread_mutex_destroy(&self.mutex)
+    assert(pthread_mutex_trylock(&self.mutex) == 0 && pthread_mutex_unlock(&self.mutex) == 0, "Deinitialization results in undefined behavior.")
+    let error = pthread_mutex_destroy(&self.mutex)
+    
+    switch error {
+    case 0:
+    break // Success
+    case EBUSY: fatalError("The implementation has detected an attempt to destroy the object referenced by mutex while it is locked or referenced.")
+    case EINVAL: fatalError("The value specified by mutex is invalid.")
+    default: fatalError("Could not create mutex, unspecified error \(error).")
+    }
   }
+  
 }
