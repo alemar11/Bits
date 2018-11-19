@@ -26,7 +26,7 @@
 import XCTest
 @testable import Bits
 
-final class NetworkActivityIndicatorManagerTests: XCTestCase
+final class NetworkActivityIndicatorManagerTests: XCTestCase {
   
   // MARK: - Tests - Manual Activity Count Updates
   func testThatManagerCanTurnOnAndOffIndicatorWhenManuallyIncrementingAndDecrementingActivityCount() {
