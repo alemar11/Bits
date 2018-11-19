@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import XCTest
-
+//import XCTest
+//
 //class LockTests: XCTestCase {
 //
 //  func testSpinLock() {
@@ -111,9 +111,9 @@ import XCTest
 //    let dispatchBlockCount = 16
 //    let iterationCountPerBlock = 100_000
 //    let queues = [
-//      DispatchQueue.global(qos: DispatchQoS.QoSClass.userInteractive),
-//      DispatchQueue.global(qos: DispatchQoS.QoSClass.default),
-//      DispatchQueue.global(qos: DispatchQoS.QoSClass.utility),
+//      DispatchQueue.global(qos: .userInteractive),
+//      DispatchQueue.global(qos: .default),
+//      DispatchQueue.global(qos: .utility),
 //      ]
 //    var value = 0
 //    self.measure {
@@ -131,7 +131,7 @@ import XCTest
 //          group.leave()
 //        })
 //      }
-//      _ = group.wait(timeout: DispatchTime.distantFuture)
+//      _ = group.wait(timeout: .distantFuture)
 //    }
 //  }
 //
