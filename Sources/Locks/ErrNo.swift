@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -29,7 +29,9 @@ public func lastErrNo() -> ErrNo? {
 }
 
 /// Wrapper around errno values from the C standard library.
-public enum ErrNo : errno_t, Error {
+// swiftlint:disable operator_usage_whitespace
+// swiftlint:disable identifier_name
+public enum ErrNo: errno_t, Error {
   // MARK: Basic
   /// Operation not permitted
   case EPERM      = 1
@@ -106,7 +108,7 @@ public enum ErrNo : errno_t, Error {
   /// Resource temporarily unavailable
   case EAGAIN         = 35
   /// Operation would block
-  //case EWOULDBLOCK  = 35
+  // case EWOULDBLOCK  = 35
   /// Operation now in progress
   case EINPROGRESS    = 36
   /// Operation already in progress
@@ -274,11 +276,13 @@ public enum ErrNo : errno_t, Error {
   /// Interface output queue is full
   case EQFULL     = 106
   /// Must be equal largest errno
-  //case ELAST    = 106
+  // case ELAST    = 106
 }
+// swiftlint:enable identifier_name
+// swiftlint:enable operator_usage_whitespace
 
 // MARK: CustomStringConvertible
-extension ErrNo : CustomStringConvertible {
+extension ErrNo: CustomStringConvertible {
 
   /// Returns the error message and code.
   public var description: String {

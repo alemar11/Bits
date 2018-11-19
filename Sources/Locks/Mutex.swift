@@ -29,16 +29,16 @@ import Foundation
 /// An object that coordinates the operation of multiple threads of execution within the same application.
 /// Ensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
 public class Mutex {
-  
+
   private var mutex: pthread_mutex_t = pthread_mutex_t()
-  
+
   public init() {
     let status = pthread_mutex_init(&self.mutex, nil)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
   }
-  
+
   public func lock() {
     let status = pthread_mutex_lock(&mutex)
     guard status == 0 else {
@@ -51,14 +51,14 @@ public class Mutex {
     let status = pthread_mutex_trylock(&mutex)
     return status == 0
   }
-  
+
   public func unlock() {
     let status =  pthread_mutex_unlock(&mutex)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
   }
-  
+
   deinit {
     assert(pthread_mutex_trylock(&self.mutex) == 0 && pthread_mutex_unlock(&self.mutex) == 0, "Deinitialization results in undefined behavior.")
 
@@ -67,5 +67,5 @@ public class Mutex {
       fatalError(String(cString: strerror(status)))
     }
   }
-  
+
 }

@@ -44,7 +44,7 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(array.value.count, 1)
     XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
-  
+
   func testNSRecursiveLock() {
     let array = Atomic<[Int]>([], lock: NSRecursiveLock())
     let iterations = 1000
@@ -60,7 +60,7 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(array.value.count, 1)
     XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
-  
+
   func testMutex() {
     let array = Atomic<[Int]>([], lock: Mutex())
     let iterations = 1000
@@ -100,7 +100,7 @@ final class AtomicTests: XCTestCase {
 //    XCTAssertEqual(array.value.count, 1)
 //    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
-  
+
   func testUnfairLock() {
     let array = Atomic<[Int]>([], lock: UnfairLock())
     let iterations = 1000
@@ -116,7 +116,7 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(array.value.count, 1)
     XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
-  
+
 //  func testReadWriteLock() {
 //    let array = Atomic<[Int]>([], lockingType: .readWriteLock)
 //    let iterations = 1000

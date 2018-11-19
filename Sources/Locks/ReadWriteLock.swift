@@ -65,7 +65,7 @@ public final class ReadWriteLock {
 
   deinit {
     assert(pthread_rwlock_trywrlock(&self.lock) == 0 && pthread_rwlock_unlock(&self.lock) == 0, "Deinitialization results in undefined behavior.")
-    
+
     let status = pthread_rwlock_destroy(&self.lock)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))

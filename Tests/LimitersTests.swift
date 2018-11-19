@@ -25,7 +25,7 @@ import XCTest
 @testable import Bits
 
 final class LimitersTests: XCTestCase {
-  
+
   // MARK: - Throttler
 
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
@@ -39,11 +39,11 @@ final class LimitersTests: XCTestCase {
     }
 
     let throttler = Throttler(limit: .milliseconds(500)) // Execute the function at most once every 500 milliseconds
-    
+
     let scheduler = TestScheduler(timeInterval: Double(0.240), repeats: 10) { // 2400 milliseconds
       throttler.execute { block() }
     }
-    
+
     scheduler.start()
     // 240 milliseconds are enough to run 4 function calls and, obviously, not 5
     wait(for: [expectation], timeout: 10)
@@ -60,18 +60,18 @@ final class LimitersTests: XCTestCase {
       expectation.fulfill()
     }
     let throttler = Debouncer(limit: .milliseconds(800)) // Execute the function only if 800 milliseconds have passed without it being called.
-    
+
     let scheduler = TestScheduler(timeInterval: Double(0.250), repeats: 10) {  // 2500 milliseconds
       throttler.execute { block() }
     }
 
     // The scheduler call the function every 250 milliseconds and the debouncer is set to 800 milliseconds: the debouncer will limit every call except the last one.
     scheduler.start()
-    
+
     wait(for: [expectation], timeout: 5)
     XCTAssertEqual(count, 1, "The dobouncer should have cancalled all the function calls except the last one.")
   }
-  
+
   func testDebouncerHavingAllTheFunctionCallsNotLimited() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     var value = 0
@@ -82,20 +82,20 @@ final class LimitersTests: XCTestCase {
       }
     }
 
-    let throttler = Debouncer(limit: .milliseconds(400)) // Execute this function only if 400 milliseconds have passed without it being called.
-    
+    let throttler = Debouncer(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
+
     let scheduler = TestScheduler(timeInterval: Double(0.500), repeats: 10) { // 5000 milliseconds
       throttler.execute { block() }
     }
 
-    // The scheduler call the function every 500 milliseconds and the debouncer is set to 400 milliseconds: the debouncer will not limit any calls.
+    // The scheduler call the function every 500 milliseconds and the debouncer is set to 100 milliseconds: the debouncer will not limit any calls.
     scheduler.start()
-    
+
     wait(for: [expectation], timeout: 6)
   }
-  
+
   // MARK: - Max Limiter
-  
+
   func testLimiterHavingTheMaxNumberOfFunctionCallsRun() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let value = Atomic(0, lock: NSLock())
@@ -106,17 +106,17 @@ final class LimitersTests: XCTestCase {
       }
     }
     let limiter = MaxLimiter(limit: 5)
-    
+
     let repeats = 30
     let scheduler = TestScheduler(timeInterval: Double(0.100), repeats: repeats) {
       limiter.execute { block() }
     }
-    
+
     scheduler.start()
-    
+
     wait(for: [expectation], timeout: 5)
   }
-  
+
 }
 
 fileprivate final class TestScheduler {
@@ -125,30 +125,30 @@ fileprivate final class TestScheduler {
   private var timer: Timer!
   private let block: () -> Void
   private(set) var times = 0
-  
+
   init(timeInterval: TimeInterval, repeats: Int = 100, block: @escaping () -> Void) {
     self.timeInterval = timeInterval
     self.repeats = repeats
     self.block = block
   }
-  
+
   func start() {
     timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(broadcast), userInfo: nil, repeats: true)
   }
-  
+
   func stop() {
     timer.invalidate()
   }
-  
+
   @objc
   func broadcast(timer: Timer) {
     block()
-    
+
     times += 1
 
     if times == repeats {
       stop()
     }
   }
-  
+
 }
