@@ -46,15 +46,11 @@ final class AtomicTests: XCTestCase {
   }
   
   func testNSRecursiveLock() {
-    let lock = NSRecursiveLock()
-    let array = Atomic<[Int]>([], lock: lock)
+    let array = Atomic<[Int]>([], lock: NSRecursiveLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.mutate { _array in
         _array.append(index)
-        lock.lock()
-        print("\(index)")
-        lock.unlock()
       }
     }
 
@@ -85,7 +81,7 @@ final class AtomicTests: XCTestCase {
     let mutex = RecursiveMutex()
     mutex.lock()
     DispatchQueue.global().sync {
-      mutex.trylock()
+      mutex.try()
       mutex.unlock()
     }
 
@@ -105,8 +101,8 @@ final class AtomicTests: XCTestCase {
 //    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
   
-  func testSpinLock() {
-    let array = Atomic<[Int]>([], lock: SpinLock())
+  func testUnfairLock() {
+    let array = Atomic<[Int]>([], lock: UnfairLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.mutate { array in
@@ -137,6 +133,40 @@ final class AtomicTests: XCTestCase {
 //    XCTAssertEqual(array.value.count, 1)
 //    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
 //  }
+
+  func testAtomic2() {
+    let myVar = Atomic2([1, 2, 3, 4, 5, 6, 7, 8, 9], lock: NSLock())
+
+    XCTAssertEqual(myVar.read { $0.first }, 1)
+
+    myVar.write { $0.append(10) }
+
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+    myVar.write { $0 = [10] }
+    let sum = myVar.access { (array) -> Int in
+      return array.reduce(0, +)
+    }
+
+    XCTAssertEqual(myVar.read { $0 }, [10])
+    XCTAssertEqual(sum, 10)
+
+    let swap = myVar.access { array -> [Int] in
+      let copy = array
+      array = [1, 2, 3]
+      return copy
+    }
+
+    XCTAssertEqual(swap, [10])
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
+
+    let result = myVar.access { array -> Int in
+      return 11
+    }
+
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
+    XCTAssertEqual(result, 11)
+  }
 
 }
 

@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import Darwin.os.lock
 
 /// An object that coordinates the operation of multiple threads of execution within the same application.
 /// Causes a thread trying to acquire a lock to wait in a loop while checking if the lock is available. It is efficient if waiting is rare, but wasteful if waiting is common.
 /// Note: This is a replacement for the deprecated OSSpinLock.
-public final class SpinLock { //TODO: rename UnfairLock
+public final class UnfairLock { //TODO: rename UnfairLock
 
   private var unfairLock = os_unfair_lock_s()
 
@@ -35,6 +35,15 @@ public final class SpinLock { //TODO: rename UnfairLock
   }
 
   public func unlock() {
+    os_unfair_lock_unlock(&unfairLock)
+  }
+
+  func `try`() -> Bool {
+    return os_unfair_lock_trylock(&unfairLock)
+  }
+
+  deinit {
+    precondition(os_unfair_lock_trylock(&unfairLock), "Unlock the lock before destroying it")
     os_unfair_lock_unlock(&unfairLock)
   }
 

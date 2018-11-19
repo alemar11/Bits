@@ -30,70 +30,41 @@ import Foundation
 /// Ensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
 public class Mutex {
   
-  internal var mutex: pthread_mutex_t = pthread_mutex_t()
+  private var mutex: pthread_mutex_t = pthread_mutex_t()
   
   public init() {
     let status = pthread_mutex_init(&self.mutex, nil)
-    
-    switch status {
-    case 0: break // Success
-    case EAGAIN: fatalError("The system lacked the necessary resources (other than memory) to initialise another mutex.")
-    case ENOMEM: fatalError("Insufficient memory exists to initialise the mutex.")
-    case EPERM: fatalError("The caller does not have the privilege to perform the operation.")
-    case EBUSY: fatalError("The implementation has detected an attempt to re-initialise the object referenced by mutex, a previously initialised, but not yet destroyed, mutex.")
-    case EINVAL: fatalError("Invalid attributes.")
-    default: fatalError("Could not create mutex, unspecified error \(status).")
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
   
   public func lock() {
     let status = pthread_mutex_lock(&mutex)
-    
-    switch status {
-    case 0:
-    break // Success
-    case EINVAL: fatalError("The value specified by mutex does not refer to an initialised mutex object.")
-    case EAGAIN: fatalError("The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.")
-    case EDEADLK: fatalError("The current thread already owns the mutex. (Deadlock)")
-    default: fatalError("Could not create mutex, unspecified error \(status).")
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
 
-  public func trylock() {
+  @discardableResult
+  public func `try`() -> Bool {
     let status = pthread_mutex_trylock(&mutex)
-    switch status {
-    case 0:
-      break
-    case EBUSY:
-      fatalError("EBUSY")
-    case EAGAIN:
-      fatalError("EAGAIN")
-    default:
-      fatalError("Unexpected pthread mutex error code: \(status)")
-    }
+    return status == 0
   }
   
   public func unlock() {
-    let error =  pthread_mutex_unlock(&mutex)
-    
-    switch error {
-    case 0: break // Success
-    case EINVAL: fatalError("The mutex was created with the protocol attribute having the value PTHREAD_PRIO_PROTECT and the calling thread's priority is higher than the mutex's current priority ceiling.")
-    case EAGAIN: fatalError("The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.")
-    case EPERM: fatalError("The current thread does not own the mutex.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    let status =  pthread_mutex_unlock(&mutex)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
   
   deinit {
     assert(pthread_mutex_trylock(&self.mutex) == 0 && pthread_mutex_unlock(&self.mutex) == 0, "Deinitialization results in undefined behavior.")
-    let error = pthread_mutex_destroy(&self.mutex)
-    
-    switch error {
-    case 0: break // Success
-    case EBUSY: fatalError("The implementation has detected an attempt to destroy the object referenced by mutex while it is locked or referenced.")
-    case EINVAL: fatalError("The value specified by mutex is invalid.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+
+    let status = pthread_mutex_destroy(&self.mutex)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
   

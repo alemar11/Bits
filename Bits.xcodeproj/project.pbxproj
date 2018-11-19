@@ -56,6 +56,8 @@
 		236D5C1E21A2DA8900B5AF8D /* LockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D5C1C21A2DA8900B5AF8D /* LockTests.swift */; };
 		2371896520DD3B4400350F6E /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* AtomicTests.swift */; };
 		239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
+		23AF8C9621A33F5200C54769 /* ErrNo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AF8C9521A33F5200C54769 /* ErrNo.swift */; };
+		23AF8C9721A33F5200C54769 /* ErrNo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AF8C9521A33F5200C54769 /* ErrNo.swift */; };
 		23B80DF22108C13C00C2D2A9 /* NotificationPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B80DF12108C13C00C2D2A9 /* NotificationPayload.swift */; };
 		23B80DF32108C13C00C2D2A9 /* NotificationPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B80DF12108C13C00C2D2A9 /* NotificationPayload.swift */; };
 		23B80DF52108C14F00C2D2A9 /* UIKeyboardPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B80DF42108C14F00C2D2A9 /* UIKeyboardPayload.swift */; };
@@ -133,6 +135,7 @@
 		236D5C1C21A2DA8900B5AF8D /* LockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockTests.swift; sourceTree = "<group>"; };
 		2371896420DD3B4400350F6E /* AtomicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicTests.swift; sourceTree = "<group>"; };
 		239CCC9520E229B0007782E5 /* ChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelTests.swift; sourceTree = "<group>"; };
+		23AF8C9521A33F5200C54769 /* ErrNo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrNo.swift; sourceTree = "<group>"; };
 		23B80DF12108C13C00C2D2A9 /* NotificationPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPayload.swift; sourceTree = "<group>"; };
 		23B80DF42108C14F00C2D2A9 /* UIKeyboardPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKeyboardPayload.swift; sourceTree = "<group>"; };
 		23B80DF72108C1A300C2D2A9 /* Responder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
@@ -203,6 +206,7 @@
 				2300A7EA21085AC00067577B /* ReadWriteLock.swift */,
 				2300A7ED21085AF90067577B /* Lock.swift */,
 				234838AE219F220000073A96 /* RecursiveMutex.swift */,
+				23AF8C9521A33F5200C54769 /* ErrNo.swift */,
 			);
 			path = Locks;
 			sourceTree = "<group>";
@@ -538,6 +542,7 @@
 				23374ABE20F8A1D100768B5D /* Debouncer.swift in Sources */,
 				23F97E3620E6616E007C4889 /* Bits.swift in Sources */,
 				2300A7EF21085AF90067577B /* Lock.swift in Sources */,
+				23AF8C9721A33F5200C54769 /* ErrNo.swift in Sources */,
 				23F97E3320E6616E007C4889 /* Box.swift in Sources */,
 				23F97E3520E6616E007C4889 /* Result.swift in Sources */,
 				2339BA5920EBB22A005C0898 /* MulticastDelegate.swift in Sources */,
@@ -582,6 +587,7 @@
 				23B80DF82108C1A300C2D2A9 /* Responder.swift in Sources */,
 				23F97E4720E6669F007C4889 /* Permissions.swift in Sources */,
 				23374AC020F8A1F000768B5D /* MaxLimiter.swift in Sources */,
+				23AF8C9621A33F5200C54769 /* ErrNo.swift in Sources */,
 				93EBB53E20A2F9B900C3B626 /* NetworkActivityIndicatorManager.swift in Sources */,
 				23C45F76209F026A00910999 /* Bits.swift in Sources */,
 				2339BA5820EBB22A005C0898 /* MulticastDelegate.swift in Sources */,

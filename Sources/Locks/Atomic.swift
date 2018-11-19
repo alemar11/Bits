@@ -78,3 +78,39 @@ public final class Atomic<T> {
   }
 
 }
+
+final class Atomic2<T> {
+
+  private var _value: T
+  private let lock: Lock
+
+  // Atomic properties with a setter are kind of dangerous in some scenarios
+  // https://github.com/ReactiveCocoa/ReactiveSwift/issues/269
+
+  init(_ value: T, lock: Lock) {
+    self.lock = lock
+    self._value = value
+  }
+
+  @inline(__always)
+  public func read<U>(_ value: (T) -> U) -> U {
+    lock.lock()
+    defer { lock.unlock() }
+    return value(_value)
+  }
+
+  @inline(__always)
+  public func write(_ transform: (inout T) -> Void) {
+    lock.lock()
+    defer { lock.unlock() }
+    transform(&_value)
+  }
+
+  @inline(__always)
+  func access<U>(_ body: (inout T) -> U) -> U {
+    lock.lock()
+    defer { lock.unlock() }
+    return body(&_value)
+  }
+
+}

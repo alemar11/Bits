@@ -31,7 +31,7 @@ public protocol Lock {
 
 extension NSLock: Lock { }
 extension NSRecursiveLock: Lock { }
-extension SpinLock: Lock { }
+extension UnfairLock: Lock { }
 extension Mutex: Lock { }
 extension RecursiveMutex: Lock { }
 

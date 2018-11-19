@@ -26,71 +26,49 @@
 import Foundation
 
 /// A pthread-based read-write lock.
+///
+/// Provides concurrent access for read-only operations, but exclusive access for write operations.
+///
+/// Efficient when reading is common and writing is rare.
 public final class ReadWriteLock {
 
   // Initialization: pthread_rwlock_t is a value type and must be declared as var in order to refer it later. Make sure not to copy it.
   private var lock = pthread_rwlock_t()
 
   init() {
-    let error = pthread_rwlock_init(&lock, nil)
-
-    switch error {
-    case 0: break // Success
-    case EAGAIN: fatalError("The system temporarily lacks the resources to create another mutex.")
-    case ENOMEM: fatalError("Insufficient memory exists to initialise the read-write lock.")
-    case EPERM: fatalError("The caller does not have the privilege to perform the operation.")
-    case EBUSY: fatalError("The implementation has detected an attempt to re-initialise the object referenced by rwlock, a previously initialised but not yet destroyed read-write lock.")
-    case EINVAL: fatalError("Invalid attributes.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    let status = pthread_rwlock_init(&lock, nil)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
 
   func writeLock() {
-    let error = pthread_rwlock_wrlock(&lock)
-
-    switch error {
-    case 0: break // Success
-    case EBUSY: fatalError("The read-write lock could not be acquired for writing because it was already locked for reading or writing.")
-    case EINVAL: fatalError("The value specified by rwlock does not refer to an initialised read-write lock object.")
-    case EDEADLK: fatalError("The current thread already owns the read-write lock for writing or reading. (Deadlock)")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    let status = pthread_rwlock_wrlock(&lock)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
 
   func readLock() {
-    let error = pthread_rwlock_rdlock(&lock)
-
-    switch error {
-    case 0: break // Success
-    case EBUSY: fatalError("The read-write lock could not be acquired for reading because a writer holds the lock or was blocked on it.")
-    case EINVAL: fatalError("The value specified by rwlock does not refer to an initialised read-write lock object.")
-    case EDEADLK: fatalError("The current thread already owns the read-write lock for writing. (Deadlock)")
-    case EAGAIN: fatalError("The read lock could not be acquired because the maximum number of read locks for rwlock has been exceeded.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    let status = pthread_rwlock_rdlock(&lock)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
 
   func unlock() {
-    let error = pthread_rwlock_unlock(&lock)
-
-    switch error {
-    case 0: break
-    case EINVAL: fatalError("The value specified by rwlock does not refer to an initialised read-write lock object.")
-    case EPERM: fatalError("The current thread does not own the read-write lock.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    let status = pthread_rwlock_unlock(&lock)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
 
   deinit {
     assert(pthread_rwlock_trywrlock(&self.lock) == 0 && pthread_rwlock_unlock(&self.lock) == 0, "Deinitialization results in undefined behavior.")
     
-    let error = pthread_rwlock_destroy(&self.lock)
-
-    switch error {
-    case 0: break // Success
-    case EBUSY: fatalError("The implementation has detected an attempt to destroy the object referenced by rwlock while it is locked.")
-    case EINVAL: fatalError("Invalid attributes.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    let status = pthread_rwlock_destroy(&self.lock)
+    guard status == 0 else {
+      fatalError(String(cString: strerror(status)))
     }
   }
 
