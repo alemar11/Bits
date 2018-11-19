@@ -26,12 +26,14 @@ import Foundation
 public protocol Lock {
   func lock()
   func unlock()
+  // func try() -> Bool
 }
 
 extension NSLock: Lock { }
 extension NSRecursiveLock: Lock { }
 extension SpinLock: Lock { }
 extension Mutex: Lock { }
+extension RecursiveMutex: Lock { }
 
 
 //public protocol _ReadWriteLock {

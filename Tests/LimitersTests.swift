@@ -98,7 +98,7 @@ final class LimitersTests: XCTestCase {
   
   func testLimiterHavingTheMaxNumberOfFunctionCallsRun() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
-    let value = Atomic(0)
+    let value = Atomic(0, lock: NSLock())
     let block = {
       value.value += 1
       if value.value >= 5 {

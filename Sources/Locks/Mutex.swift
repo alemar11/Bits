@@ -30,32 +30,46 @@ import Foundation
 /// Ensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
 public class Mutex {
   
-  private var mutex: pthread_mutex_t = pthread_mutex_t()
+  internal var mutex: pthread_mutex_t = pthread_mutex_t()
   
   public init() {
-    let error = pthread_mutex_init(&self.mutex, nil)
+    let status = pthread_mutex_init(&self.mutex, nil)
     
-    switch error {
+    switch status {
     case 0: break // Success
     case EAGAIN: fatalError("The system lacked the necessary resources (other than memory) to initialise another mutex.")
     case ENOMEM: fatalError("Insufficient memory exists to initialise the mutex.")
     case EPERM: fatalError("The caller does not have the privilege to perform the operation.")
     case EBUSY: fatalError("The implementation has detected an attempt to re-initialise the object referenced by mutex, a previously initialised, but not yet destroyed, mutex.")
     case EINVAL: fatalError("Invalid attributes.")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    default: fatalError("Could not create mutex, unspecified error \(status).")
     }
   }
   
   public func lock() {
-    let error = pthread_mutex_lock(&mutex)
+    let status = pthread_mutex_lock(&mutex)
     
-    switch error {
+    switch status {
     case 0:
     break // Success
     case EINVAL: fatalError("The value specified by mutex does not refer to an initialised mutex object.")
     case EAGAIN: fatalError("The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.")
     case EDEADLK: fatalError("The current thread already owns the mutex. (Deadlock)")
-    default: fatalError("Could not create mutex, unspecified error \(error).")
+    default: fatalError("Could not create mutex, unspecified error \(status).")
+    }
+  }
+
+  public func trylock() {
+    let status = pthread_mutex_trylock(&mutex)
+    switch status {
+    case 0:
+      break
+    case EBUSY:
+      fatalError("EBUSY")
+    case EAGAIN:
+      fatalError("EAGAIN")
+    default:
+      fatalError("Unexpected pthread mutex error code: \(status)")
     }
   }
   
@@ -76,8 +90,7 @@ public class Mutex {
     let error = pthread_mutex_destroy(&self.mutex)
     
     switch error {
-    case 0:
-    break // Success
+    case 0: break // Success
     case EBUSY: fatalError("The implementation has detected an attempt to destroy the object referenced by mutex while it is locked or referenced.")
     case EINVAL: fatalError("The value specified by mutex is invalid.")
     default: fatalError("Could not create mutex, unspecified error \(error).")

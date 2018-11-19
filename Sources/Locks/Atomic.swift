@@ -45,7 +45,7 @@ public final class Atomic<T> {
     }
   }
 
-  public init(_ value: T, lock: Lock = NSLock()) {
+  public init(_ value: T, lock: Lock) {
     self.lock = lock
     self._value = value
   }

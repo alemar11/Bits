@@ -25,35 +25,39 @@ import XCTest
 @testable import Bits
 
 final class AtomicTests: XCTestCase {
-  
+
   func testNSLock() {
-    let array = Atomic<[Int]>([])
+    let array = Atomic<[Int]>([], lock: NSLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      // array.value.append(1) isn't thread safe, the only way to mutate the array is using 'modify' or `mutate`
-      array.modify({ array -> [Int] in
-        var copy = array
-        copy.append(index)
-        return copy
-      })
+      array.mutate { array in
+        array.append(index)
+        print(index)
+      }
     }
+
     XCTAssertEqual(array.value.count, iterations)
+
     let prev = array.swap([1])
+
     XCTAssertEqual(prev.count, iterations)
     XCTAssertEqual(array.value.count, 1)
     XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
   
   func testNSRecursiveLock() {
-    let array = Atomic<[Int]>([], lock: NSRecursiveLock())
+    let lock = NSRecursiveLock()
+    let array = Atomic<[Int]>([], lock: lock)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.modify({ array -> [Int] in
-        var copy = array
-        copy.append(index)
-        return copy
-      })
+      array.mutate { _array in
+        _array.append(index)
+        lock.lock()
+        print("\(index)")
+        lock.unlock()
+      }
     }
+
     XCTAssertEqual(array.value.count, iterations)
     let prev = array.swap([1])
     XCTAssertEqual(prev.count, iterations)
@@ -65,12 +69,11 @@ final class AtomicTests: XCTestCase {
     let array = Atomic<[Int]>([], lock: Mutex())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.modify({ array -> [Int] in
-        var copy = array
-        copy.append(index)
-        return copy
-      })
+      array.mutate { array in
+        array.append(index)
+      }
     }
+
     XCTAssertEqual(array.value.count, iterations)
     let prev = array.swap([1])
     XCTAssertEqual(prev.count, iterations)
@@ -79,32 +82,38 @@ final class AtomicTests: XCTestCase {
   }
 
   func testRecursiveMutex() {
-    let array = Atomic<[Int]>([], lock: RecursiveMutex())
-    let iterations = 1000
-    DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.modify({ array -> [Int] in
-        var copy = array
-        copy.append(index)
-        return copy
-      })
+    let mutex = RecursiveMutex()
+    mutex.lock()
+    DispatchQueue.global().sync {
+      mutex.trylock()
+      mutex.unlock()
     }
-    XCTAssertEqual(array.value.count, iterations)
-    let prev = array.swap([1])
-    XCTAssertEqual(prev.count, iterations)
-    XCTAssertEqual(array.value.count, 1)
-    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+
+    mutex.unlock()
+//    let array = Atomic<[Int]>([], lock: RecursiveMutex())
+//    let iterations = 1000
+//    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+//      array.mutate { array in
+//        array.append(index)
+//      }
+//    }
+//
+//    XCTAssertEqual(array.value.count, iterations)
+//    let prev = array.swap([1])
+//    XCTAssertEqual(prev.count, iterations)
+//    XCTAssertEqual(array.value.count, 1)
+//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
   }
   
   func testSpinLock() {
     let array = Atomic<[Int]>([], lock: SpinLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      array.modify({ array -> [Int] in
-        var copy = array
-        copy.append(index)
-        return copy
-      })
+      array.mutate { array in
+        array.append(index)
+      }
     }
+
     XCTAssertEqual(array.value.count, iterations)
     let prev = array.swap([1])
     XCTAssertEqual(prev.count, iterations)

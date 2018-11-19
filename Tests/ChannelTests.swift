@@ -103,7 +103,7 @@ final class ChannelTests: XCTestCase {
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation3 = self.expectation(description: "\(#function)\(#line)")
     let expectation4 = self.expectation(description: "\(#function)\(#line)")
-    let tokens = Atomic<[Channel<Event>.Token]>([])
+    let tokens = Atomic<[Channel<Event>.Token]>([], lock: NSLock())
     
     // When, Then
     channel.subscribe(object1, completion: { token in
@@ -368,7 +368,7 @@ final class ChannelTests: XCTestCase {
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     
-    let count = Atomic(0)
+    let count = Atomic(0, lock: NSLock())
     let queue = DispatchQueue(label: "\(#function)\(#line)")
     
     // When
@@ -402,7 +402,7 @@ final class ChannelTests: XCTestCase {
     let scheduler = ChannelScheduler(channel: channel, timeInterval: 0.1)
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let count = Atomic(0)
+    let count = Atomic(0, lock: NSLock())
     
     // When
     scheduler.start()
