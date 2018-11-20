@@ -46,8 +46,8 @@ public final class Channel<Value> {
   // MARK: - Initializers
 
   /// Creates a subscription instance.
-  public init() {
-    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: .default, attributes: .concurrent)
+  public init(qos: DispatchQoS = .default) {
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos, attributes: .concurrent)
   }
 
   // MARK: - Subscription
@@ -100,7 +100,7 @@ public final class Channel<Value> {
   public func broadcast(_ value: Value) {
     flushCancelledSubscribers()
 
-    queue.sync { [weak self] in
+    queue.sync { [weak self] in // TODO: async?
       guard let `self` = self else { return }
 
       self._subscriptions.forEach { $0.notify(value) }

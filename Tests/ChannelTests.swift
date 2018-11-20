@@ -103,7 +103,7 @@ final class ChannelTests: XCTestCase {
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let expectation3 = self.expectation(description: "\(#function)\(#line)")
     let expectation4 = self.expectation(description: "\(#function)\(#line)")
-    let tokens = Atomic<[Channel<Event>.Token]>([], lock: NSLock())
+    let tokens = Atomic<[Channel<Event>.Token]>([], lock: UnfairLock())
 
     // When, Then
     channel.subscribe(object1, completion: { token in
@@ -305,18 +305,16 @@ final class ChannelTests: XCTestCase {
     let iterations = 1000
 
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    var count = 0
-    let lock = NSLock()
+    let count = Atomic(0, lock: UnfairLock())
 
     // When
     channel.subscribe(object1, queue: .global()) { event, token in
       XCTAssertFalse(Thread.isMainThread)
       switch event {
       case .event3(let value):
-        lock.lock(); defer { lock.unlock() }
-        count += 1
+        count.write { $0 += 1 }
 
-        if value == 999 {
+        if value == iterations - 1 {
           expectation1.fulfill()
         }
       default: break
@@ -328,8 +326,8 @@ final class ChannelTests: XCTestCase {
     }
 
     // Then
-    waitForExpectations(timeout: 2)
-    XCTAssertEqual(count, iterations)
+    waitForExpectations(timeout: 4)
+    XCTAssertEqual(count.value, iterations)
   }
 
   func testUnsuscribeBetweenTheBroadcastingOfTwoEvents() {
@@ -368,7 +366,7 @@ final class ChannelTests: XCTestCase {
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
 
-    let count = Atomic(0, lock: NSLock())
+    let count = Atomic(0, lock: UnfairLock())
     let queue = DispatchQueue(label: "\(#function)\(#line)")
 
     // When
@@ -402,7 +400,7 @@ final class ChannelTests: XCTestCase {
     let scheduler = ChannelScheduler(channel: channel, timeInterval: 0.1)
     let object1 = NSObject()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let count = Atomic(0, lock: NSLock())
+    let count = Atomic(0, lock: UnfairLock())
 
     // When
     scheduler.start()
@@ -440,9 +438,10 @@ fileprivate enum Event {
   case event3(Int)
 }
 
-fileprivate class ChannelScheduler {
+fileprivate class ChannelScheduler { //TODO: better repeater
   let channel: Channel<Event>
   let timeInterval: TimeInterval
+  let queue = DispatchQueue(label: "ChannelScheduler")
   var timer: Timer!
   let repeats: Int
   var times = 0
@@ -463,7 +462,7 @@ fileprivate class ChannelScheduler {
 
   @objc
   func broadcast() {
-    DispatchQueue(label: "\(#function)\(#line)").async { [weak self] in
+    queue.async { [weak self] in
       self?.channel.broadcast(Event.event1)
     }
     times += 1
