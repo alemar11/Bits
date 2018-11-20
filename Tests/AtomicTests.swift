@@ -32,7 +32,6 @@ final class AtomicTests: XCTestCase {
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.mutate { array in
         array.append(index)
-        print(index)
       }
     }
 
