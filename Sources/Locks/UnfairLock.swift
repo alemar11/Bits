@@ -21,30 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import Darwin.os.lock
 
+/// **Bits**
+///
 /// An object that coordinates the operation of multiple threads of execution within the same application.
 /// Causes a thread trying to acquire a lock to wait in a loop while checking if the lock is available. It is efficient if waiting is rare, but wasteful if waiting is common.
 /// - Note: This is a replacement for the deprecated OSSpinLock.
-public final class UnfairLock {
+public final class UnfairLock: NSLocking {
 
-  private var unfairLock = os_unfair_lock_s()
+  private var unfairLock: os_unfair_lock_t
+
+  public init() {
+    unfairLock = .allocate(capacity: 1)
+    unfairLock.initialize(to: os_unfair_lock())
+  }
 
   public func lock() {
-    os_unfair_lock_lock(&unfairLock)
+    os_unfair_lock_lock(unfairLock)
   }
 
   public func unlock() {
-    os_unfair_lock_unlock(&unfairLock)
+    os_unfair_lock_unlock(unfairLock)
   }
 
   public func `try`() -> Bool {
-    return os_unfair_lock_trylock(&unfairLock)
+    return os_unfair_lock_trylock(unfairLock)
   }
 
   deinit {
-    precondition(os_unfair_lock_trylock(&unfairLock), "Deinitialization results in undefined behavior.") //TODO: precondition
-    os_unfair_lock_unlock(&unfairLock)
+    unfairLock.deinitialize(count: 1)
+    unfairLock.deallocate()
   }
 
 }

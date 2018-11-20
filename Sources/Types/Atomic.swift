@@ -33,12 +33,12 @@ public protocol ThreadSafe {
 
 /// **Bits**
 ///
-/// Thread-safe access using a locking mechanism conforming to `Lock` protocol.
+/// Thread-safe access using a locking mechanism conforming to `NSLocking` protocol.
 public final class Atomic<T>: ThreadSafe {
   private var _value: T
-  private let lock: Lock
+  private let lock: NSLocking
 
-  public init(_ value: T, lock: Lock) {
+  public init(_ value: T, lock: NSLocking) {
     self.lock = lock
     self._value = value
   }

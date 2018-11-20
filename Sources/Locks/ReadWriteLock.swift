@@ -39,35 +39,35 @@ public final class ReadWriteLock {
   // Initialization: pthread_rwlock_t is a value type and must be declared as var in order to refer it later. Make sure not to copy it.
   private var lock = pthread_rwlock_t()
 
-  init() {
+  public init() {
     let status = pthread_rwlock_init(&lock, nil)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
   }
 
-  func writeLock() {
+  public func writeLock() {
     let status = pthread_rwlock_wrlock(&lock)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
   }
 
-  func readLock() {
+  public func readLock() {
     let status = pthread_rwlock_rdlock(&lock)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
   }
 
-  func unlock() {
+  public func unlock() {
     let status = pthread_rwlock_unlock(&lock)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
   }
 
-  func `try`() -> Bool {
+  public func `try`() -> Bool {
     let status = pthread_rwlock_trywrlock(&self.lock)
     return status == 0
   }

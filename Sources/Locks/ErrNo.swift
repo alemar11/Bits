@@ -23,9 +23,12 @@
 
 import Darwin.C.errno
 
-/// Wrapper around errno values from the C standard library.
 // swiftlint:disable operator_usage_whitespace
 // swiftlint:disable identifier_name
+
+/// **Bits**
+///
+/// Wrapper around errno values from the C standard library.
 public enum ErrNo: errno_t, Error, CaseIterable {
   // MARK: Basic
   /// Operation not permitted
@@ -273,6 +276,7 @@ public enum ErrNo: errno_t, Error, CaseIterable {
   /// Must be equal largest errno
   // case ELAST    = 106
 }
+
 // swiftlint:enable identifier_name
 // swiftlint:enable operator_usage_whitespace
 

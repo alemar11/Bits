@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import Darwin.os.lock
 
 // http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_mutex_lock.html
@@ -28,7 +29,7 @@ import Darwin.os.lock
 /// **Bits**
 ///
 /// A pthread-based mutex lock.
-public final class Mutex {
+public final class Mutex: NSLocking {
   private var mutex: pthread_mutex_t = pthread_mutex_t()
 
   public init(recursive: Bool = false) {
