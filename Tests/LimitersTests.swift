@@ -30,7 +30,7 @@ final class LimitersTests: XCTestCase {
 
   func testThrottlerHavingAllTheFunctionCallsCompleted() {
     var count = 0
-    let expectation = self.expectation(description: "repeats completed")
+    let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
       count += 1
       if count == 4 {
@@ -101,7 +101,8 @@ final class LimitersTests: XCTestCase {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let value = Atomic(0, lock: NSLock())
     let block = {
-      value.value += 1
+      value.write { $0 += 1 }
+
       if value.value >= 5 {
         expectation.fulfill()
       }
@@ -116,7 +117,7 @@ final class LimitersTests: XCTestCase {
     scheduler.start()
     
     wait(for: [expectation], timeout: 5)
-    XCTAssertEqual(value.value, 10, "The Limiter has run the function \(value.value) times instead of 10.")
+    XCTAssertEqual(value.value, 5, "The Limiter has run the function \(value.value) times instead of 10.")
   }
   
 }

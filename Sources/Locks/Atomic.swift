@@ -26,60 +26,7 @@ import Foundation
 /// **Bits**
 ///
 /// Thread-safe access using a locking mechanism conforming to `Lock` protocol.
-public final class Atomic<T> {
-
-  private let lock: Lock
-  private var _value: T
-
-  public var value: T {
-    get {
-      lock.lock()
-      defer { lock.unlock() }
-      let value = _value
-      return value
-    }
-    set {
-      lock.lock()
-      defer { lock.unlock() }
-      _value = newValue
-    }
-  }
-
-  public init(_ value: T, lock: Lock) {
-    self.lock = lock
-    self._value = value
-  }
-
-  public func with<U>(_ value: (T) -> U) -> U {
-    lock.lock()
-    defer { lock.unlock() }
-    return value(_value)
-  }
-
-  public func modify(_ modify: (T) -> T) {
-    lock.lock()
-    defer { lock.unlock() }
-    _value = modify(_value)
-  }
-
-  public func mutate(_ transform: (inout T) -> Void) {
-    lock.lock()
-    defer { lock.unlock() }
-    transform(&_value)
-  }
-
-  @discardableResult
-  public func swap(_ value: T) -> T {
-    lock.lock()
-    defer { lock.unlock() }
-    let current = _value
-    _value = value
-    return current
-  }
-
-}
-
-final class Atomic2<T> {
+final class Atomic<T> {
 
   private var _value: T
   private let lock: Lock
@@ -90,6 +37,12 @@ final class Atomic2<T> {
   init(_ value: T, lock: Lock) {
     self.lock = lock
     self._value = value
+  }
+
+  public var value: T {
+    lock.lock()
+    defer { lock.unlock() }
+    return _value
   }
 
   @inline(__always)

@@ -38,7 +38,7 @@ public final class UnfairLock {
     os_unfair_lock_unlock(&unfairLock)
   }
 
-  func `try`() -> Bool {
+  public func `try`() -> Bool {
     return os_unfair_lock_trylock(&unfairLock)
   }
 

@@ -107,14 +107,14 @@ final class ChannelTests: XCTestCase {
 
     // When, Then
     channel.subscribe(object1, completion: { token in
-      tokens.mutate { $0.append(token) }
+      tokens.write { $0.append(token) }
       expectation1.fulfill()
     }) { _, _ in
       XCTFail("There shouldn't be any events, while the channel isn't broadcasting")
     }
 
     channel.subscribe(object2, completion: { token in
-      tokens.mutate { $0.append(token) }
+      tokens.write { $0.append(token) }
       expectation2.fulfill()
     }) { _, _ in
       XCTFail("There shouldn't be any events, while the channel isn't broadcasting")
@@ -377,7 +377,7 @@ final class ChannelTests: XCTestCase {
     channel.subscribe(object1, queue: queue) { event, token in
       switch event {
       case .event1:
-        count.mutate { $0 += 1 }
+        count.write { $0 += 1 }
       default: break
       }
     }
@@ -411,7 +411,7 @@ final class ChannelTests: XCTestCase {
       switch event {
       case .event1:
         /// if a queue for the subscriber is not defined, we can use locks to avoid a race condition
-        count.mutate { $0 += 1 }
+        count.write { $0 += 1 }
       default: break
       }
     }

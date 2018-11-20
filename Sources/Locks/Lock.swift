@@ -26,17 +26,13 @@ import Foundation
 public protocol Lock {
   func lock()
   func unlock()
-}
-
-public protocol TryableLock {
   func `try`() -> Bool
 }
 
-extension NSLock: Lock & TryableLock { }
-extension NSRecursiveLock: Lock & TryableLock { }
+extension NSLock: Lock { }
+extension NSRecursiveLock: Lock { }
 extension UnfairLock: Lock { }
-extension Mutex: Lock & TryableLock { }
-extension RecursiveMutex: Lock & TryableLock { }
+extension Mutex: Lock { }
 
 
 //public protocol _ReadWriteLock {
