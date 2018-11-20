@@ -47,7 +47,7 @@ final class LimitersTests: XCTestCase {
     scheduler.start()
     // 240 milliseconds are enough to run 4 function calls and, obviously, not 5
     wait(for: [expectation], timeout: 10)
-    XCTAssertEqual(count, 1, "The throttler has run the function \(count) times instead of 4.")
+    XCTAssertEqual(count, 4, "The throttler has run the function \(count) times instead of 4.")
   }
 
   // MARK: - Debouncer

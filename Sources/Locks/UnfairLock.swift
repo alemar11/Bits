@@ -26,7 +26,7 @@ import Darwin.os.lock
 /// An object that coordinates the operation of multiple threads of execution within the same application.
 /// Causes a thread trying to acquire a lock to wait in a loop while checking if the lock is available. It is efficient if waiting is rare, but wasteful if waiting is common.
 /// Note: This is a replacement for the deprecated OSSpinLock.
-public final class UnfairLock { //TODO: rename UnfairLock
+public final class UnfairLock {
 
   private var unfairLock = os_unfair_lock_s()
 

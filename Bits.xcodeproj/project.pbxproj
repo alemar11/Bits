@@ -32,8 +32,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		2300A7E521085A8B0067577B /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E421085A8B0067577B /* SpinLock.swift */; };
-		2300A7E621085A8B0067577B /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E421085A8B0067577B /* SpinLock.swift */; };
+		2300A7E521085A8B0067577B /* UnfairLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E421085A8B0067577B /* UnfairLock.swift */; };
+		2300A7E621085A8B0067577B /* UnfairLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E421085A8B0067577B /* UnfairLock.swift */; };
 		2300A7E821085AAB0067577B /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E721085AAB0067577B /* Mutex.swift */; };
 		2300A7E921085AAB0067577B /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7E721085AAB0067577B /* Mutex.swift */; };
 		2300A7EB21085AC00067577B /* ReadWriteLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7EA21085AC00067577B /* ReadWriteLock.swift */; };
@@ -119,7 +119,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2300A7E421085A8B0067577B /* SpinLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinLock.swift; sourceTree = "<group>"; };
+		2300A7E421085A8B0067577B /* UnfairLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfairLock.swift; sourceTree = "<group>"; };
 		2300A7E721085AAB0067577B /* Mutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutex.swift; sourceTree = "<group>"; };
 		2300A7EA21085AC00067577B /* ReadWriteLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadWriteLock.swift; sourceTree = "<group>"; };
 		2300A7ED21085AF90067577B /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
@@ -201,7 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
-				2300A7E421085A8B0067577B /* SpinLock.swift */,
+				2300A7E421085A8B0067577B /* UnfairLock.swift */,
 				2300A7E721085AAB0067577B /* Mutex.swift */,
 				2300A7EA21085AC00067577B /* ReadWriteLock.swift */,
 				2300A7ED21085AF90067577B /* Lock.swift */,
@@ -547,7 +547,7 @@
 				23F97E3520E6616E007C4889 /* Result.swift in Sources */,
 				2339BA5920EBB22A005C0898 /* MulticastDelegate.swift in Sources */,
 				23F97E3A20E6616E007C4889 /* Throttler.swift in Sources */,
-				2300A7E621085A8B0067577B /* SpinLock.swift in Sources */,
+				2300A7E621085A8B0067577B /* UnfairLock.swift in Sources */,
 				23B80DF92108C1A300C2D2A9 /* Responder.swift in Sources */,
 				23B80DF32108C13C00C2D2A9 /* NotificationPayload.swift in Sources */,
 				2300A7EC21085AC00067577B /* ReadWriteLock.swift in Sources */,
@@ -595,7 +595,7 @@
 				23B80DF22108C13C00C2D2A9 /* NotificationPayload.swift in Sources */,
 				2300A7EB21085AC00067577B /* ReadWriteLock.swift in Sources */,
 				23C45F6C209EFB1300910999 /* Box.swift in Sources */,
-				2300A7E521085A8B0067577B /* SpinLock.swift in Sources */,
+				2300A7E521085A8B0067577B /* UnfairLock.swift in Sources */,
 				23C45F74209F00BE00910999 /* Result.swift in Sources */,
 				23F3845E20ADD01A004983E5 /* Channel.swift in Sources */,
 				23C45F70209EFDF800910999 /* WeakBox.swift in Sources */,
