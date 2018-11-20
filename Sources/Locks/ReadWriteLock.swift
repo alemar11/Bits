@@ -22,14 +22,18 @@
 // SOFTWARE.
 
 // http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_rwlock_init.html
+// https://medium.com/@dmytro.anokhin/concurrency-in-swift-reader-writer-lock-4f255ae73422
 
 import Foundation
 
+/// **Bits**
+///
 /// A pthread-based read-write lock.
 ///
 /// Provides concurrent access for read-only operations, but exclusive access for write operations.
 ///
 /// Efficient when reading is common and writing is rare.
+/// - Note: 
 public final class ReadWriteLock {
 
   // Initialization: pthread_rwlock_t is a value type and must be declared as var in order to refer it later. Make sure not to copy it.

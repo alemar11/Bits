@@ -107,7 +107,7 @@ public enum ErrNo: errno_t, Error {
   // MARK: Non-blocking and interrupt i/o
   /// Resource temporarily unavailable
   case EAGAIN         = 35
-  /// Operation would block
+  /// Operation would block (may be same value as EAGAIN)
   // case EWOULDBLOCK  = 35
   /// Operation now in progress
   case EINPROGRESS    = 36

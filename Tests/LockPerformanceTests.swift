@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//import XCTest
+import XCTest
+
+//class LockPerformanceTests: XCTestCase {
 //
-//class LockTests: XCTestCase {
-//
-//  func testSpinLock() {
-//    var spinLock = OS_SPINLOCK_INIT
-//    executeLockTest { (block) in
-//      OSSpinLockLock(&spinLock)
-//      block()
-//      OSSpinLockUnlock(&spinLock)
-//    }
-//  }
+////    func deprecated_testSpinLock() {
+////      var spinLock = OS_SPINLOCK_INIT
+////      executeLockTest { (block) in
+////        OSSpinLockLock(&spinLock)
+////        block()
+////        OSSpinLockUnlock(&spinLock)
+////      }
+////    }
 //
 //  func testUnfairLock() {
 //    var unfairLock = os_unfair_lock_s()
@@ -83,7 +83,7 @@
 //    pthread_rwlock_destroy(&mutex);
 //  }
 //
-//  func testSyncronized() {
+//  func testSynchronized() {
 //    let object = NSObject()
 //    executeLockTest{ (block) in
 //      objc_sync_enter(object)
@@ -93,7 +93,7 @@
 //  }
 //
 //  func testDispatchQueue() {
-//    let lockQueue = DispatchQueue.init(label: "com.test.LockQueue")
+//    let lockQueue = DispatchQueue.init(label: "\(#function)")
 //    executeLockTest{ (block) in
 //      lockQueue.sync() {
 //        block()
@@ -101,7 +101,7 @@
 //    }
 //  }
 //
-//  func testNoLock() {
+//  func disabled_testNoLock() {
 //    executeLockTest { (block) in
 //      block()
 //    }
@@ -121,15 +121,15 @@
 //      for block in 0..<dispatchBlockCount {
 //        group.enter()
 //        let queue = queues[block % queues.count]
-//        queue.async(execute: {
+//        queue.async {
 //          for _ in 0..<iterationCountPerBlock {
-//            performBlock({
+//            performBlock {
 //              value = value + 2
 //              value = value - 1
-//            })
+//            }
 //          }
 //          group.leave()
-//        })
+//        }
 //      }
 //      _ = group.wait(timeout: .distantFuture)
 //    }

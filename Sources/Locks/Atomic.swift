@@ -23,47 +23,96 @@
 
 import Foundation
 
+public protocol ThreadSafe {
+  associatedtype T
+  var value: T { get }
+  func read<U>(_ value: (T) -> U) -> U
+  func write(_ transform: (inout T) -> Void)
+  func access<U>(_ transform: (inout T) -> U) -> U
+}
+
 /// **Bits**
 ///
 /// Thread-safe access using a locking mechanism conforming to `Lock` protocol.
-final class Atomic<T> {
-
+public final class Atomic<T>: ThreadSafe {
   private var _value: T
   private let lock: Lock
 
-  // Atomic properties with a setter are kind of dangerous in some scenarios
-  // https://github.com/ReactiveCocoa/ReactiveSwift/issues/269
-
-  init(_ value: T, lock: Lock) {
+  public init(_ value: T, lock: Lock) {
     self.lock = lock
     self._value = value
   }
 
   public var value: T {
-    lock.lock()
-    defer { lock.unlock() }
-    return _value
+    // Atomic properties with a setter are kind of dangerous in some scenarios
+    // https://github.com/ReactiveCocoa/ReactiveSwift/issues/269
+    return read { $0 }
   }
 
-  @inline(__always)
   public func read<U>(_ value: (T) -> U) -> U {
     lock.lock()
     defer { lock.unlock() }
     return value(_value)
   }
 
-  @inline(__always)
   public func write(_ transform: (inout T) -> Void) {
     lock.lock()
     defer { lock.unlock() }
     transform(&_value)
   }
 
-  @inline(__always)
-  func access<U>(_ body: (inout T) -> U) -> U {
+  public func access<U>(_ transform: (inout T) -> U) -> U {
     lock.lock()
     defer { lock.unlock() }
-    return body(&_value)
+    return transform(&_value)
+  }
+
+}
+
+/// **Bits**
+///
+/// Thread-safe access using using serial dispatch queues.
+public final class DispatchedAtomic<T>: ThreadSafe {
+
+  private var _value: T
+  private let queue: DispatchQueue
+  private let dispatchKey  = DispatchSpecificKey<String>()
+  private let dispatchId = UUID().uuidString
+
+  public init(_ value: T, qos: DispatchQoS  = DispatchQoS.default) {
+    self._value = value
+    self.queue = DispatchQueue(label: "\(identifier)", qos: qos)
+    self.queue.setSpecific(key: dispatchKey, value: dispatchId)
+  }
+
+  public var value: T {
+    // Atomic properties with a setter are kind of dangerous in some scenarios
+    // https://github.com/ReactiveCocoa/ReactiveSwift/issues/269
+    return read { $0 }
+  }
+
+  public func read<U>(_ value: (T) -> U) -> U {
+    if DispatchQueue.getSpecific( key: self.dispatchKey ) == self.dispatchId {
+      return value(_value)
+    } else {
+      return queue.sync { value(_value) }
+    }
+  }
+
+  public func write(_ transform: (inout T) -> Void) {
+    if DispatchQueue.getSpecific(key: self.dispatchKey) == self.dispatchId {
+      transform(&_value)
+    } else {
+      queue.sync { transform(&_value) }
+    }
+  }
+
+  public func access<U>(_ transform: (inout T) -> U) -> U {
+    if DispatchQueue.getSpecific(key: self.dispatchKey) == self.dispatchId {
+      return transform(&_value)
+    } else {
+      return queue.sync { transform(&_value) }
+    }
   }
 
 }

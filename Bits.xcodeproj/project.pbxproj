@@ -50,8 +50,8 @@
 		234838AF219F220000073A96 /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234838AE219F220000073A96 /* Mutex.swift */; };
 		234838B0219F220000073A96 /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234838AE219F220000073A96 /* Mutex.swift */; };
 		235535B820E3C42C00C69B70 /* LimitersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 235535B720E3C42C00C69B70 /* LimitersTests.swift */; };
-		236D5C1D21A2DA8900B5AF8D /* LockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D5C1C21A2DA8900B5AF8D /* LockTests.swift */; };
-		236D5C1E21A2DA8900B5AF8D /* LockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D5C1C21A2DA8900B5AF8D /* LockTests.swift */; };
+		236D5C1D21A2DA8900B5AF8D /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D5C1C21A2DA8900B5AF8D /* LockPerformanceTests.swift */; };
+		236D5C1E21A2DA8900B5AF8D /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D5C1C21A2DA8900B5AF8D /* LockPerformanceTests.swift */; };
 		2371896520DD3B4400350F6E /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2371896420DD3B4400350F6E /* AtomicTests.swift */; };
 		239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239CCC9520E229B0007782E5 /* ChannelTests.swift */; };
 		23AF8C9621A33F5200C54769 /* ErrNo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AF8C9521A33F5200C54769 /* ErrNo.swift */; };
@@ -129,7 +129,7 @@
 		235535B720E3C42C00C69B70 /* LimitersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitersTests.swift; sourceTree = "<group>"; };
 		235C3021209E18ED00DC0C2F /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = Bits.xcodeproj/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		235C302C209E1BF500DC0C2F /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
-		236D5C1C21A2DA8900B5AF8D /* LockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockTests.swift; sourceTree = "<group>"; };
+		236D5C1C21A2DA8900B5AF8D /* LockPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockPerformanceTests.swift; sourceTree = "<group>"; };
 		2371896420DD3B4400350F6E /* AtomicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicTests.swift; sourceTree = "<group>"; };
 		239CCC9520E229B0007782E5 /* ChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelTests.swift; sourceTree = "<group>"; };
 		23AF8C9521A33F5200C54769 /* ErrNo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrNo.swift; sourceTree = "<group>"; };
@@ -289,7 +289,7 @@
 				239CCC9520E229B0007782E5 /* ChannelTests.swift */,
 				235535B720E3C42C00C69B70 /* LimitersTests.swift */,
 				2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */,
-				236D5C1C21A2DA8900B5AF8D /* LockTests.swift */,
+				236D5C1C21A2DA8900B5AF8D /* LockPerformanceTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -554,7 +554,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				236D5C1E21A2DA8900B5AF8D /* LockTests.swift in Sources */,
+				236D5C1E21A2DA8900B5AF8D /* LockPerformanceTests.swift in Sources */,
 				23F97E3F20E6617D007C4889 /* WeakBoxTests.swift in Sources */,
 				23F97E4320E6617D007C4889 /* ChannelTests.swift in Sources */,
 				23F97E4420E6617D007C4889 /* LimitersTests.swift in Sources */,
@@ -600,7 +600,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				236D5C1D21A2DA8900B5AF8D /* LockTests.swift in Sources */,
+				236D5C1D21A2DA8900B5AF8D /* LockPerformanceTests.swift in Sources */,
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
 				239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */,
 				235535B820E3C42C00C69B70 /* LimitersTests.swift in Sources */,

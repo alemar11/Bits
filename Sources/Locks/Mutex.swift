@@ -24,18 +24,9 @@
 import Foundation
 
 // http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_mutex_lock.html
-//  PTHREAD_MUTEX_NORMAL — no deadlock detection. A thread that attempts to relock this mutex without first unlocking it deadlocks. Attempts to unlock a mutex locked by a different thread or attempts to unlock an unlocked mutex result in undefined behavior.
-//  PTHREAD_MUTEX_ERRORCHECK — provides error checking. A thread returns with an error when it attempts to relock this mutex without first unlocking it, unlock a mutex that another thread has locked, or unlock an unlocked mutex.
-//  PTHREAD_MUTEX_RECURSIVE — a thread that attempts to relock this mutex without first unlocking it succeeds in locking the mutex. The relocking deadlock that can occur with mutexes of type PTHREAD_MUTEX_NORMAL can't occur with this mutex type. Multiple locks of this mutex require the same number of unlocks to release the mutex before another thread can acquire the mutex. A thread that attempts to unlock a mutex that another thread has locked, or unlock an unlocked mutex, returns with an error.
-//  PTHREAD_MUTEX_DEFAULT — the default value of the type attribute. In QNX Neutrino, PTHREAD_MUTEX_DEFAULT mutexes are treated in the same way as PTHREAD_MUTEX_ERRORCHECK ones.
 
+/// **Bits**
 ///
-/// A mutex that can be acquired by the same thread many times.
-///
-/// A pthread-based mutex lock.
-/// An object that coordinates the operation of multiple threads of execution within the same application.
-/// Ensures that only one thread is active in a given region of code at a time. You can think of it as a semaphore with a maximum count of 1.
-
 /// A pthread-based mutex lock.
 public final class Mutex {
   private var mutex: pthread_mutex_t = pthread_mutex_t()
@@ -61,17 +52,17 @@ public final class Mutex {
     }
   }
 
-  @discardableResult
-  public func `try`() -> Bool {
-    let status = pthread_mutex_trylock(&mutex)
-    return status == 0
-  }
-
   public func unlock() {
     let status =  pthread_mutex_unlock(&mutex)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }
+  }
+
+  @discardableResult
+  public func `try`() -> Bool {
+    let status = pthread_mutex_trylock(&mutex)
+    return status == 0
   }
 
   deinit {

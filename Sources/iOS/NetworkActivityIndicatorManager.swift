@@ -50,13 +50,13 @@ public class NetworkActivityIndicatorManager {
   /// A boolean value indicating whether the manager is enabled. Defaults to `false`.
   public var isEnabled: Bool {
     get {
-      lock.lock()
-      defer { lock.unlock() }
+      unfairLock.lock()
+      defer { unfairLock.unlock() }
       return enabled
     }
     set {
-      lock.lock()
-      defer { lock.unlock() }
+      unfairLock.lock()
+      defer { unfairLock.unlock() }
       enabled = newValue
     }
   }
@@ -115,7 +115,7 @@ public class NetworkActivityIndicatorManager {
 
   private var completionDelayTimer: Timer?
 
-  private let lock = NSLock()
+  private let unfairLock = NSLock() //TODO: use the real unfair lock
 
   // MARK: - Initializers
 
@@ -133,8 +133,8 @@ public class NetworkActivityIndicatorManager {
   /// If this number was zero before incrementing, the network activity indicator will start spinning after
   /// the `startDelay`.
   public func incrementActivityCount() {
-    lock.lock()
-    defer { lock.unlock() }
+    unfairLock.lock()
+    defer { unfairLock.unlock() }
 
     activityCount += 1
     updateActivityIndicatorStateForNetworkActivityChange()
@@ -145,8 +145,8 @@ public class NetworkActivityIndicatorManager {
   /// If the number of active requests is zero after calling this method, the network activity indicator will stop
   /// spinning after the `completionDelay`.
   public func decrementActivityCount() {
-    lock.lock()
-    defer { lock.unlock() }
+    unfairLock.lock()
+    defer { unfairLock.unlock() }
 
     activityCount -= 1
     updateActivityIndicatorStateForNetworkActivityChange()
@@ -174,13 +174,11 @@ public class NetworkActivityIndicatorManager {
 
   // MARK: - Private - Timers
   private func scheduleStartDelayTimer() {
-    let timer = Timer(
-      timeInterval: startDelay,
-      target: self,
-      selector: #selector(NetworkActivityIndicatorManager.startDelayTimerFired),
-      userInfo: nil,
-      repeats: false
-    )
+    let timer = Timer(timeInterval: startDelay,
+                      target: self,
+                      selector: #selector(NetworkActivityIndicatorManager.startDelayTimerFired),
+                      userInfo: nil,
+                      repeats: false)
 
     DispatchQueue.main.async {
       RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
@@ -208,8 +206,8 @@ public class NetworkActivityIndicatorManager {
   }
 
   @objc private func startDelayTimerFired() {
-    lock.lock()
-    defer { lock.unlock() }
+    unfairLock.lock()
+    defer { unfairLock.unlock() }
 
     if activityCount > 0 {
       activityIndicatorState = .active
@@ -219,8 +217,8 @@ public class NetworkActivityIndicatorManager {
   }
 
   @objc private func completionDelayTimerFired() {
-    lock.lock()
-    defer { lock.unlock() }
+    unfairLock.lock()
+    defer { unfairLock.unlock() }
 
     activityIndicatorState = .notActive
   }

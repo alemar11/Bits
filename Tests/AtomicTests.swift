@@ -25,8 +25,44 @@ import XCTest
 @testable import Bits
 
 final class AtomicTests: XCTestCase {
-
-  func testNSLock() {
+  
+  // MARK: - Atomic
+  
+  func testAtomicMethods() {
+    let myVar = Atomic([1, 2, 3, 4, 5, 6, 7, 8, 9], lock: NSLock())
+    
+    XCTAssertEqual(myVar.read { $0.first }, 1)
+    
+    myVar.write { $0.append(10) }
+    
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    
+    myVar.write { $0 = [10] }
+    let sum = myVar.access { (array) -> Int in
+      return array.reduce(0, +)
+    }
+    
+    XCTAssertEqual(myVar.read { $0 }, [10])
+    XCTAssertEqual(sum, 10)
+    
+    let swap = myVar.access { array -> [Int] in
+      let copy = array
+      array = [1, 2, 3]
+      return copy
+    }
+    
+    XCTAssertEqual(swap, [10])
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
+    
+    let result = myVar.access { array -> Int in
+      return 11
+    }
+    
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
+    XCTAssertEqual(result, 11)
+  }
+  
+  func testAtomicUsingNSLock() {
     let array = Atomic<[Int]>([], lock: NSLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
@@ -34,17 +70,10 @@ final class AtomicTests: XCTestCase {
         array.append(index)
       }
     }
-//
-//    XCTAssertEqual(array.value.count, iterations)
-//
-//    let prev = array.swap([1])
-//
-//    XCTAssertEqual(prev.count, iterations)
-//    XCTAssertEqual(array.value.count, 1)
-//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+    XCTAssertEqual(array.value.count, iterations)
   }
-
-  func testNSRecursiveLock() {
+  
+  func testAtomicUsingNSRecursiveLock() {
     let array = Atomic<[Int]>([], lock: NSRecursiveLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
@@ -52,15 +81,10 @@ final class AtomicTests: XCTestCase {
         _array.append(index)
       }
     }
-
-//    XCTAssertEqual(array.value.count, iterations)
-//    let prev = array.swap([1])
-//    XCTAssertEqual(prev.count, iterations)
-//    XCTAssertEqual(array.value.count, 1)
-//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+    XCTAssertEqual(array.value.count, iterations)
   }
-
-  func testMutex() {
+  
+  func testAtomicUsingMutex() {
     let array = Atomic<[Int]>([], lock: Mutex())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
@@ -68,175 +92,80 @@ final class AtomicTests: XCTestCase {
         array.append(index)
       }
     }
-
-//    XCTAssertEqual(array.value.count, iterations)
-//    let prev = array.swap([1])
-//    XCTAssertEqual(prev.count, iterations)
-//    XCTAssertEqual(array.value.count, 1)
-//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+    XCTAssertEqual(array.value.count, iterations)
   }
-
-  func testRecursiveMutex() {
+  
+  func testAtomicUsingRecursiveMutex() {
     let mutex = Mutex(recursive: true)
-    mutex.lock()
-    DispatchQueue.global().sync {
-      mutex.lock()
-      mutex.unlock()
+    let array = Atomic<[Int]>([], lock: mutex)
+    let iterations = 1000
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      array.write { array in
+        mutex.lock()
+        array.append(index)
+        mutex.unlock()
+      }
     }
-
-    mutex.unlock()
-//    let array = Atomic<[Int]>([], lock: RecursiveMutex())
-//    let iterations = 1000
-//    DispatchQueue.concurrentPerform(iterations: iterations) { index in
-//      array.mutate { array in
-//        array.append(index)
-//      }
-//    }
-//
-//    XCTAssertEqual(array.value.count, iterations)
-//    let prev = array.swap([1])
-//    XCTAssertEqual(prev.count, iterations)
-//    XCTAssertEqual(array.value.count, 1)
-//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+    XCTAssertEqual(array.value.count, iterations)
   }
-
-  func testUnfairLock() {
+  
+  func testAtomicUsingUnfairLock() {
     let array = Atomic<[Int]>([], lock: UnfairLock())
+    let iterations = 1000
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      array.write { array in
+        array.append(index)
+        
+      }
+    }
+    XCTAssertEqual(array.value.count, iterations)
+  }
+  
+  // MARK: - DispatchedAtomic
+  
+  func testDispatchedAtomicMethods() {
+    let myVar = DispatchedAtomic([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    
+    XCTAssertEqual(myVar.read { $0.first }, 1)
+    
+    myVar.write { $0.append(10) }
+    
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    
+    myVar.write { $0 = [10] }
+    let sum = myVar.access { (array) -> Int in
+      return array.reduce(0, +)
+    }
+    
+    XCTAssertEqual(myVar.read { $0 }, [10])
+    XCTAssertEqual(sum, 10)
+    
+    let swap = myVar.access { array -> [Int] in
+      let copy = array
+      array = [1, 2, 3]
+      return copy
+    }
+    
+    XCTAssertEqual(swap, [10])
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
+    
+    let result = myVar.access { array -> Int in
+      return 11
+    }
+    
+    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
+    XCTAssertEqual(result, 11)
+  }
+  
+  func testDispatchedAtomic() {
+    let array = DispatchedAtomic([Int]())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
         array.append(index)
       }
     }
-
-//    XCTAssertEqual(array.value.count, iterations)
-//    let prev = array.swap([1])
-//    XCTAssertEqual(prev.count, iterations)
-//    XCTAssertEqual(array.value.count, 1)
-//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
+    XCTAssertEqual(array.read { $0.count }, iterations)
   }
-
-//  func testReadWriteLock() {
-//    let array = Atomic<[Int]>([], lockingType: .readWriteLock)
-//    let iterations = 1000
-//    DispatchQueue.concurrentPerform(iterations: iterations) { index in
-//      array.modify { array -> [Int] in
-//        var copy = array
-//        copy.append(index)
-//        return copy
-//      }
-//    }
-//    XCTAssertEqual(array.value.count, iterations)
-//    let prev = array.swap([1])
-//    XCTAssertEqual(prev.count, iterations)
-//    XCTAssertEqual(array.value.count, 1)
-//    XCTAssertEqual(array.with { $0.reduce(0, +) }, 1)
-//  }
-
-  func testAtomic() {
-    let myVar = Atomic([1, 2, 3, 4, 5, 6, 7, 8, 9], lock: NSLock())
-
-    XCTAssertEqual(myVar.read { $0.first }, 1)
-
-    myVar.write { $0.append(10) }
-
-    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-
-    myVar.write { $0 = [10] }
-    let sum = myVar.access { (array) -> Int in
-      return array.reduce(0, +)
-    }
-
-    XCTAssertEqual(myVar.read { $0 }, [10])
-    XCTAssertEqual(sum, 10)
-
-    let swap = myVar.access { array -> [Int] in
-      let copy = array
-      array = [1, 2, 3]
-      return copy
-    }
-
-    XCTAssertEqual(swap, [10])
-    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
-
-    let result = myVar.access { array -> Int in
-      return 11
-    }
-
-    XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
-    XCTAssertEqual(result, 11)
-  }
-
+  
 }
-
-// http://www.vadimbulavin.com/atomic-properties/
-
-//class ReadWriteLockAtomicProperty {
-//  private var underlyingFoo = 0
-//  private let lock = ReadWriteLock()
-//
-//  var foo: Int {
-//    get {
-//      lock.readLock()
-//      let value = underlyingFoo
-//      lock.unlock()
-//      return value
-//    }
-//    set {
-//      lock.writeLock()
-//      underlyingFoo = newValue
-//      lock.unlock()
-//    }
-//  }
-//}
-//
-//public final class ReadWriteLockAtomic<T> {
-//
-//  private let lock = ReadWriteLock()
-//  private var _value: T
-//
-//  public init(_ value: T) {
-//    self._value = value
-//  }
-//
-//  public func with<U>(_ value: (T) -> U) -> U {
-//    lock.readLock()
-//    defer { lock.unlock() }
-//    return value(_value)
-//  }
-//
-//  public func modify(_ modify: (T) -> T) {
-//    lock.writeLock()
-//    _value = modify(_value)
-//    lock.unlock()
-//  }
-//
-//  public func mutate(_ transform: (inout T) -> Void) {
-//    lock.writeLock()
-//    transform(&_value)
-//    lock.unlock()
-//  }
-//
-//  @discardableResult
-//  public func swap(_ value: T) -> T {
-//    lock.writeLock()
-//    let current = _value
-//    _value = value
-//    lock.unlock()
-//    return current
-//  }
-//
-//  public var value: T {
-//    get {
-//      lock.readLock()
-//      let value = _value
-//      lock.unlock()
-//      return value
-//    }
-//    set {
-//      lock.writeLock()
-//      _value = newValue
-//      lock.unlock()
-//    }
-//  }
-//}

@@ -33,12 +33,3 @@ extension NSLock: Lock { }
 extension NSRecursiveLock: Lock { }
 extension UnfairLock: Lock { }
 extension Mutex: Lock { }
-
-
-//public protocol _ReadWriteLock {
-//  func writeLock()
-//  func readLock()
-//  func unlock()
-//}
-//
-//extension ReadWriteLock: _ReadWriteLock { }
