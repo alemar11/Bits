@@ -23,116 +23,118 @@
 
 import XCTest
 
-//class LockPerformanceTests: XCTestCase {
-//
-////    func deprecated_testSpinLock() {
-////      var spinLock = OS_SPINLOCK_INIT
-////      executeLockTest { (block) in
-////        OSSpinLockLock(&spinLock)
-////        block()
-////        OSSpinLockUnlock(&spinLock)
-////      }
-////    }
-//
-//  func testUnfairLock() {
-//    var unfairLock = os_unfair_lock_s()
-//    executeLockTest { (block) in
-//      os_unfair_lock_lock(&unfairLock)
-//      block()
-//      os_unfair_lock_unlock(&unfairLock)
-//    }
-//  }
-//
-//  func testDispatchSemaphore() {
-//    let semaphore = DispatchSemaphore(value: 1)
-//    executeLockTest { (block) in
-//      _ = semaphore.wait(timeout: DispatchTime.distantFuture)
-//      block()
-//      semaphore.signal()
-//    }
-//  }
-//
-//  func testNSLock() {
-//    let lock = NSLock()
-//    executeLockTest { (block) in
-//      lock.lock()
-//      block()
-//      lock.unlock()
-//    }
-//  }
-//
-//  func testPthreadMutex() {
-//    var mutex = pthread_mutex_t()
-//    pthread_mutex_init(&mutex, nil)
-//    executeLockTest{ (block) in
-//      pthread_mutex_lock(&mutex)
-//      block()
-//      pthread_mutex_unlock(&mutex)
-//    }
-//    pthread_mutex_destroy(&mutex);
-//  }
-//
-//  func testReadWritePthreadMutex() {
-//    var mutex = pthread_rwlock_t()
-//    pthread_rwlock_init(&mutex, nil)
-//    executeLockTest{ (block) in
-//      pthread_rwlock_wrlock(&mutex)
-//      block()
-//      pthread_rwlock_unlock(&mutex)
-//    }
-//    pthread_rwlock_destroy(&mutex);
-//  }
-//
-//  func testSynchronized() {
-//    let object = NSObject()
-//    executeLockTest{ (block) in
-//      objc_sync_enter(object)
-//      block()
-//      objc_sync_exit(object)
-//    }
-//  }
-//
-//  func testDispatchQueue() {
-//    let lockQueue = DispatchQueue.init(label: "\(#function)")
-//    executeLockTest{ (block) in
-//      lockQueue.sync() {
+/**
+class LockPerformanceTests: XCTestCase {
+
+//    func deprecated_testSpinLock() {
+//      var spinLock = OS_SPINLOCK_INIT
+//      executeLockTest { (block) in
+//        OSSpinLockLock(&spinLock)
 //        block()
+//        OSSpinLockUnlock(&spinLock)
 //      }
 //    }
-//  }
-//
-//  func disabled_testNoLock() {
-//    executeLockTest { (block) in
-//      block()
-//    }
-//  }
-//
-//  private func executeLockTest(performBlock:@escaping (_ block:() -> Void) -> Void) {
-//    let dispatchBlockCount = 16
-//    let iterationCountPerBlock = 100_000
-//    let queues = [
-//      DispatchQueue.global(qos: .userInteractive),
-//      DispatchQueue.global(qos: .default),
-//      DispatchQueue.global(qos: .utility),
-//      ]
-//    var value = 0
-//    self.measure {
-//      let group = DispatchGroup()
-//      for block in 0..<dispatchBlockCount {
-//        group.enter()
-//        let queue = queues[block % queues.count]
-//        queue.async {
-//          for _ in 0..<iterationCountPerBlock {
-//            performBlock {
-//              value = value + 2
-//              value = value - 1
-//            }
-//          }
-//          group.leave()
-//        }
-//      }
-//      _ = group.wait(timeout: .distantFuture)
-//    }
-//  }
-//
-//}
+
+  func testUnfairLock() {
+    var unfairLock = os_unfair_lock_s()
+    executeLockTest { (block) in
+      os_unfair_lock_lock(&unfairLock)
+      block()
+      os_unfair_lock_unlock(&unfairLock)
+    }
+  }
+
+  func testDispatchSemaphore() {
+    let semaphore = DispatchSemaphore(value: 1)
+    executeLockTest { (block) in
+      _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+      block()
+      semaphore.signal()
+    }
+  }
+
+  func testNSLock() {
+    let lock = NSLock()
+    executeLockTest { (block) in
+      lock.lock()
+      block()
+      lock.unlock()
+    }
+  }
+
+  func testPthreadMutex() {
+    var mutex = pthread_mutex_t()
+    pthread_mutex_init(&mutex, nil)
+    executeLockTest{ (block) in
+      pthread_mutex_lock(&mutex)
+      block()
+      pthread_mutex_unlock(&mutex)
+    }
+    pthread_mutex_destroy(&mutex);
+  }
+
+  func testReadWritePthreadMutex() {
+    var mutex = pthread_rwlock_t()
+    pthread_rwlock_init(&mutex, nil)
+    executeLockTest{ (block) in
+      pthread_rwlock_wrlock(&mutex)
+      block()
+      pthread_rwlock_unlock(&mutex)
+    }
+    pthread_rwlock_destroy(&mutex);
+  }
+
+  func testSynchronized() {
+    let object = NSObject()
+    executeLockTest{ (block) in
+      objc_sync_enter(object)
+      block()
+      objc_sync_exit(object)
+    }
+  }
+
+  func testDispatchQueue() {
+    let lockQueue = DispatchQueue.init(label: "\(#function)")
+    executeLockTest{ (block) in
+      lockQueue.sync() {
+        block()
+      }
+    }
+  }
+
+  func disabled_testNoLock() {
+    executeLockTest { (block) in
+      block()
+    }
+  }
+
+  private func executeLockTest(performBlock:@escaping (_ block:() -> Void) -> Void) {
+    let dispatchBlockCount = 16
+    let iterationCountPerBlock = 100_000
+    let queues = [
+      DispatchQueue.global(qos: .userInteractive),
+      DispatchQueue.global(qos: .default),
+      DispatchQueue.global(qos: .utility),
+      ]
+    var value = 0
+    self.measure {
+      let group = DispatchGroup()
+      for block in 0..<dispatchBlockCount {
+        group.enter()
+        let queue = queues[block % queues.count]
+        queue.async {
+          for _ in 0..<iterationCountPerBlock {
+            performBlock {
+              value = value + 2
+              value = value - 1
+            }
+          }
+          group.leave()
+        }
+      }
+      _ = group.wait(timeout: .distantFuture)
+    }
+  }
+
+}
+**/

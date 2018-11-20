@@ -23,15 +23,10 @@
 
 import Darwin.C.errno
 
-/// Wraps the most recent `errno` value
-public func lastErrNo() -> ErrNo? {
-  return ErrNo(rawValue: errno)
-}
-
 /// Wrapper around errno values from the C standard library.
 // swiftlint:disable operator_usage_whitespace
 // swiftlint:disable identifier_name
-public enum ErrNo: errno_t, Error {
+public enum ErrNo: errno_t, Error, CaseIterable {
   // MARK: Basic
   /// Operation not permitted
   case EPERM      = 1
@@ -281,7 +276,8 @@ public enum ErrNo: errno_t, Error {
 // swiftlint:enable identifier_name
 // swiftlint:enable operator_usage_whitespace
 
-// MARK: CustomStringConvertible
+// MARK: - CustomStringConvertible
+
 extension ErrNo: CustomStringConvertible {
 
   /// Returns the error message and code.
@@ -293,4 +289,5 @@ extension ErrNo: CustomStringConvertible {
   public var message: String {
     return String(cString: strerror(self.rawValue))
   }
+
 }

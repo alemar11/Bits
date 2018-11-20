@@ -38,6 +38,10 @@
 		2300A7EC21085AC00067577B /* ReadWriteLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7EA21085AC00067577B /* ReadWriteLock.swift */; };
 		2300A7EE21085AF90067577B /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7ED21085AF90067577B /* Lock.swift */; };
 		2300A7EF21085AF90067577B /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2300A7ED21085AF90067577B /* Lock.swift */; };
+		231ECDFA21A44E1B00E5581C /* ErrNoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 231ECDF921A44E1B00E5581C /* ErrNoTests.swift */; };
+		231ECDFB21A44E1B00E5581C /* ErrNoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 231ECDF921A44E1B00E5581C /* ErrNoTests.swift */; };
+		231ECDFD21A450D500E5581C /* LocksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 231ECDFC21A450D500E5581C /* LocksTests.swift */; };
+		231ECDFE21A450D500E5581C /* LocksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 231ECDFC21A450D500E5581C /* LocksTests.swift */; };
 		2328D3AC20E50D66002CEEC9 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2328D3AB20E50D66002CEEC9 /* Throttler.swift */; };
 		23374ABD20F8A1D100768B5D /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23374ABC20F8A1D100768B5D /* Debouncer.swift */; };
 		23374ABE20F8A1D100768B5D /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23374ABC20F8A1D100768B5D /* Debouncer.swift */; };
@@ -120,6 +124,8 @@
 		2300A7E421085A8B0067577B /* UnfairLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfairLock.swift; sourceTree = "<group>"; };
 		2300A7EA21085AC00067577B /* ReadWriteLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadWriteLock.swift; sourceTree = "<group>"; };
 		2300A7ED21085AF90067577B /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
+		231ECDF921A44E1B00E5581C /* ErrNoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrNoTests.swift; sourceTree = "<group>"; };
+		231ECDFC21A450D500E5581C /* LocksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocksTests.swift; sourceTree = "<group>"; };
 		2328D3AB20E50D66002CEEC9 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 		23374ABC20F8A1D100768B5D /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		23374ABF20F8A1F000768B5D /* MaxLimiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxLimiter.swift; sourceTree = "<group>"; };
@@ -290,6 +296,8 @@
 				235535B720E3C42C00C69B70 /* LimitersTests.swift */,
 				2339BA5A20EBB69F005C0898 /* MulticastDelegateTests.swift */,
 				236D5C1C21A2DA8900B5AF8D /* LockPerformanceTests.swift */,
+				231ECDF921A44E1B00E5581C /* ErrNoTests.swift */,
+				231ECDFC21A450D500E5581C /* LocksTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -564,6 +572,8 @@
 				23F97E4220E6617D007C4889 /* AtomicTests.swift in Sources */,
 				23F97E3E20E6617D007C4889 /* BoxTests.swift in Sources */,
 				2339BA5C20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */,
+				231ECDFE21A450D500E5581C /* LocksTests.swift in Sources */,
+				231ECDFB21A44E1B00E5581C /* ErrNoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -610,6 +620,8 @@
 				2371896520DD3B4400350F6E /* AtomicTests.swift in Sources */,
 				93EBB54220A3015800C3B626 /* NetworkActivityIndicatorManagerTests.swift in Sources */,
 				2339BA5B20EBB69F005C0898 /* MulticastDelegateTests.swift in Sources */,
+				231ECDFD21A450D500E5581C /* LocksTests.swift in Sources */,
+				231ECDFA21A44E1B00E5581C /* ErrNoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
