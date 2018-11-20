@@ -24,7 +24,7 @@
 import XCTest
 @testable import Bits
 
-class ErrNoTests: XCTestCase {
+final class ErrNoTests: XCTestCase {
 
   func testThatErrNoContains106DifferentCases() {
     (1...106).forEach { index in

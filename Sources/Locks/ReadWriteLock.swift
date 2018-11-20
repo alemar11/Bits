@@ -24,7 +24,7 @@
 // http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_rwlock_init.html
 // https://medium.com/@dmytro.anokhin/concurrency-in-swift-reader-writer-lock-4f255ae73422
 
-import Foundation
+import Darwin.os.lock
 
 /// **Bits**
 ///

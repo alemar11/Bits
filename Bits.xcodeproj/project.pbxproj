@@ -203,7 +203,6 @@
 		2300A7E021085A5D0067577B /* Locks */ = {
 			isa = PBXGroup;
 			children = (
-				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
 				2300A7E421085A8B0067577B /* UnfairLock.swift */,
 				2300A7EA21085AC00067577B /* ReadWriteLock.swift */,
 				2300A7ED21085AF90067577B /* Lock.swift */,
@@ -226,6 +225,7 @@
 		234838AC219F15CD00073A96 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				23C8C15520FF29FC00BD7A2A /* Atomic.swift */,
 				23C45F73209F00BE00910999 /* Result.swift */,
 				23C45F6B209EFB1300910999 /* Box.swift */,
 				23C45F6F209EFDF800910999 /* WeakBox.swift */,

@@ -22,7 +22,105 @@
 // SOFTWARE.
 
 import XCTest
+@testable import Bits
 
-class LocksTests: XCTestCase {
+final class LocksTests: XCTestCase {
+
+  // MARK: - UnfairLock
+
+  func testTryAcquiringUnfairLock() {
+    let lock = UnfairLock()
+    XCTAssertTrue(lock.try())
+    XCTAssertFalse(lock.try())
+    lock.unlock()
+  }
+
+  func testPerformanceUnfairLock() {
+    let value = Atomic(0, lock: UnfairLock())
+    execute { value.write{ $0 += 1 } }
+  }
+
+  // MARK: - Mutex
+
+  func testTryAcquiringMutex() {
+    let lock = Mutex()
+    XCTAssertTrue(lock.try())
+    XCTAssertFalse(lock.try())
+    lock.unlock()
+  }
+
+  func testPerformanceMutex() {
+    let value = Atomic(0, lock: Mutex())
+    execute { value.write{ $0 += 1 }
+    }
+  }
+
+   // MARK: - Recursive Mutex
+
+  func testTryAcquiringRecursiveMutex() {
+    let lock = Mutex(recursive: true)
+    XCTAssertTrue(lock.try())
+    XCTAssertTrue(lock.try())
+    lock.unlock()
+    lock.unlock()
+  }
+
+  func testPerformanceRecursiveMutex() {
+    let value = Atomic(0, lock: Mutex(recursive: true))
+    execute { value.write{ $0 += 1 }
+    }
+  }
+
+  // MARK: - ReadWriteLock
+
+  func testTryAcquiringReadWriteLock() {
+    let lock = ReadWriteLock()
+    
+    XCTAssertTrue(lock.try())
+    XCTAssertFalse(lock.try())
+    lock.unlock()
+
+    lock.readLock()
+    XCTAssertFalse(lock.try())
+    lock.unlock()
+
+    lock.writeLock()
+    XCTAssertFalse(lock.try())
+    lock.unlock()
+  }
+
+  func testPerformanceReadWriteLock() {
+    var value = 0
+    let rwLock = ReadWriteLock()
+    execute {
+      rwLock.writeLock()
+      value += 1
+      rwLock.unlock()
+    }
+  }
+
+  // MARK: - Private
+
+  private func execute(performBlock: @escaping () -> Void) {
+    let dispatchBlockCount = 16
+    let iterationCountPerBlock = 1000
+    let queues = [DispatchQueue.global(qos: .userInteractive),
+                  DispatchQueue.global(qos: .default)]
+
+    self.measure {
+      let group = DispatchGroup()
+      for block in 0..<dispatchBlockCount {
+        group.enter()
+        let queue = queues[block % queues.count]
+        queue.async {
+          (0..<iterationCountPerBlock).forEach { _ in
+            performBlock()
+          }
+          group.leave()
+        }
+      }
+      _ = group.wait(timeout: .distantFuture)
+    }
+  }
 
 }
