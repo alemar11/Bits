@@ -71,7 +71,7 @@ open class MulticastDelegate<T> {
   /// - Parameter delegate: The delegate to be removed.
   public func removeDelegate(_ delegate: T) {
     queue.sync(flags: .barrier) {
-      for oneDelegate in delegates.allObjects.reversed() where oneDelegate === delegate as AnyObject {
+      for oneDelegate in delegates.allObjects where oneDelegate === delegate as AnyObject {
         delegates.remove(oneDelegate)
       }
     }
