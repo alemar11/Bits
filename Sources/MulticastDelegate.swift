@@ -31,6 +31,7 @@ open class MulticastDelegate<T> {
   /// The delegates hash table.
   private let delegates: NSHashTable<AnyObject>
 
+  //TODO: remove the queue
   /// The underlaying concurrent queue.
   private let queue = DispatchQueue( label: "\(identifier).(\(type(of: MulticastDelegate.self))", attributes: .concurrent)
 
@@ -52,7 +53,7 @@ open class MulticastDelegate<T> {
   }
 
   deinit {
-    queue.sync {
+    queue.sync(flags: .barrier) {
       delegates.removeAllObjects()
     }
   }
@@ -71,7 +72,7 @@ open class MulticastDelegate<T> {
   /// - Parameter delegate: The delegate to be removed.
   public func removeDelegate(_ delegate: T) {
     queue.sync(flags: .barrier) {
-      for oneDelegate in delegates.allObjects where oneDelegate === delegate as AnyObject {
+      for oneDelegate in delegates.allObjects where oneDelegate === delegate as AnyObject { //TODO in a set it's meaningless loop over every object
         delegates.remove(oneDelegate)
       }
     }
