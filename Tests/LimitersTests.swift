@@ -115,9 +115,14 @@ final class LimitersTests: XCTestCase {
     }
     
     scheduler.start()
-    
     wait(for: [expectation], timeout: 5)
+    scheduler.stop()
     XCTAssertEqual(value.value, 5, "The Limiter has run the function \(value.value) times instead of 10.")
+
+    XCTAssertEqual(limiter.limit, 5)
+    XCTAssertEqual(limiter.count, 5)
+    limiter.reset()
+    XCTAssertEqual(limiter.count, 0)
   }
   
 }
