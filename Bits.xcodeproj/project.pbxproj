@@ -74,6 +74,8 @@
 		23C8C15620FF29FC00BD7A2A /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15520FF29FC00BD7A2A /* Atomic.swift */; };
 		23C8C15720FF29FC00BD7A2A /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C8C15520FF29FC00BD7A2A /* Atomic.swift */; };
 		23F3845E20ADD01A004983E5 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
+		23F8072721A5C09A00A5E474 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F8072621A5C09A00A5E474 /* EventBus.swift */; };
+		23F8072821A5C09A00A5E474 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F8072621A5C09A00A5E474 /* EventBus.swift */; };
 		23F97E0820E64164007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
 		23F97E2420E66012007C4889 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23F97E1B20E66012007C4889 /* Bits.framework */; };
 		23F97E3220E6616E007C4889 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -148,6 +150,7 @@
 		23C45F77209F037500910999 /* ResultTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
 		23C8C15520FF29FC00BD7A2A /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		23F3845D20ADD01A004983E5 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
+		23F8072621A5C09A00A5E474 /* EventBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventBus.swift; sourceTree = "<group>"; };
 		23F97E0720E64164007C4889 /* Interval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
 		23F97E1B20E66012007C4889 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23F97E2320E66012007C4889 /* Bits macOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bits macOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -258,6 +261,14 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
+		23F8072521A5C08A00A5E474 /* EventBus */ = {
+			isa = PBXGroup;
+			children = (
+				23F8072621A5C09A00A5E474 /* EventBus.swift */,
+			);
+			path = EventBus;
+			sourceTree = "<group>";
+		};
 		23FB40AE208C6CFF002F5428 = {
 			isa = PBXGroup;
 			children = (
@@ -301,6 +312,7 @@
 		23FB40D2208C6D11002F5428 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				23F8072521A5C08A00A5E474 /* EventBus */,
 				234838AD219F1C9600073A96 /* iOS */,
 				234838AC219F15CD00073A96 /* Types */,
 				23C45F75209F026A00910999 /* Bits.swift */,
@@ -532,6 +544,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23F97E3820E6616E007C4889 /* Channel.swift in Sources */,
+				23F8072821A5C09A00A5E474 /* EventBus.swift in Sources */,
 				23F97E3220E6616E007C4889 /* Reachability.swift in Sources */,
 				23374AC120F8A1F000768B5D /* MaxLimiter.swift in Sources */,
 				23C8C15720FF29FC00BD7A2A /* Atomic.swift in Sources */,
@@ -577,6 +590,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23FB40D7208C71D9002F5428 /* Reachability.swift in Sources */,
+				23F8072721A5C09A00A5E474 /* EventBus.swift in Sources */,
 				2328D3AC20E50D66002CEEC9 /* Throttler.swift in Sources */,
 				234838AF219F220000073A96 /* Mutex.swift in Sources */,
 				23B80DF52108C14F00C2D2A9 /* UIKeyboardPayload.swift in Sources */,
