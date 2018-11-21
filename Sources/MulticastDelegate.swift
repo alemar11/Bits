@@ -51,6 +51,12 @@ open class MulticastDelegate<T> {
     delegates = usingStrongReferences ? NSHashTable<AnyObject>() : NSHashTable<AnyObject>.weakObjects()
   }
 
+  deinit {
+    queue.sync {
+      delegates.removeAllObjects()
+    }
+  }
+
   /// Adds a delelgate.
   ///
   /// - Parameter delegate: The delegate to be added.
