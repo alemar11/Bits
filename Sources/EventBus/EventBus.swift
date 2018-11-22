@@ -65,10 +65,10 @@ public final class EventBus {
   /// - Parameters:
   ///   - options: the event bus' options
   ///   - notificationQueue: the dispatch queue to notify subscribers on
-  public init(options: Options? = nil, label: String? = nil, queue: DispatchQueue = .global()) {
+  public init(options: Options? = nil, label: String? = nil) {
     self.options = options ?? Options()
     self.label = label
-    self.dispatchQueue = queue
+    self.dispatchQueue = DispatchQueue(label: "TODO")
   }
 
 
@@ -177,18 +177,21 @@ extension EventBus {
 //    }
   }
 
-//  internal func has<T: AnyObject>(subscriber: T, for eventType: T.Type, options: Options? = .none) -> Bool {
-////    self.warnIfNonClass(subscriber)
-////    if options.contains(.warnUnknown) {
-////      self.warnIfUnknown(eventType)
-////    }
-////    return self.lock.with {
-//      guard let subscribed = self.subscribed[ObjectIdentifier(eventType)] else {
-//        return false
-//      }
-//    return subscribed.contains(subscriber as AnyObject)
-////    }
-//  }
+  internal func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type, options: Options? = .none) -> Bool {
+//    self.warnIfNonClass(subscriber)
+//    if options.contains(.warnUnknown) {
+//      self.warnIfUnknown(eventType)
+//    }
+//    return self.lock.with {
+      guard let subscribed = self.subscribed[ObjectIdentifier(eventType)] else {
+        return false
+      }
+    let subscriptions = subscribed.filter { $0.underlyngObject === subscriber as AnyObject }
+
+    assert(subscriptions.isEmpty || subscriptions.count == 1, "TODO ---> \(subscriptions)")
+    return subscriptions.isEmpty || subscriptions.count == 1
+//    }
+  }
 }
 
 extension EventBus {

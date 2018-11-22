@@ -27,7 +27,7 @@ import XCTest
 class EventBusTests: XCTestCase {
   
   func testThatRegistrationAreUnique() {
-    let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
+    let eventBus = EventBus(options: nil, label: "\(#function)")
     eventBus.register(forEvent: FooMockable.self)
     eventBus.register(forEvent: FooMockable.self)
     eventBus.register(forEvent: BarMockable.self)
@@ -37,18 +37,37 @@ class EventBusTests: XCTestCase {
   }
   
   func testThatAddingSubscriptionsDoesNotChangeRegistrations() {
-    let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
+    let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooMock()
     let foo2 = FooMock()
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
+
+    XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
+    XCTAssertTrue(eventBus.registeredEventTypes.isEmpty)
+    XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
+  }
+
+  func testThatAnEventBusCanBeQueriedToSeeIfItContainOneSubscriberForAnEvent() {
+    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let foo1 = FooBarMock()
+    let foo2 = FooBarMock()
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo2, for: BarMockable.self, queue: .main)
+
+    XCTAssertTrue(eventBus.hasSubscriber(foo1, for: FooMockable.self))
+    XCTAssertFalse(eventBus.hasSubscriber(foo2, for: FooMockable.self))
+
+    XCTAssertFalse(eventBus.hasSubscriber(foo1, for: BarMockable.self))
+    XCTAssertTrue(eventBus.hasSubscriber(foo2, for: BarMockable.self))
+
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
     XCTAssertTrue(eventBus.registeredEventTypes.isEmpty)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
   }
   
-  func testThatAddedAndRemovingSubscriptionsCorrectlyUpdatesSubscribedEventUpdates() {
-    let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
+  func testThatAddingAndRemovingSubscriptionsCorrectlyUpdatesSubscribedEventUpdates() {
+    let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
     
@@ -81,7 +100,7 @@ class EventBusTests: XCTestCase {
   }
   
   func testThatASubscriberCanBeRemovedFromAllItsSubscriptionAltogether() {
-    let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
+    let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooBarMock()
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
@@ -91,7 +110,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatAllTheSubscribersCanBeRemovedAltogether() {
-    let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
+    let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
     let foo3 = FooBarMock()
@@ -117,7 +136,7 @@ class EventBusTests: XCTestCase {
 
   func testThatNotificationIsSentToTheMainThread() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
+    let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooBarMock { event in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(event, .foo)
