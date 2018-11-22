@@ -40,12 +40,10 @@ class EventBusTests: XCTestCase {
     let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
     let foo1 = FooMock()
     let foo2 = FooMock()
-    eventBus.add(subscriber: foo1, for: FooMockable.self)
-    eventBus.add(subscriber: foo2, for: FooMockable.self)
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
     XCTAssertTrue(eventBus.registeredEventTypes.isEmpty)
-
-    
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
   }
   
@@ -54,38 +52,42 @@ class EventBusTests: XCTestCase {
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
     
-    eventBus.add(subscriber: foo1, for: FooMockable.self)
-    eventBus.add(subscriber: foo1, for: BarMockable.self)
-    eventBus.add(subscriber: foo2, for: FooMockable.self)
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
+    eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
     
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
-    XCTAssertEqual(eventBus.__subscribers.count, 2)
+    XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
+    XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
     
     eventBus.remove(subscriber: foo2, for: BarMockable.self) // foo2 is not subscribed for BarMockable
     
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
-    XCTAssertEqual(eventBus.__subscribers.count, 2)
+    XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
+    XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
     
     eventBus.remove(subscriber: foo1, for: FooMockable.self)
     eventBus.remove(subscriber: foo1, for: BarMockable.self)
     
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
-    XCTAssertEqual(eventBus.__subscribers.count, 1)
+    XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
+    XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 0)
     
     eventBus.remove(subscriber: foo2, for: FooMockable.self)
     
     XCTAssertTrue(eventBus.subscribedEventTypes.isEmpty)
-    XCTAssertTrue(eventBus.__subscribers.isEmpty)
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }
   
   func testThatASubscriberCanBeRemovedFromAllItsSubscriptionAltogether() {
     let eventBus = EventBus(options: nil, label: "\(#function)", queue: .main)
     let foo1 = FooBarMock()
-    eventBus.add(subscriber: foo1, for: FooMockable.self)
-    eventBus.add(subscriber: foo1, for: BarMockable.self)
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
     eventBus.remove(subscriber: foo1)
-    XCTAssertTrue(eventBus.subscribedEventTypes.isEmpty)
-    XCTAssertTrue(eventBus.__subscribers.isEmpty)
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }
 
   func testThatAllTheSubscribersCanBeRemovedAltogether() {
@@ -95,25 +97,22 @@ class EventBusTests: XCTestCase {
     let foo3 = FooBarMock()
     let foo4 = FooBarMock()
     let foo5 = FooBarMock()
-    eventBus.add(subscriber: foo1, for: FooMockable.self)
-    eventBus.add(subscriber: foo1, for: BarMockable.self)
 
-    eventBus.add(subscriber: foo2, for: FooMockable.self)
-    eventBus.add(subscriber: foo2, for: BarMockable.self)
-
-    eventBus.add(subscriber: foo3, for: FooMockable.self)
-    eventBus.add(subscriber: foo3, for: BarMockable.self)
-
-    eventBus.add(subscriber: foo4, for: FooMockable.self)
-    eventBus.add(subscriber: foo4, for: BarMockable.self)
-
-    eventBus.add(subscriber: foo5, for: FooMockable.self)
-    eventBus.add(subscriber: foo5, for: BarMockable.self)
-
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
+    eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo2, for: BarMockable.self, queue: .main)
+    eventBus.add(subscriber: foo3, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo3, for: BarMockable.self, queue: .main)
+    eventBus.add(subscriber: foo4, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo4, for: BarMockable.self, queue: .main)
+    eventBus.add(subscriber: foo5, for: FooMockable.self, queue: .main)
+    eventBus.add(subscriber: foo5, for: BarMockable.self, queue: .main)
     eventBus.removeAllSubscribers()
 
     XCTAssertTrue(eventBus.subscribedEventTypes.isEmpty)
-    XCTAssertTrue(eventBus.__subscribers.isEmpty)
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }
 
   func testThatNotificationIsSentToTheMainThread() {
@@ -124,7 +123,7 @@ class EventBusTests: XCTestCase {
       XCTAssertEqual(event, .foo)
       expectation.fulfill()
     }
-    eventBus.add(subscriber: foo1, for: FooMockable.self)
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     let status = eventBus.notify(FooMockable.self) { $0.foo() }
 
     waitForExpectations(timeout: 2)

@@ -35,6 +35,8 @@ public struct Options: OptionSet {
 
 public final class EventBus {
 
+  private typealias SubscriberSet = Set<EventBus.Subscription<AnyObject>>
+
   /// The `EventBus` label used for debugging.
   public let label: String?
 
@@ -56,7 +58,6 @@ public final class EventBus {
   private let dispatchQueue: DispatchQueue //TODO: check if it should serial or concurrent
   private var registered: Set<ObjectIdentifier> = []
   private var subscribed = [ObjectIdentifier: SubscriberSet]()
-  typealias SubscriberSet = Set<EventBus.Subscriber<AnyObject>>
 
 
   /// Creates an `EventBus` with a given configuration and dispatch queue.
@@ -77,7 +78,7 @@ public final class EventBus {
 
 extension EventBus {
   @inline(__always)
-  fileprivate func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> ()) {
+  private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> ()) {
     let identifier = ObjectIdentifier(eventType)
     let subscribed = self.subscribed[identifier] ?? SubscriberSet()
     self.subscribed[identifier] = update(set: subscribed, closure: closure)
@@ -93,7 +94,7 @@ extension EventBus {
 //  }
 
   @inline(__always)
-  fileprivate func update(set: SubscriberSet, closure: (inout SubscriberSet) -> ()) -> SubscriberSet? {
+  private func update(set: SubscriberSet, closure: (inout SubscriberSet) -> ()) -> SubscriberSet? {
     var mutableSet = set
     closure(&mutableSet)
     // Remove weak nil elements
@@ -117,21 +118,24 @@ extension EventBus {
 
 extension EventBus {
 
-  public func add<T>(subscriber: T, for eventType: T.Type, options: Options? = .none) {
+  @discardableResult
+  public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue, options: Options? = .none) -> SubscriptionCancellable {
 //    self.warnIfNonClass(subscriber)
 //    if options.contains(.warnUnknown) {
 //      self.warnIfUnknown(eventType)
 //    }
 //    self.lock.with {
 
-    let sub = Subscriber<AnyObject>(subscriber: subscriber as AnyObject, queue: dispatchQueue, cancellationClosure: { [weak self] completion in
+    let subscription = Subscription<AnyObject>(subscriber: subscriber as AnyObject, queue: queue, cancellationClosure: { [weak self] completion in
       guard let self = self else { return }
       self.remove(subscriber: subscriber, for: eventType, options: options)
     })
 
       updateSubscribers(for: eventType) { subscribed in
-        subscribed.insert(sub)
+        subscribed.insert(subscription)
     }
+
+    return subscription.token
   }
 
 
@@ -203,9 +207,7 @@ extension EventBus {
       if let subscribers = subscribed[identifier] {
         for subscriber in subscribers.lazy.filter ({ $0.isValid }) {
           self.dispatchQueue.async {
-
             subscriber.notify(closure: closure)
-            //closure(subscriber)
           }
         }
         handledNotifications += subscribers.count
@@ -225,31 +227,36 @@ extension EventBus {
   }
 }
 
+public protocol SubscriptionCancellable {
+  func cancel(completion: (() -> Void)?)
+}
+
 extension EventBus {
 
-  /// A subscription token to cancel a subscription.
-  public final class Token {
-    private let cancellationClosure: ((() -> Void)?) -> Void
+   private final class Subscription<T>: Hashable {
 
-    fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
-      self.cancellationClosure = cancellationClosure
+    /// A subscription token to cancel a subscription.
+    final class Token: SubscriptionCancellable {
+      private let cancellationClosure: ((() -> Void)?) -> Void
+
+      fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
+        self.cancellationClosure = cancellationClosure
+      }
+
+      /// Cancels the subscription associated with this token.
+      ///
+      /// - Parameter completion: The block executed after the cancellation has completed.
+      public func cancel(completion: (() -> Void)? = nil) {
+        cancellationClosure(completion)
+      }
+
+      //    deinit {
+      //      cancel()
+      //    }
     }
 
-    /// Cancels the subscription associated with this token.
-    ///
-    /// - Parameter completion: The block executed after the cancellation has completed.
-    public func cancel(completion: (() -> Void)? = nil) {
-      cancellationClosure(completion)
-    }
-
-//    deinit {
-//      cancel()
-//    }
-  }
-
-  class Subscriber<T>: Hashable {
     internal var isValid: Bool { return underlyngObject != nil }
-    internal let token: Token
+    internal let token: SubscriptionCancellable
     private let queue: DispatchQueue
     fileprivate weak var underlyngObject: AnyObject?
 
@@ -264,23 +271,18 @@ extension EventBus {
           guard let `self` = self else { return }
 
           if let underlyngObject = self.underlyngObject {
-            //self.block(value, self.token)
-            if let t = underlyngObject as? T {
-              closure(t)
-            } else {
-              fatalError("invalid type")
-            }
+              closure(underlyngObject as! T)
           } else {
-            self.token.cancel()
+            self.token.cancel(completion: nil)
           }
         }
     }
 
-    internal static func == (lhs: Subscriber, rhs: Subscriber) -> Bool {
+    internal static func == (lhs: Subscription, rhs: Subscription) -> Bool {
       return lhs.underlyngObject === rhs.underlyngObject
     }
 
-    internal static func == (lhs: Subscriber, rhs: AnyObject) -> Bool {
+    internal static func == (lhs: Subscription, rhs: AnyObject) -> Bool {
       return lhs.underlyngObject === rhs
     }
 
@@ -303,7 +305,7 @@ extension EventBus {
     return []
   }
 
-  internal var __subscribers: [ObjectIdentifier: SubscriberSet] {
-    return subscribed
-  }
+//  internal var __subscribers: [ObjectIdentifier: SubscriberSet] {
+//    return subscribed
+//  }
 }
