@@ -126,10 +126,15 @@ extension EventBus {
     //    }
     //    self.lock.with {
 
-    let subscription = Subscription<AnyObject>(subscriber: subscriber as AnyObject, queue: queue, cancellationClosure: { [weak self] completion in
+    let subscriberObject = subscriber as AnyObject
+    let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak subscriberObject = subscriberObject] completion in
       guard let self = self else { return }
-
-      self.remove(subscriber: subscriber, for: eventType, options: options)
+      if let sub = subscriberObject {
+        self.remove(subscriber: sub as! T, for: eventType, options: options)
+      } else {
+        // the subscriber is already deallocated, so let's do some flushing for the given envent
+        self.flushDeallocatedSubscribers(for: eventType)
+      }
     })
 
     updateSubscribers(for: eventType) { subscribed in
@@ -148,12 +153,23 @@ extension EventBus {
     //    }
     //    self.lock.with {
     updateSubscribers(for: eventType) { subscribed in
-      //        subscribed.remove(subscriber as AnyObject)
-      while let index = subscribed.index(where: { $0 == subscriber as AnyObject }) {
+      // removes also all the deallocated subscribers
+      while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
+        print("🚩🚩 removed subscription")
         subscribed.remove(at: index)
       }
     }
     //    }
+  }
+
+  private func flushDeallocatedSubscribers<T>(for eventType: T.Type, options: Options? = .none) {
+    updateSubscribers(for: eventType) { subscribed in
+      //        subscribed.remove(subscriber as AnyObject)
+      while let index = subscribed.index(where: { !$0.isValid }) {
+        print("🚩🚩 flushed subscription")
+        subscribed.remove(at: index)
+      }
+    }
   }
 
   /// Removes a subscriber from all its subscriptions.
@@ -308,6 +324,15 @@ extension EventBus {
       return subscribed.filter { $0.isValid }.compactMap { $0.underlyngObject }
     }
     return []
+  }
+
+  /// For tests only, returns also all the deallocated but not yet removed subscriptions
+  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
+    let identifier = ObjectIdentifier(eventType)
+    if let subscribed = self.subscribed[identifier] {
+      return subscribed.count
+    }
+    return 0
   }
 
 }

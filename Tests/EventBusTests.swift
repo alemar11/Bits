@@ -148,6 +148,45 @@ class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 2)
     XCTAssertTrue(status)
   }
+
+  func testWeak() {
+    let eventBus = EventBus(options: nil, label: "\(#function)")
+    var foo: FooMock? = FooMock()
+    weak var weakFoo = foo
+    let token = eventBus.add(subscriber: weakFoo!, for: FooMockable.self, queue: .main)
+    foo = nil
+    XCTAssertNil(foo)
+    XCTAssertNil(weakFoo)
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1) // the subscriber has been deallocated BUT the subscription is still stored.
+
+    token.cancel(completion: nil)
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
+  }
+
+  func testThatSubscriptionsAreRemovedDuringTheEventBusLifeCycleIfTheirAssociatedSubscribersGetDeallocated() {
+    let eventBus = EventBus(options: nil, label: "\(#function)")
+    do {
+      let foo: FooMock = FooMock()
+      eventBus.add(subscriber: foo, for: FooMockable.self, queue: .main)
+      XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
+      XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo)
+    }
+
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1) // // the subscriber has been deallocated BUT the subscription is still stored.
+
+    do {
+      let foo: FooMock = FooMock()
+      let token = eventBus.add(subscriber: foo, for: FooMockable.self, queue: .main)
+      XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
+      XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo)
+      token.cancel(completion: nil) // a cancel command removes both the subscriber and all the previous deallocated subscribers
+    }
+
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
+  }
   
 }
 
