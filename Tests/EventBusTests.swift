@@ -149,7 +149,7 @@ class EventBusTests: XCTestCase {
     XCTAssertTrue(status)
   }
 
-  func testWeak() {
+  func testThatSubscriptionIsRemovedOnceTheCancellationTokenIsUsed() {
     let eventBus = EventBus(options: nil, label: "\(#function)")
     var foo: FooMock? = FooMock()
     weak var weakFoo = foo
@@ -186,6 +186,30 @@ class EventBusTests: XCTestCase {
 
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
     XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
+  }
+
+  func test__() {
+    let eventBus = EventBus(options: nil, label: "\(#function)")
+     let expectation = self.expectation(description: "\(#function)\(#line)")
+    eventBus.register(forEvent: FooMockable.self)
+    do {
+      let foo: FooMock = FooMock()
+    eventBus.add(subscriber: foo, for: FooMockable.self, queue: .main)
+      XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
+      XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo)
+    }
+
+    //XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    //XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1) // // the subscriber has been deallocated BUT the subscription is still stored.
+    eventBus.onNotified = {
+      expectation.fulfill()
+    }
+    eventBus.notify(FooMockable.self) { $0.foo() }
+
+    waitForExpectations(timeout: 5)
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
+    print("\n\n------")
   }
   
 }

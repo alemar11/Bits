@@ -36,7 +36,7 @@ public struct Options: OptionSet {
 public final class EventBus {
 
   private typealias SubscriberSet = Set<EventBus.Subscription<AnyObject>>
-
+var onNotified: (() -> Void)? = .none
   /// The `EventBus` label used for debugging.
   public let label: String?
 
@@ -69,6 +69,10 @@ public final class EventBus {
     self.options = options ?? Options()
     self.label = label
     self.dispatchQueue = DispatchQueue(label: "TODO")
+  }
+
+  deinit {
+    print("EventBus deinit")
   }
 
 
@@ -128,7 +132,10 @@ extension EventBus {
 
     let subscriberObject = subscriber as AnyObject
     let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak subscriberObject = subscriberObject] completion in
-      guard let self = self else { return }
+      guard let self = self else {
+        return
+      }
+
       if let sub = subscriberObject {
         self.remove(subscriber: sub as! T, for: eventType, options: options)
       } else {
@@ -212,9 +219,11 @@ extension EventBus {
 }
 
 extension EventBus {
+
+
   
   @discardableResult
-  public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> ()) -> Bool {
+  public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> ()) -> Bool { //TODO: add a completion for tests?
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
     //    }
@@ -222,15 +231,23 @@ extension EventBus {
     //return self.lock.with {
     var handledNotifications = 0
     let identifier = ObjectIdentifier(eventType)
+    let group = DispatchGroup()
 
     // Notify to direct subscribers
-    if let subscribers = subscribed[identifier] {
-      for subscriber in subscribers.lazy.filter ({ $0.isValid }) {
-        self.dispatchQueue.async {
-          subscriber.notify(closure: closure)
+    if let subscriptions = subscribed[identifier] {
+      for subscription in subscriptions { ///.lazy.filter ({ $0.isValid }) {
+        group.enter()
+//        self.dispatchQueue.async(group: group) {
+//
+//        }
+        self.dispatchQueue.async { //(TODO: removed for tests
+
+        subscription.notify(closure: closure) {
+          group.leave()
+        }
         }
       }
-      handledNotifications += subscribers.count
+      handledNotifications += subscriptions.count
     }
 
     // Notify to indirect subscribers
@@ -242,6 +259,11 @@ extension EventBus {
     //      if (handled == 0) && options.contains(.warnUnhandled) {
     //        self.warnUnhandled(eventType)
     //      }
+
+     ////_ = group.wait(timeout: .distantFuture)
+    group.notify(queue: dispatchQueue) { [weak self] in
+      self?.onNotified?()
+    }
     return handledNotifications > 0
     //}
   }
@@ -286,15 +308,24 @@ extension EventBus {
       self.queue = queue
     }
 
-    fileprivate func notify<T>(closure: @escaping (T) -> ()) {
+    deinit {
+      print("Subscription deinit")
+    }
+
+    fileprivate func notify<T>(closure: @escaping (T) -> (), completion: @escaping () -> Void) {
       queue.async { [weak self] in
-        guard let `self` = self else { return }
+        guard let `self` = self else {
+          print("DEALLOCATED")
+          return
+        }
 
         if let underlyngObject = self.underlyngObject {
           closure(underlyngObject as! T)
         } else {
           self.token.cancel(completion: nil)
         }
+
+        completion()
       }
     }
 
