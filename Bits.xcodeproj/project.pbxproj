@@ -76,6 +76,8 @@
 		23F3845E20ADD01A004983E5 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F3845D20ADD01A004983E5 /* Channel.swift */; };
 		23F8072721A5C09A00A5E474 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F8072621A5C09A00A5E474 /* EventBus.swift */; };
 		23F8072821A5C09A00A5E474 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F8072621A5C09A00A5E474 /* EventBus.swift */; };
+		23F8072A21A6B7D200A5E474 /* EventBusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F8072921A6B7D200A5E474 /* EventBusTests.swift */; };
+		23F8072B21A6B7D200A5E474 /* EventBusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F8072921A6B7D200A5E474 /* EventBusTests.swift */; };
 		23F97E0820E64164007C4889 /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F97E0720E64164007C4889 /* Interval.swift */; };
 		23F97E2420E66012007C4889 /* Bits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23F97E1B20E66012007C4889 /* Bits.framework */; };
 		23F97E3220E6616E007C4889 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FB40D6208C71D9002F5428 /* Reachability.swift */; };
@@ -151,6 +153,7 @@
 		23C8C15520FF29FC00BD7A2A /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		23F3845D20ADD01A004983E5 /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
 		23F8072621A5C09A00A5E474 /* EventBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventBus.swift; sourceTree = "<group>"; };
+		23F8072921A6B7D200A5E474 /* EventBusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventBusTests.swift; sourceTree = "<group>"; };
 		23F97E0720E64164007C4889 /* Interval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
 		23F97E1B20E66012007C4889 /* Bits.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bits.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		23F97E2320E66012007C4889 /* Bits macOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bits macOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -305,6 +308,7 @@
 				236D5C1C21A2DA8900B5AF8D /* LockPerformanceTests.swift */,
 				231ECDF921A44E1B00E5581C /* ErrNoTests.swift */,
 				231ECDFC21A450D500E5581C /* LocksTests.swift */,
+				23F8072921A6B7D200A5E474 /* EventBusTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -574,6 +578,7 @@
 				23F97E3F20E6617D007C4889 /* WeakBoxTests.swift in Sources */,
 				23F97E4320E6617D007C4889 /* ChannelTests.swift in Sources */,
 				23F97E4420E6617D007C4889 /* LimitersTests.swift in Sources */,
+				23F8072B21A6B7D200A5E474 /* EventBusTests.swift in Sources */,
 				23F97E3D20E6617D007C4889 /* ReachabilityTests.swift in Sources */,
 				23F97E4820E666FB007C4889 /* Permissions.swift in Sources */,
 				23F97E4020E6617D007C4889 /* ResultTests.swift in Sources */,
@@ -622,6 +627,7 @@
 				23C45F72209EFE1700910999 /* WeakBoxTests.swift in Sources */,
 				239CCC9620E229B0007782E5 /* ChannelTests.swift in Sources */,
 				235535B820E3C42C00C69B70 /* LimitersTests.swift in Sources */,
+				23F8072A21A6B7D200A5E474 /* EventBusTests.swift in Sources */,
 				23FB40D9208C721B002F5428 /* ReachabilityTests.swift in Sources */,
 				23C45F78209F037500910999 /* ResultTests.swift in Sources */,
 				23C45F6E209EFB5C00910999 /* BoxTests.swift in Sources */,
