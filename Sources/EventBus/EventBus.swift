@@ -203,7 +203,7 @@ extension EventBus {
       if let subscribers = subscribed[identifier] {
         for subscriber in subscribers.lazy.filter ({ $0.isValid }) {
           self.dispatchQueue.async {
-          
+
             subscriber.notify(closure: closure)
             //closure(subscriber)
           }
@@ -247,25 +247,29 @@ extension EventBus {
 //    }
   }
 
-  class Subscriber<T: AnyObject>: Hashable {
+  class Subscriber<T>: Hashable {
     internal var isValid: Bool { return underlyngObject != nil }
     internal let token: Token
     private let queue: DispatchQueue
-    fileprivate weak var underlyngObject: T?
+    fileprivate weak var underlyngObject: AnyObject?
 
-    init(subscriber: T, queue: DispatchQueue, cancellationClosure: @escaping ((() -> Void)?) -> Void) {
-      self.underlyngObject = subscriber
+    init(subscriber: AnyObject, queue: DispatchQueue, cancellationClosure: @escaping ((() -> Void)?) -> Void) {
+      self.underlyngObject = subscriber as AnyObject
       self.token = Token(cancellationClosure: cancellationClosure)
       self.queue = queue
     }
 
-    fileprivate func notify(closure: @escaping (T) -> ()) {
+    fileprivate func notify<T>(closure: @escaping (T) -> ()) {
         queue.async { [weak self] in
           guard let `self` = self else { return }
 
           if let underlyngObject = self.underlyngObject {
             //self.block(value, self.token)
-            closure(underlyngObject)
+            if let t = underlyngObject as? T {
+              closure(t)
+            } else {
+              fatalError("invalid type")
+            }
           } else {
             self.token.cancel()
           }
