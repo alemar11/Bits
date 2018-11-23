@@ -55,15 +55,23 @@ class EventBusTests: XCTestCase {
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo2, for: BarMockable.self, queue: .main)
 
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1)
+    XCTAssertEqual(eventBus.__subscribersCount(for: BarMockable.self), 1)
+
     XCTAssertTrue(eventBus.hasSubscriber(foo1, for: FooMockable.self))
     XCTAssertFalse(eventBus.hasSubscriber(foo2, for: FooMockable.self))
 
     XCTAssertFalse(eventBus.hasSubscriber(foo1, for: BarMockable.self))
     XCTAssertTrue(eventBus.hasSubscriber(foo2, for: BarMockable.self))
 
-    XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
+    XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
     XCTAssertTrue(eventBus.registeredEventTypes.isEmpty)
-    XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
+
+    XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
+    XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
+
+    XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo1)
+    XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).first! === foo2)
   }
   
   func testThatAddingAndRemovingSubscriptionsCorrectlyUpdatesSubscribedEventUpdates() {
@@ -188,28 +196,67 @@ class EventBusTests: XCTestCase {
     XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
   }
 
-  func test__() {
+  func testThatADeallocatedSubscriberDoesNotReceiveEvents() {
     let eventBus = EventBus(options: nil, label: "\(#function)")
-     let expectation = self.expectation(description: "\(#function)\(#line)")
+    let expectation = self.expectation(description: "\(#function)\(#line)")
+    let unfulfilledExpectation = self.expectation(description: "\(#function)\(#line)")
+    unfulfilledExpectation.isInverted = true
     eventBus.register(forEvent: FooMockable.self)
     do {
-      let foo: FooMock = FooMock()
-    eventBus.add(subscriber: foo, for: FooMockable.self, queue: .main)
+      let foo: FooMock = FooMock { event in
+        unfulfilledExpectation.fulfill()
+      }
+      eventBus.add(subscriber: foo, for: FooMockable.self, queue: .main)
       XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
       XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo)
     }
 
-    //XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
-    //XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1) // // the subscriber has been deallocated BUT the subscription is still stored.
     eventBus.onNotified = {
       expectation.fulfill()
     }
     eventBus.notify(FooMockable.self) { $0.foo() }
 
-    waitForExpectations(timeout: 5)
+    waitForExpectations(timeout: 2)
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
     XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
-    print("\n\n------")
+  }
+
+  func testThatNotificationsAreSentAsynchronously() {
+    let expectation1 = expectation(description: "\(#function)\(#line)")
+    let expectation2 = expectation(description: "\(#function)\(#line)")
+    let expectation3 = expectation(description: "\(#function)\(#line)")
+    let expectation4 = expectation(description: "\(#function)\(#line)")
+
+    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let foo1 = FooBarMock { event in
+      sleep(2)
+      expectation1.fulfill()
+    }
+
+    let foo2 = FooBarMock { event in
+      sleep(2)
+      expectation2.fulfill()
+    }
+
+    let foo3 = FooBarMock { event in
+      sleep(2)
+      expectation3.fulfill()
+    }
+
+    let foo4 = FooBarMock { event in
+      sleep(2)
+      expectation4.fulfill()
+    }
+
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .global())
+    eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .global())
+    eventBus.add(subscriber: foo3, for: FooMockable.self, queue: .global())
+    eventBus.add(subscriber: foo4, for: FooMockable.self, queue: .global())
+
+    let status = eventBus.notify(FooMockable.self) { $0.foo() }
+
+    waitForExpectations(timeout: 3) // the execution is concurrent, the timeout should be less than the sum of each closure
+    XCTAssertTrue(status)
   }
   
 }

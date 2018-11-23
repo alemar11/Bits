@@ -36,7 +36,7 @@ public struct Options: OptionSet {
 public final class EventBus {
 
   private typealias SubscriberSet = Set<EventBus.Subscription<AnyObject>>
-var onNotified: (() -> Void)? = .none
+
   /// The `EventBus` label used for debugging.
   public let label: String?
 
@@ -53,9 +53,11 @@ var onNotified: (() -> Void)? = .none
     return self.subscribed.keys.compactMap { self.knownTypes[$0] }
   }
 
+  internal var onNotified: (() -> Void)? = .none //TODO
+
   fileprivate var knownTypes: [ObjectIdentifier: Any] = [:]
 
-  private let dispatchQueue: DispatchQueue //TODO: check if it should serial or concurrent
+  private let dispatchQueue: DispatchQueue
   private var registered: Set<ObjectIdentifier> = []
   private var subscribed = [ObjectIdentifier: SubscriberSet]()
 
@@ -68,7 +70,7 @@ var onNotified: (() -> Void)? = .none
   public init(options: Options? = nil, label: String? = nil) {
     self.options = options ?? Options()
     self.label = label
-    self.dispatchQueue = DispatchQueue(label: "TODO")
+    self.dispatchQueue = DispatchQueue(label: "\(identifier).EventBus") //TODO qos
   }
 
   deinit {
@@ -81,6 +83,7 @@ var onNotified: (() -> Void)? = .none
 // MARK: - Update Subscriber
 
 extension EventBus {
+
   @inline(__always)
   private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> ()) {
     let identifier = ObjectIdentifier(eventType)
@@ -122,8 +125,14 @@ extension EventBus {
 
 extension EventBus {
 
+  private func validateSubscriber<T>(_ subscriber: T) {
+    precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
+  }
+
   @discardableResult
   public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue, options: Options? = .none) -> SubscriptionCancellable {
+    validateSubscriber(subscriber)
+    //print(k.subjectType is AnyClass)
     //    self.warnIfNonClass(subscriber)
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
@@ -154,6 +163,7 @@ extension EventBus {
 
   /// Removes a subscriber from a given event type.
   public func remove<T>(subscriber: T, for eventType: T.Type, options: Options? = .none) {
+    validateSubscriber(subscriber)
     //    self.warnIfNonClass(subscriber)
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
@@ -171,9 +181,8 @@ extension EventBus {
 
   private func flushDeallocatedSubscribers<T>(for eventType: T.Type, options: Options? = .none) {
     updateSubscribers(for: eventType) { subscribed in
-      //        subscribed.remove(subscriber as AnyObject)
       while let index = subscribed.index(where: { !$0.isValid }) {
-        print("🚩🚩 flushed subscription")
+        print("🚩🚩 flushed subscriptions")
         subscribed.remove(at: index)
       }
     }
@@ -181,6 +190,7 @@ extension EventBus {
 
   /// Removes a subscriber from all its subscriptions.
   public func remove<T>(subscriber: T, options: Options? = .none) {
+    validateSubscriber(subscriber)
     //    self.warnIfNonClass(subscriber)
     //    self.lock.with {
     for (identifier, subscribed) in self.subscribed {
@@ -202,26 +212,20 @@ extension EventBus {
   }
 
   internal func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type, options: Options? = .none) -> Bool {
-    //    self.warnIfNonClass(subscriber)
+    validateSubscriber(subscriber)
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
     //    }
     //    return self.lock.with {
-    guard let subscribed = self.subscribed[ObjectIdentifier(eventType)] else {
-      return false
-    }
-    let subscriptions = subscribed.filter { $0.underlyngObject === subscriber as AnyObject }
+    let subscribers = self.subscribers(for: eventType).filter { $0 === subscriber as AnyObject}
+    assert((0...1) ~= subscribers.count, "EventBus has subscribed \(subscribers.count) times the same subscriber.")
 
-    assert(subscriptions.isEmpty || subscriptions.count == 1, "TODO ---> \(subscriptions)")
-    return subscriptions.isEmpty || subscriptions.count == 1
-    //    }
+    return subscribers.count > 0
   }
 }
 
 extension EventBus {
 
-
-  
   @discardableResult
   public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> ()) -> Bool { //TODO: add a completion for tests?
     //    if options.contains(.warnUnknown) {
@@ -240,12 +244,13 @@ extension EventBus {
 //        self.dispatchQueue.async(group: group) {
 //
 //        }
-        self.dispatchQueue.async { //(TODO: removed for tests
+        //self.dispatchQueue.async { //(TODO: removed for tests
 
+        //async
         subscription.notify(closure: closure) {
           group.leave()
         }
-        }
+        //}
       }
       handledNotifications += subscriptions.count
     }
@@ -264,6 +269,7 @@ extension EventBus {
     group.notify(queue: dispatchQueue) { [weak self] in
       self?.onNotified?()
     }
+
     return handledNotifications > 0
     //}
   }
@@ -291,10 +297,6 @@ extension EventBus {
       public func cancel(completion: (() -> Void)? = nil) {
         cancellationClosure(completion)
       }
-
-      //    deinit {
-      //      cancel()
-      //    }
     }
 
     internal var isValid: Bool { return underlyngObject != nil }
@@ -315,7 +317,6 @@ extension EventBus {
     fileprivate func notify<T>(closure: @escaping (T) -> (), completion: @escaping () -> Void) {
       queue.async { [weak self] in
         guard let `self` = self else {
-          print("DEALLOCATED")
           return
         }
 
