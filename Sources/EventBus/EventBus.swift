@@ -179,15 +179,11 @@ extension EventBus {
     defer { lock.unlock() }
     
     validateSubscriber(subscriber)
-    //    self.warnIfNonClass(subscriber)
-    //    if options.contains(.warnUnknown) {
-    //      self.warnIfUnknown(eventType)
-    //    }
-    
+    //self.warnIfUnknown(eventType)
+
     updateSubscribers(for: eventType) { subscribed in
       // removes also all the deallocated subscribers
       while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
-        print("🚩🚩 removed subscription")
         subscribed.remove(at: index)
       }
     }
@@ -196,7 +192,6 @@ extension EventBus {
   private func flushDeallocatedSubscribers<T>(for eventType: T.Type, options: Options? = .none) {
     updateSubscribers(for: eventType) { subscribed in
       while let index = subscribed.index(where: { !$0.isValid }) {
-        print("🚩🚩 flushed subscriptions")
         subscribed.remove(at: index)
       }
     }
@@ -241,9 +236,7 @@ extension EventBus {
     defer { lock.unlock() }
     
     validateSubscriber(subscriber)
-    //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
-    //    }
     let subscribers = self.subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
     assert((0...1) ~= subscribers.count, "EventBus has subscribed \(subscribers.count) times the same subscriber.")
     
@@ -257,11 +250,7 @@ extension EventBus {
   public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> Void) -> Bool { //TODO: add a completion for tests?
     lock.lock()
     defer { lock.unlock() }
-    
-    //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
-    //    }
-    //    self.logEvent(eventType)
     var handledNotifications = 0
     let identifier = ObjectIdentifier(eventType)
     let group = DispatchGroup()
@@ -280,7 +269,7 @@ extension EventBus {
     
     // Notify to indirect subscribers
     if let chains = self.chained[identifier] {
-      for chain in chains.allObjects.lazy.compactMap({ $0 as? EventNotifiable }) {
+      for chain in chains.allObjects.compactMap({ $0 as? EventNotifiable }) {
         let status = chain.notify(eventType, options: nil, closure: closure)
         handledNotifications += status ? 1 : 0
       }
@@ -318,6 +307,12 @@ extension EventBus {
 public protocol SubscriptionCancellable {
   func cancel(completion: (() -> Void)?)
 }
+
+
+fileprivate protocol Subscribable {
+  func notify<T>(closure: @escaping (T) -> Void, completion: @escaping () -> Void)
+}
+
 
 extension EventBus {
   
@@ -386,6 +381,7 @@ extension EventBus {
 
 // MARK: - Chain
 
+
 public protocol EventBusType { }
 
 public protocol EventNotifiable: EventBusType {
@@ -404,7 +400,7 @@ extension EventBus: EventBusChainable {
   //@inline(__always)
   fileprivate func updateChains<T>(for eventType: T.Type, closure: (inout NSHashTable<AnyObject>) -> ()) {
     let identifier = ObjectIdentifier(eventType)
-    let chained = self.chained[identifier] ?? NSHashTable()
+    let chained = self.chained[identifier] ?? NSHashTable.weakObjects()
     self.chained[identifier] = self.update2(set: chained, closure: closure)
     self.knownTypes[identifier] = String(describing: eventType)
   }
@@ -416,12 +412,9 @@ extension EventBus: EventBusChainable {
   public func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, options: Options) {
     lock.lock()
     defer { lock.unlock() }
-    //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
-    //    }
     self.updateChains(for: eventType) { chained in
       chained.add(chain)
-      //chained.insert(WeakBox(chain as AnyObject))
     }
   }
   
@@ -430,12 +423,10 @@ extension EventBus: EventBusChainable {
   }
   
   public func detach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, options: Options) {
-    //    if options.contains(.warnUnknown) {
-    //      self.warnIfUnknown(eventType)
-    //    }
-    
     lock.lock()
     defer { lock.unlock() }
+    //      self.warnIfUnknown(eventType)
+
     self.updateChains(for: eventType) { chained in
       chained.remove(chain)
     }

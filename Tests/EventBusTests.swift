@@ -305,6 +305,52 @@ class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 1.0)
   }
 
+  func testCHAIN() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let fooMock1 = FooMock { _ in expectation1.fulfill() }
+    let fooMock2 = FooMock { _ in expectation2.fulfill() }
+    let eventBus1 = EventBus()
+    let eventBus2 = EventBus()
+
+    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
+    eventBus2.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
+    eventBus1.attach(chain: eventBus2, for: FooMockable.self, options: .init(rawValue: 1))
+
+    eventBus1.notify(FooMockable.self) { subscriber in
+      subscriber.foo()
+    }
+
+    waitForExpectations(timeout: 5.0)
+
+  }
+
+
+  func testCHAIN2() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    expectation2.isInverted = true
+    let fooMock1 = FooMock { _ in expectation1.fulfill() }
+let fooMock2 = FooMock { _ in expectation2.fulfill() }
+    let eventBus1 = EventBus()
+    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
+
+    do {
+      var eventBus2: EventBus? = EventBus()
+      weak var weakEventBus2 = eventBus2
+
+      eventBus2!.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
+      eventBus1.attach(chain: eventBus2!, for: FooMockable.self, options: .init(rawValue: 1))
+      eventBus2 = nil
+    }
+    eventBus1.notify(FooMockable.self) { subscriber in
+      subscriber.foo()
+    }
+
+    waitForExpectations(timeout: 5.0)
+
+  }
+
 }
 
 protocol FooStubable {}
