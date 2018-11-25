@@ -231,5 +231,3 @@ public func openSettings() {
 }
 
 #endif
-
-

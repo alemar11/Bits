@@ -32,7 +32,7 @@ typealias Responder = NSResponder
 
 extension Responder {
   /// The next responder after this one, or nil if it has none.
-  var next : NSResponder? {
+  var next: NSResponder? {
     set {
       nextResponder = newValue
     }

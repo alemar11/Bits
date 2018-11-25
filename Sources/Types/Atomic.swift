@@ -24,6 +24,7 @@
 import Foundation
 
 public protocol ThreadSafe {
+  // swiftlint:disable:next type_name
   associatedtype T
   var value: T { get }
   func read<U>(_ value: (T) -> U) -> U
@@ -77,7 +78,7 @@ public final class DispatchedAtomic<T>: ThreadSafe {
   private let label = "\(identifier).DispatchedAtomic"
   private let queue: DispatchQueue
 
-  public init(_ value: T, qos: DispatchQoS  = DispatchQoS.default) {
+  public init(_ value: T, qos: DispatchQoS = .default) {
     self._value = value
     self.queue = DispatchQueue(label: label, qos: qos)
   }

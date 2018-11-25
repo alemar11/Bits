@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -25,7 +25,7 @@ import XCTest
 @testable import Bits
 
 class EventBusTests: XCTestCase {
-  
+
   func testThatRegistrationAreUnique() {
     let eventBus = EventBus(options: nil, label: "\(#function)")
     eventBus.register(forEvent: FooMockable.self)
@@ -35,7 +35,7 @@ class EventBusTests: XCTestCase {
     eventBus.register(forEvent: FooStubable.self)
     XCTAssertEqual(eventBus.registeredEventTypes.count, 3)
   }
-  
+
   func testThatAddingSubscriptionsDoesNotChangeRegistrations() {
     let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooMock()
@@ -73,40 +73,40 @@ class EventBusTests: XCTestCase {
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo1)
     XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).first! === foo2)
   }
-  
+
   func testThatAddingAndRemovingSubscriptionsCorrectlyUpdatesSubscribedEventUpdates() {
     let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
-    
+
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
     eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
-    
+
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
-    
+
     eventBus.remove(subscriber: foo2, for: BarMockable.self) // foo2 is not subscribed for BarMockable
-    
+
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
-    
+
     eventBus.remove(subscriber: foo1, for: FooMockable.self)
     eventBus.remove(subscriber: foo1, for: BarMockable.self)
-    
+
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 0)
-    
+
     eventBus.remove(subscriber: foo2, for: FooMockable.self)
-    
+
     XCTAssertTrue(eventBus.subscribedEventTypes.isEmpty)
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
     XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }
-  
+
   func testThatASubscriberCanBeRemovedFromAllItsSubscriptionAltogether() {
     let eventBus = EventBus(options: nil, label: "\(#function)")
     let foo1 = FooBarMock()
@@ -258,7 +258,7 @@ class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 3) // the execution is concurrent, the timeout should be less than the sum of each closure
     XCTAssertTrue(status)
   }
-  
+
 }
 
 protocol FooStubable {}
@@ -277,7 +277,7 @@ protocol BarMockable { func bar() }
 
 class Mock {
   fileprivate let closure: (MockEvent) -> ()
-  
+
   init(closure: ((MockEvent) -> ())? = nil) {
     self.closure = closure ?? { _ in }
   }

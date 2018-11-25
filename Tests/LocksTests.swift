@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -75,7 +75,7 @@ final class LocksTests: XCTestCase {
 
   func testTryAcquiringReadWriteLock() {
     let lock = ReadWriteLock()
-    
+
     XCTAssertTrue(lock.try())
     XCTAssertFalse(lock.try())
     lock.unlock()

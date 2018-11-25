@@ -1,4 +1,4 @@
-// 
+//
 // Bits
 //
 // Copyright © 2016-2018 Tinrobots.
@@ -62,7 +62,6 @@ public final class EventBus {
   private var subscribed = [ObjectIdentifier: SubscriberSet]()
   private let lock: NSLocking = UnfairLock()
 
-
   /// Creates an `EventBus` with a given configuration and dispatch queue.
   ///
   /// - Parameters:
@@ -78,7 +77,6 @@ public final class EventBus {
     print("EventBus deinit")
   }
 
-
 }
 
 // MARK: - Update Subscriber
@@ -86,7 +84,7 @@ public final class EventBus {
 extension EventBus {
 
   @inline(__always)
-  private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> ()) {
+  private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
     let identifier = ObjectIdentifier(eventType)
     let subscribed = self.subscribed[identifier] ?? SubscriberSet()
     self.subscribed[identifier] = update(set: subscribed, closure: closure)
@@ -102,7 +100,7 @@ extension EventBus {
   //  }
 
   @inline(__always)
-  private func update(set: SubscriberSet, closure: (inout SubscriberSet) -> ()) -> SubscriberSet? {
+  private func update(set: SubscriberSet, closure: (inout SubscriberSet) -> Void) -> SubscriberSet? {
     var mutableSet = set
     closure(&mutableSet)
     // Remove weak nil elements
@@ -136,7 +134,7 @@ extension EventBus {
     defer { lock.unlock() }
 
     validateSubscriber(subscriber)
-    //print(k.subjectType is AnyClass)
+    // print(k.subjectType is AnyClass)
     //    self.warnIfNonClass(subscriber)
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
@@ -150,6 +148,7 @@ extension EventBus {
       }
 
       if let sub = subscriberObject {
+        // swiftlint:disable:next force_cast
         self.remove(subscriber: sub as! T, for: eventType, options: options)
       } else {
         // the subscriber is already deallocated, so let's do some flushing for the given envent
@@ -163,7 +162,6 @@ extension EventBus {
 
     return subscription.token
   }
-
 
   /// Removes a subscriber from a given event type.
   public func remove<T>(subscriber: T, for eventType: T.Type, options: Options? = .none) {
@@ -205,7 +203,7 @@ extension EventBus {
     //    self.lock.with {
     for (identifier, subscribed) in self.subscribed {
       self.subscribed[identifier] = self.update(set: subscribed) { subscribed in
-        //subscribed.remove(subscriber as AnyObject)
+        // subscribed.remove(subscriber as AnyObject)
         while let index = subscribed.index(where: { $0 == subscriber as AnyObject }) {
           subscribed.remove(at: index)
         }
@@ -233,7 +231,7 @@ extension EventBus {
     //      self.warnIfUnknown(eventType)
     //    }
     //    return self.lock.with {
-    let subscribers = self.subscribers(for: eventType).filter { $0 === subscriber as AnyObject}
+    let subscribers = self.subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
     assert((0...1) ~= subscribers.count, "EventBus has subscribed \(subscribers.count) times the same subscriber.")
 
     return subscribers.count > 0
@@ -243,15 +241,15 @@ extension EventBus {
 extension EventBus {
 
   @discardableResult
-  public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> ()) -> Bool { //TODO: add a completion for tests?
+  public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> Void) -> Bool { //TODO: add a completion for tests?
     lock.lock()
     defer { lock.unlock() }
-    
+
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
     //    }
     //    self.logEvent(eventType)
-    //return self.lock.with {
+    // return self.lock.with {
     var handledNotifications = 0
     let identifier = ObjectIdentifier(eventType)
     let group = DispatchGroup()
@@ -263,9 +261,9 @@ extension EventBus {
 //        self.dispatchQueue.async(group: group) {
 //
 //        }
-        //self.dispatchQueue.async { //(TODO: removed for tests
+        // self.dispatchQueue.async { //(TODO: removed for tests
 
-        //async
+        // async
         subscription.notify(closure: closure) {
           group.leave()
         }
@@ -294,7 +292,6 @@ extension EventBus {
   }
 }
 
-
 extension EventBus {
 
   internal func subscribers<T>(for eventType: T.Type) -> [AnyObject] {
@@ -306,7 +303,8 @@ extension EventBus {
   }
 
   /// For tests only, returns also all the deallocated but not yet removed subscriptions
-  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
+  // swiftlint:disable:next identifier_name
+  internal func __subscribersCount<T>(for eventType: T.Type) -> Int { //TODO: name
     let identifier = ObjectIdentifier(eventType)
     if let subscribed = self.subscribed[identifier] {
       return subscribed.count
@@ -324,24 +322,23 @@ public protocol SubscriptionCancellable {
 
 extension EventBus {
 
-  private final class Subscription<T>: Hashable {
+  /// A subscription token to cancel a subscription.
+  private final class Token: SubscriptionCancellable {
+    private let cancellationClosure: ((() -> Void)?) -> Void
 
-    /// A subscription token to cancel a subscription.
-    private final class Token: SubscriptionCancellable {
-      private let cancellationClosure: ((() -> Void)?) -> Void
-
-      fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
-        self.cancellationClosure = cancellationClosure
-      }
-
-      /// Cancels the subscription associated with this token.
-      ///
-      /// - Parameter completion: The block executed after the cancellation has completed.
-      public func cancel(completion: (() -> Void)? = nil) {
-        cancellationClosure(completion)
-      }
+    fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
+      self.cancellationClosure = cancellationClosure
     }
 
+    /// Cancels the subscription associated with this token.
+    ///
+    /// - Parameter completion: The block executed after the cancellation has completed.
+    public func cancel(completion: (() -> Void)? = nil) {
+      cancellationClosure(completion)
+    }
+  }
+
+  private final class Subscription<T>: Hashable {
     internal var isValid: Bool { return underlyngObject != nil }
     internal let token: SubscriptionCancellable
     private let queue: DispatchQueue
@@ -353,13 +350,14 @@ extension EventBus {
       self.queue = queue
     }
 
-    fileprivate func notify<T>(closure: @escaping (T) -> (), completion: @escaping () -> Void) {
+    fileprivate func notify<T>(closure: @escaping (T) -> Void, completion: @escaping () -> Void) {
       queue.async { [weak self] in
         guard let `self` = self else {
           return
         }
 
         if let underlyngObject = self.underlyngObject {
+          // swiftlint:disable:next force_cast
           closure(underlyngObject as! T)
         } else {
           self.token.cancel(completion: nil)
@@ -386,4 +384,3 @@ extension EventBus {
   }
 
 }
-
