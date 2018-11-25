@@ -60,6 +60,7 @@ public final class EventBus {
   private let dispatchQueue: DispatchQueue
   private var registered: Set<ObjectIdentifier> = []
   private var subscribed = [ObjectIdentifier: SubscriberSet]()
+  private let lock: NSLocking = UnfairLock()
 
 
   /// Creates an `EventBus` with a given configuration and dispatch queue.
@@ -131,6 +132,9 @@ extension EventBus {
 
   @discardableResult
   public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue, options: Options? = .none) -> SubscriptionCancellable {
+    lock.lock()
+    defer { lock.unlock() }
+
     validateSubscriber(subscriber)
     //print(k.subjectType is AnyClass)
     //    self.warnIfNonClass(subscriber)
@@ -163,6 +167,9 @@ extension EventBus {
 
   /// Removes a subscriber from a given event type.
   public func remove<T>(subscriber: T, for eventType: T.Type, options: Options? = .none) {
+    lock.lock()
+    defer { lock.unlock() }
+
     validateSubscriber(subscriber)
     //    self.warnIfNonClass(subscriber)
     //    if options.contains(.warnUnknown) {
@@ -190,6 +197,9 @@ extension EventBus {
 
   /// Removes a subscriber from all its subscriptions.
   public func remove<T>(subscriber: T, options: Options? = .none) {
+    lock.lock()
+    defer { lock.unlock() }
+
     validateSubscriber(subscriber)
     //    self.warnIfNonClass(subscriber)
     //    self.lock.with {
@@ -205,6 +215,9 @@ extension EventBus {
   }
 
   public func removeAllSubscribers() {
+    lock.lock()
+    defer { lock.unlock() }
+
     self.subscribed.removeAll()
     //    self.lock.with {
     //      self.subscribed = [:]
@@ -212,6 +225,9 @@ extension EventBus {
   }
 
   internal func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type, options: Options? = .none) -> Bool {
+    lock.lock()
+    defer { lock.unlock() }
+
     validateSubscriber(subscriber)
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
@@ -228,6 +244,9 @@ extension EventBus {
 
   @discardableResult
   public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> ()) -> Bool { //TODO: add a completion for tests?
+    lock.lock()
+    defer { lock.unlock() }
+    
     //    if options.contains(.warnUnknown) {
     //      self.warnIfUnknown(eventType)
     //    }
@@ -275,6 +294,30 @@ extension EventBus {
   }
 }
 
+
+extension EventBus {
+
+  internal func subscribers<T>(for eventType: T.Type) -> [AnyObject] {
+    let identifier = ObjectIdentifier(eventType)
+    if let subscribed = self.subscribed[identifier] {
+      return subscribed.filter { $0.isValid }.compactMap { $0.underlyngObject }
+    }
+    return []
+  }
+
+  /// For tests only, returns also all the deallocated but not yet removed subscriptions
+  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
+    let identifier = ObjectIdentifier(eventType)
+    if let subscribed = self.subscribed[identifier] {
+      return subscribed.count
+    }
+    return 0
+  }
+
+}
+
+// MARK: - Subscription
+
 public protocol SubscriptionCancellable {
   func cancel(completion: (() -> Void)?)
 }
@@ -284,7 +327,7 @@ extension EventBus {
   private final class Subscription<T>: Hashable {
 
     /// A subscription token to cancel a subscription.
-    final class Token: SubscriptionCancellable {
+    private final class Token: SubscriptionCancellable {
       private let cancellationClosure: ((() -> Void)?) -> Void
 
       fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
@@ -310,10 +353,6 @@ extension EventBus {
       self.queue = queue
     }
 
-    deinit {
-      print("Subscription deinit")
-    }
-
     fileprivate func notify<T>(closure: @escaping (T) -> (), completion: @escaping () -> Void) {
       queue.async { [weak self] in
         guard let `self` = self else {
@@ -330,15 +369,15 @@ extension EventBus {
       }
     }
 
-    internal static func == (lhs: Subscription, rhs: Subscription) -> Bool {
+    fileprivate static func == (lhs: Subscription, rhs: Subscription) -> Bool {
       return lhs.underlyngObject === rhs.underlyngObject
     }
 
-    internal static func == (lhs: Subscription, rhs: AnyObject) -> Bool {
+    fileprivate static func == (lhs: Subscription, rhs: AnyObject) -> Bool {
       return lhs.underlyngObject === rhs
     }
 
-    internal var hashValue: Int {
+    fileprivate var hashValue: Int {
       guard let underlyngObject = underlyngObject else {
         return 0
       }
@@ -348,23 +387,3 @@ extension EventBus {
 
 }
 
-extension EventBus {
-
-  internal func subscribers<T>(for eventType: T.Type) -> [AnyObject] {
-    let identifier = ObjectIdentifier(eventType)
-    if let subscribed = self.subscribed[identifier] {
-      return subscribed.filter { $0.isValid }.compactMap { $0.underlyngObject }
-    }
-    return []
-  }
-
-  /// For tests only, returns also all the deallocated but not yet removed subscriptions
-  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
-    let identifier = ObjectIdentifier(eventType)
-    if let subscribed = self.subscribed[identifier] {
-      return subscribed.count
-    }
-    return 0
-  }
-
-}
