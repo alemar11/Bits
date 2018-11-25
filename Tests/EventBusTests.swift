@@ -439,7 +439,7 @@ final class EventBusTests: XCTestCase {
 
     eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: .main)
     eventBus2.add(subscriber: barMock2, for: BarMockable.self, queue: .global())
-    eventBus2.attach(chain: eventBus2, for: BarMockable.self)
+    eventBus1.attach(chain: eventBus2, for: BarMockable.self)
 
     eventBus2.notify(BarMockable.self, completion: nil) { $0.bar() }
     waitForExpectations(timeout: 2, handler: nil)
