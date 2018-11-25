@@ -23,16 +23,6 @@
 
 import Foundation
 
-public struct Options: OptionSet {
-  /// See protocol `OptionSet`
-  public let rawValue: Int
-  
-  /// See protocol `OptionSet`
-  public init(rawValue: Int) {
-    self.rawValue = rawValue
-  }
-}
-
 public final class EventBus: EventNotifiable {
   
   private typealias SubscriberSet = Set<EventBus.Subscription<AnyObject>>
@@ -40,9 +30,6 @@ public final class EventBus: EventNotifiable {
   
   /// The `EventBus` label used for debugging.
   public let label: String?
-  
-  /// The `EventBus` configuration options.
-  public let options: Options
   
   /// The event types the `EventBus` is registered for.
   public var registeredEventTypes: [Any] {
@@ -53,8 +40,6 @@ public final class EventBus: EventNotifiable {
   public var subscribedEventTypes: [Any] {
     return self.subscribed.keys.compactMap { self.knownTypes[$0] }
   }
-  
-  internal var onNotified: (() -> Void)? = .none //TODO
   
   fileprivate var knownTypes: [ObjectIdentifier: Any] = [:]
   
@@ -69,8 +54,7 @@ public final class EventBus: EventNotifiable {
   /// - Parameters:
   ///   - options: the event bus' options
   ///   - notificationQueue: the dispatch queue to notify subscribers on
-  public init(options: Options? = nil, label: String? = nil) {
-    self.options = options ?? Options()
+  public init(label: String? = nil) {
     self.label = label
     self.dispatchQueue = DispatchQueue(label: "\(identifier).EventBus") //TODO qos
   }
@@ -139,7 +123,7 @@ extension EventBus {
   }
   
   @discardableResult
-  public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue, options: Options? = .none) -> SubscriptionCancellable {
+  public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable {
     lock.lock()
     defer { lock.unlock() }
     
@@ -159,7 +143,7 @@ extension EventBus {
       
       if let sub = subscriberObject {
         // swiftlint:disable:next force_cast
-        self.remove(subscriber: sub as! T, for: eventType, options: options)
+        self.remove(subscriber: sub as! T, for: eventType)
       } else {
         // the subscriber is already deallocated, so let's do some flushing for the given envent
         self.flushDeallocatedSubscribers(for: eventType)
@@ -174,13 +158,13 @@ extension EventBus {
   }
   
   /// Removes a subscriber from a given event type.
-  public func remove<T>(subscriber: T, for eventType: T.Type, options: Options? = .none) {
+  public func remove<T>(subscriber: T, for eventType: T.Type) {
     lock.lock()
     defer { lock.unlock() }
     
     validateSubscriber(subscriber)
     //self.warnIfUnknown(eventType)
-
+    
     updateSubscribers(for: eventType) { subscribed in
       // removes also all the deallocated subscribers
       while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
@@ -189,7 +173,7 @@ extension EventBus {
     }
   }
   
-  private func flushDeallocatedSubscribers<T>(for eventType: T.Type, options: Options? = .none) {
+  private func flushDeallocatedSubscribers<T>(for eventType: T.Type) {
     updateSubscribers(for: eventType) { subscribed in
       while let index = subscribed.index(where: { !$0.isValid }) {
         subscribed.remove(at: index)
@@ -198,7 +182,7 @@ extension EventBus {
   }
   
   /// Removes a subscriber from all its subscriptions.
-  public func remove<T>(subscriber: T, options: Options? = .none) {
+  public func remove<T>(subscriber: T) {
     lock.lock()
     defer { lock.unlock() }
     
@@ -218,7 +202,7 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
     
-    self.subscribed.removeAll()
+    self.subscribed.removeAll() //TODO differentiate between Subscription and EventNotifiable?
   }
   
   /// Returns all the subscriber for a given eventType.
@@ -231,7 +215,7 @@ extension EventBus {
   }
   
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
-  internal func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type, options: Options? = .none) -> Bool {
+  internal func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
     lock.lock()
     defer { lock.unlock() }
     
@@ -247,7 +231,7 @@ extension EventBus {
 extension EventBus {
   
   @discardableResult
-  public func notify<T>(_ eventType: T.Type, options: Options? = .none, closure: @escaping (T) -> Void) -> Bool { //TODO: add a completion for tests?
+  public func notify<T>(_ eventType: T.Type, completion: (()-> Void)? = .none, closure: @escaping (T) -> Void) -> Bool { //TODO: add a completion for tests?
     lock.lock()
     defer { lock.unlock() }
     //      self.warnIfUnknown(eventType)
@@ -260,7 +244,7 @@ extension EventBus {
       for subscription in subscriptions { ///.lazy.filter ({ $0.isValid }) {
         group.enter()
         // async
-        subscription.notify(closure: closure) {
+        subscription.notify(eventType: eventType, closure: closure) {
           group.leave()
         }
       }
@@ -270,7 +254,10 @@ extension EventBus {
     // Notify to indirect subscribers
     if let chains = self.chained[identifier] {
       for chain in chains.allObjects.compactMap({ $0 as? EventNotifiable }) {
-        let status = chain.notify(eventType, options: nil, closure: closure)
+        group.enter()
+        let status = chain.notify(eventType, completion: {
+          group.leave()
+        }, closure: closure)
         handledNotifications += status ? 1 : 0
       }
     }
@@ -279,9 +266,8 @@ extension EventBus {
     //            self.warnUnhandled(eventType)
     //          }
     
-    ////_ = group.wait(timeout: .distantFuture)
-    group.notify(queue: dispatchQueue) { [weak self] in
-      self?.onNotified?()
+    group.notify(queue: dispatchQueue) {
+      completion?()
     }
     
     return handledNotifications > 0
@@ -309,11 +295,6 @@ public protocol SubscriptionCancellable {
 }
 
 
-fileprivate protocol Subscribable {
-  func notify<T>(closure: @escaping (T) -> Void, completion: @escaping () -> Void)
-}
-
-
 extension EventBus {
   
   /// A subscription token to cancel a subscription.
@@ -332,7 +313,7 @@ extension EventBus {
     }
   }
   
-  private final class Subscription<T>: Hashable {
+  private final class Subscription<T>: Hashable, SubscriptionType {
     internal var isValid: Bool { return underlyngObject != nil }
     internal let token: SubscriptionCancellable
     private let queue: DispatchQueue
@@ -344,7 +325,7 @@ extension EventBus {
       self.queue = queue
     }
     
-    fileprivate func notify<T>(closure: @escaping (T) -> Void, completion: @escaping () -> Void) {
+    fileprivate func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void) {
       queue.async { [weak self] in
         guard let `self` = self else {
           return
@@ -352,12 +333,21 @@ extension EventBus {
         
         if let underlyngObject = self.underlyngObject {
           // swiftlint:disable:next force_cast
-          closure(underlyngObject as! T)
+          //closure(underlyngObject as! T)
+          
+          if let subscriber = underlyngObject as? T {
+            closure(subscriber)
+            completion()
+          } else if let bus = underlyngObject as? EventNotifiable {
+            bus.notify(eventType, completion: { completion() }, closure: closure)
+          }
+          
         } else {
           self.token.cancel(completion: nil)
+          completion()
         }
         
-        completion()
+        
       }
     }
     
@@ -381,65 +371,79 @@ extension EventBus {
 
 // MARK: - Chain
 
-
 public protocol EventBusType { }
+public protocol SubscriptionType {
+  func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void)
+}
+
+extension EventBus: SubscriptionType {
+  public func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void) {
+    self.notify(eventType, completion: completion, closure: closure)
+  }
+}
 
 public protocol EventNotifiable: EventBusType {
   @discardableResult
-  func notify<T>(_ eventType: T.Type, options: Options?, closure: @escaping (T) -> Void) -> Bool //TODO: options?
+  func notify<T>(_ eventType: T.Type, completion: (()-> Void)?, closure: @escaping (T) -> Void) -> Bool
 }
 
 public protocol EventBusChainable: EventBusType {
-  func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type)
+  @discardableResult
+  func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable
   func detach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type)
   func detach(chain: EventNotifiable & AnyObject)
   func detachAllChains()
 }
 
 extension EventBus: EventBusChainable {
-  //@inline(__always)
-  fileprivate func updateChains<T>(for eventType: T.Type, closure: (inout NSHashTable<AnyObject>) -> ()) {
-    let identifier = ObjectIdentifier(eventType)
-    let chained = self.chained[identifier] ?? NSHashTable.weakObjects()
-    self.chained[identifier] = self.update2(set: chained, closure: closure)
-    self.knownTypes[identifier] = String(describing: eventType)
-  }
-  
-  public func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type) {
-    return self.attach(chain: chain, for: eventType, options: self.options)
-  }
-  
-  public func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, options: Options) {
+  @discardableResult
+  public func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, queue: DispatchQueue = .global()) -> SubscriptionCancellable {
     lock.lock()
     defer { lock.unlock() }
-    //      self.warnIfUnknown(eventType)
-    self.updateChains(for: eventType) { chained in
-      chained.add(chain)
+    
+    let subscription = Subscription<AnyObject>(subscriber: chain, queue: queue, cancellationClosure: { [weak self, weak weakChain = chain] completion in
+      guard let self = self else {
+        return
+      }
+      
+      if let sub = weakChain {
+        self.detach(chain: sub, for: eventType)
+      } else {
+        // the subscriber is already deallocated, so let's do some flushing for the given envent
+        self.flushDeallocatedSubscribers(for: eventType)
+      }
+    })
+    
+    updateSubscribers(for: eventType) { subscribed in
+      subscribed.insert(subscription)
     }
+    
+    return subscription.token
+    
   }
   
   public func detach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type) {
-    return self.detach(chain: chain, for: eventType, options: self.options)
-  }
-  
-  public func detach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, options: Options) {
     lock.lock()
     defer { lock.unlock() }
     //      self.warnIfUnknown(eventType)
-
-    self.updateChains(for: eventType) { chained in
-      chained.remove(chain)
-    }
     
+    updateSubscribers(for: eventType) { subscribed in
+      // removes also all the deallocated subscribers
+      while let index = subscribed.index(where: { ($0 == chain) || !$0.isValid }) {
+        subscribed.remove(at: index)
+      }
+    }
   }
   
   public func detach(chain: EventNotifiable & AnyObject) {
     lock.lock()
     defer { lock.unlock() }
     
-    for (identifier, chained) in self.chained {
-      self.chained[identifier] = self.update2(set: chained) { chained in
-        chained.remove(chain)
+    for (identifier, subscribed) in self.subscribed {
+      self.subscribed[identifier] = self.update(set: subscribed) { subscribed in
+        while let index = subscribed.index(where: { $0 == chain }) {
+          subscribed.remove(at: index)
+        }
       }
     }
   }
@@ -447,7 +451,8 @@ extension EventBus: EventBusChainable {
   public func detachAllChains() {
     lock.lock()
     defer { lock.unlock() }
-    self.chained.removeAll()
+    // TODO: to be implemented
+    
   }
   //
   //  internal func has<T>(chain: EventNotifiable, for eventType: T.Type) -> Bool {

@@ -24,10 +24,10 @@
 import XCTest
 @testable import Bits
 
-class EventBusTests: XCTestCase {
+final class EventBusTests: XCTestCase {
 
   func testThatRegistrationAreUnique() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     eventBus.register(forEvent: FooMockable.self)
     eventBus.register(forEvent: FooMockable.self)
     eventBus.register(forEvent: BarMockable.self)
@@ -37,7 +37,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatAddingSubscriptionsDoesNotChangeRegistrations() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooMock()
     let foo2 = FooMock()
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
@@ -49,7 +49,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatAnEventBusCanBeQueriedToSeeIfItContainOneSubscriberForAnEvent() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
@@ -75,7 +75,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatAddingAndRemovingSubscriptionsCorrectlyUpdatesSubscribedEventUpdates() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
 
@@ -108,7 +108,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatASubscriberCanBeRemovedFromAllItsSubscriptionAltogether() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock()
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
@@ -118,7 +118,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatAllTheSubscribersCanBeRemovedAltogether() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock()
     let foo2 = FooBarMock()
     let foo3 = FooBarMock()
@@ -144,7 +144,7 @@ class EventBusTests: XCTestCase {
 
   func testThatNotificationIsSentToTheMainThread() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock { event in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(event, .foo)
@@ -158,7 +158,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatSubscriptionIsRemovedOnceTheCancellationTokenIsUsed() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     var foo: FooMock? = FooMock()
     weak var weakFoo = foo
     let token = eventBus.add(subscriber: weakFoo!, for: FooMockable.self, queue: .main)
@@ -173,7 +173,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatSubscriptionsAreRemovedDuringTheEventBusLifeCycleIfTheirAssociatedSubscribersGetDeallocated() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     do {
       let foo: FooMock = FooMock()
       eventBus.add(subscriber: foo, for: FooMockable.self, queue: .main)
@@ -197,7 +197,7 @@ class EventBusTests: XCTestCase {
   }
 
   func testThatADeallocatedSubscriberDoesNotReceiveEvents() {
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let unfulfilledExpectation = self.expectation(description: "\(#function)\(#line)")
     unfulfilledExpectation.isInverted = true
@@ -211,10 +211,7 @@ class EventBusTests: XCTestCase {
       XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo)
     }
 
-    eventBus.onNotified = {
-      expectation.fulfill()
-    }
-    eventBus.notify(FooMockable.self) { $0.foo() }
+    eventBus.notify(FooMockable.self, completion: { expectation.fulfill() }) { $0.foo() }
 
     waitForExpectations(timeout: 2)
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
@@ -227,7 +224,7 @@ class EventBusTests: XCTestCase {
     let expectation3 = expectation(description: "\(#function)\(#line)")
     let expectation4 = expectation(description: "\(#function)\(#line)")
 
-    let eventBus = EventBus(options: nil, label: "\(#function)")
+    let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock { event in
       sleep(2)
       expectation1.fulfill()
@@ -305,9 +302,35 @@ class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 1.0)
   }
 
-  func testCHAIN() {
+  func testThatAnEventPropagatesCorrectlyToChainedEventBus() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let fooMock1 = FooMock { _ in
+      XCTAssertTrue(Thread.isMainThread)
+      expectation1.fulfill()
+    }
+    let fooMock2 = FooMock { _ in
+      XCTAssertTrue(Thread.isMainThread)
+      expectation2.fulfill()
+    }
+    let eventBus1 = EventBus()
+    let eventBus2 = EventBus()
+
+    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
+    eventBus2.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
+    eventBus1.attach(chain: eventBus2, for: FooMockable.self)
+
+    eventBus1.notify(FooMockable.self) { subscriber in
+      subscriber.foo()
+    }
+
+    waitForExpectations(timeout: 1.0)
+  }
+
+  func testThatAnEventDoesNotPropagateItTheChainedEventBusHasBeenCancelled() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    expectation2.isInverted = true
     let fooMock1 = FooMock { _ in expectation1.fulfill() }
     let fooMock2 = FooMock { _ in expectation2.fulfill() }
     let eventBus1 = EventBus()
@@ -315,59 +338,58 @@ class EventBusTests: XCTestCase {
 
     eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
     eventBus2.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
-    eventBus1.attach(chain: eventBus2, for: FooMockable.self, options: .init(rawValue: 1))
-
+    let token = eventBus1.attach(chain: eventBus2, for: FooMockable.self)
+    token.cancel(completion: nil)
     eventBus1.notify(FooMockable.self) { subscriber in
       subscriber.foo()
     }
 
-    waitForExpectations(timeout: 5.0)
-
+    waitForExpectations(timeout: 1.0)
   }
 
 
-  func testCHAIN2() {
+  func testThatAnEventDoesNotPropagateIfTheChainedEventGetsDeallocated() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     expectation2.isInverted = true
     let fooMock1 = FooMock { _ in expectation1.fulfill() }
-let fooMock2 = FooMock { _ in expectation2.fulfill() }
+    let fooMock2 = FooMock { _ in expectation2.fulfill() }
+
     let eventBus1 = EventBus()
     eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
 
-    do {
-      var eventBus2: EventBus? = EventBus()
-      weak var weakEventBus2 = eventBus2
-
-      eventBus2!.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
-      eventBus1.attach(chain: eventBus2!, for: FooMockable.self, options: .init(rawValue: 1))
-      eventBus2 = nil
-    }
+    var eventBus2: EventBus? = EventBus()
+    eventBus2!.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
+    eventBus1.attach(chain: eventBus2!, for: FooMockable.self)
+    eventBus2 = nil
+    
     eventBus1.notify(FooMockable.self) { subscriber in
       subscriber.foo()
     }
 
-    waitForExpectations(timeout: 5.0)
+    waitForExpectations(timeout: 1.0)
 
   }
 
 }
 
-protocol FooStubable {}
-protocol BarStubable {}
+// MARK: - Mocks and Stubs
 
-class FooStub: FooStubable {}
-class BarStub: BarStubable {}
-class FooBarStub: FooStubable, BarStubable {}
+fileprivate protocol FooStubable {}
+fileprivate protocol BarStubable {}
+
+fileprivate class FooStub: FooStubable {}
+fileprivate class BarStub: BarStubable {}
+fileprivate class FooBarStub: FooStubable, BarStubable {}
 
 enum MockEvent {
   case foo, bar
 }
 
-protocol FooMockable { func foo() }
-protocol BarMockable { func bar() }
+fileprivate protocol FooMockable { func foo() }
+fileprivate protocol BarMockable { func bar() }
 
-class Mock {
+fileprivate class Mock {
   fileprivate let closure: (MockEvent) -> ()
 
   init(closure: ((MockEvent) -> ())? = nil) {
@@ -375,51 +397,18 @@ class Mock {
   }
 }
 
-struct InvalidFooStub: FooStubable {}
+fileprivate struct InvalidFooStub: FooStubable {}
 
-class FooMock: Mock, FooMockable {
+fileprivate class FooMock: Mock, FooMockable {
   func foo() { self.closure(.foo) }
 }
 
-class BarMock: Mock, BarMockable {
+fileprivate class BarMock: Mock, BarMockable {
   func bar() { self.closure(.bar) }
 }
 
-class FooBarMock: Mock, FooMockable, BarMockable {
+fileprivate class FooBarMock: Mock, FooMockable, BarMockable {
   func foo() { self.closure(.foo) }
   func bar() { self.closure(.bar) }
 }
 
-enum MockError { case unknownEvent, unhandledEvent, invalidSubscriber }
-
-//class ErrorHandlerMock: ErrorHandler {
-//  fileprivate let closure: (MockError) -> ()
-//
-//  init(closure: ((MockError) -> ())? = nil) {
-//    self.closure = closure ?? { _ in }
-//  }
-//
-//  func eventBus<T>(_ eventBus: EventBus, receivedUnknownEvent eventType: T.Type) {
-//    self.closure(.unknownEvent)
-//  }
-//
-//  func eventBus<T>(_ eventBus: EventBus, droppedUnhandledEvent eventType: T.Type) {
-//    self.closure(.unhandledEvent)
-//  }
-//
-//  func eventBus<T>(_ eventBus: EventBus, receivedNonClassSubscriber subscriberType: T.Type) {
-//    self.closure(.invalidSubscriber)
-//  }
-//}
-//
-//class LogHandlerMock: LogHandler {
-//  fileprivate let closure: () -> ()
-//
-//  init(closure: (() -> ())? = nil) {
-//    self.closure = closure ?? { }
-//  }
-//
-//  func eventBus<T>(_ eventBus: EventBus, receivedEvent eventType: T.Type) {
-//    self.closure()
-//  }
-//}
