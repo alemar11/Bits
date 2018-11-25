@@ -26,6 +26,8 @@ import XCTest
 
 final class EventBusTests: XCTestCase {
 
+  // MARK: - Add/Remove subscriptions
+
   func testThatRegistrationAreUnique() {
     let eventBus = EventBus(label: "\(#function)")
     eventBus.register(forEvent: FooMockable.self)
@@ -142,6 +144,8 @@ final class EventBusTests: XCTestCase {
     XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }
 
+  // MARK: - Event notification to subscriptions
+
   func testThatNotificationIsSentToTheMainThread() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let eventBus = EventBus(label: "\(#function)")
@@ -256,7 +260,7 @@ final class EventBusTests: XCTestCase {
     XCTAssertTrue(status)
   }
 
-  func testThatAnEventIsNotifiedOnlyToTheRelatedSubscribers() {
+  func testThatAnEventIsNotifiedOnlyToRelatedSubscribers() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let fooMock = FooMock { _ in expectation.fulfill() }
     let eventBus = EventBus()
@@ -302,7 +306,9 @@ final class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 1.0)
   }
 
-  func testThatAnEventPropagatesCorrectlyToChainedEventBus() {
+  // MARK: - Chained EventBus
+
+  func testThatAnEventPropagatesCorrectlyToAChainedEventBus() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     let fooMock1 = FooMock { _ in
@@ -327,7 +333,7 @@ final class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 1.0)
   }
 
-  func testThatAnEventDoesNotPropagateItTheChainedEventBusHasBeenCancelled() {
+  func testThatAnEventDoesNotPropagateIfTheChainedEventBusHasBeenCancelled() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     expectation2.isInverted = true
@@ -348,7 +354,7 @@ final class EventBusTests: XCTestCase {
   }
 
 
-  func testThatAnEventDoesNotPropagateIfTheChainedEventGetsDeallocated() {
+  func testThatAnEventDoesNotPropagateIfTheChainedEventBusGetsDeallocated() {
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let expectation2 = self.expectation(description: "\(#function)\(#line)")
     expectation2.isInverted = true
@@ -368,8 +374,91 @@ final class EventBusTests: XCTestCase {
     }
 
     waitForExpectations(timeout: 1.0)
-
   }
+
+  func testThatAnEventPropagatesCorrectlyToMultiLevelChildrenEventBus() {
+    let eventBus1 = EventBus(label: "eventBus1")
+    let eventBus2 = EventBus(label: "eventBus2")
+    let eventBus3 = EventBus(label: "eventBus3")
+    let eventBus4 = EventBus(label: "eventBus4")
+
+    /// EventBus 1
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let fooMock1 = FooMock { _ in expectation1.fulfill() }
+    let fooMock2 = FooMock { _ in expectation2.fulfill() }
+
+    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .global())
+    eventBus1.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
+    //TODO: when attaching an eventbus check is its subscribers are different from the other eventbus ??
+
+    /// EventBus 2
+    let expectation3 = self.expectation(description: "\(#function)\(#line)")
+    let expectation4 = self.expectation(description: "\(#function)\(#line)")
+    let barMock1 = BarMock { _ in expectation3.fulfill() }
+    let barMock2 = BarMock { _ in expectation4.fulfill() }
+    eventBus2.add(subscriber: barMock1, for: BarMockable.self, queue: .main)
+    eventBus2.add(subscriber: barMock2, for: BarMockable.self, queue: .global())
+
+    /// EventBus 3
+    let expectation5 = self.expectation(description: "\(#function)\(#line)")
+    let expectation6 = self.expectation(description: "\(#function)\(#line)")
+    let fooBarMock1 = FooBarMock { _ in expectation5.fulfill() }
+    let fooBarMock2 = FooBarMock { _ in expectation6.fulfill() }
+
+    eventBus3.add(subscriber: fooBarMock1, for: FooMockable.self, queue: .global())
+    eventBus3.add(subscriber: fooBarMock2, for: BarMockable.self, queue: .main)
+
+    /// EventBus 4
+    let expectation7 = self.expectation(description: "\(#function)\(#line)")
+    let fooBarMock3 = FooBarMock { _ in expectation7.fulfill() }
+    eventBus4.add(subscriber: fooBarMock3, for: BarMockable.self, queue: .main)
+
+
+    eventBus1.attach(chain: eventBus2, for: BarMockable.self)
+    eventBus1.attach(chain: eventBus3, for: FooMockable.self)
+    eventBus1.attach(chain: eventBus3, for: BarMockable.self)
+
+    eventBus2.attach(chain: eventBus4, for: BarMockable.self)
+
+    eventBus1.notify(BarMockable.self, completion: nil) { $0.bar() }
+    eventBus1.notify(FooMockable.self, completion: nil) { $0.foo() }
+
+    waitForExpectations(timeout: 3, handler: nil)
+  }
+
+  func testThatAnEventCannotBePropagatedFromAChildEventUpToItsFather() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    expectation1.isInverted = true
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let eventBus1 = EventBus(label: "eventBus1")
+    let eventBus2 = EventBus(label: "eventBus2")
+
+    let barMock1 = BarMock { _ in expectation1.fulfill() }
+    let barMock2 = BarMock { _ in expectation2.fulfill() }
+
+    eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: .main)
+    eventBus2.add(subscriber: barMock2, for: BarMockable.self, queue: .global())
+    eventBus2.attach(chain: eventBus2, for: BarMockable.self)
+
+    eventBus2.notify(BarMockable.self, completion: nil) { $0.bar() }
+    waitForExpectations(timeout: 2, handler: nil)
+  }
+
+//  func testMultiThread_TODO() {
+//    let expectation = self.expectation(description: "\(#function)\(#line)")
+//    let eventBus1 = EventBus(label: "eventBus1")
+//    let eventBus2 = EventBus(label: "eventBus2")
+//    let barMock1 = BarMock { _ in print("ciao") }
+//    eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: DispatchQueue(label: "test"))
+//    eventBus2.add(subscriber: barMock1, for: BarMockable.self, queue: .global())
+//    eventBus1.attach(chain: eventBus2, for: BarMockable.self)
+//
+//    eventBus1.notify(BarMockable.self, completion: {
+//      expectation.fulfill()
+//    }) { $0.bar()}
+//    waitForExpectations(timeout: 2, handler: nil)
+//  }
 
 }
 

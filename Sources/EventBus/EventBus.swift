@@ -76,15 +76,7 @@ extension EventBus {
     self.subscribed[identifier] = update(set: subscribed, closure: closure)
     self.knownTypes[identifier] = String(describing: eventType)
   }
-  
-  //  @inline(__always)
-  //  fileprivate func updateChains<T>(for eventType: T.Type, closure: (inout NSHashTable<AnyObject>) -> ()) {
-  //    let identifier = ObjectIdentifier(eventType)
-  //    let chained = self.chained[identifier] ?? []
-  //    self.chained[identifier] = self.update(set: chained, closure: closure)
-  //    self.knownTypes[identifier] = String(describing: eventType)
-  //  }
-  
+
   @inline(__always)
   private func update(set: SubscriberSet, closure: (inout SubscriberSet) -> Void) -> SubscriberSet? {
     var mutableSet = set
@@ -93,15 +85,7 @@ extension EventBus {
     let filteredSet = mutableSet.filter { $0.isValid }
     return filteredSet.isEmpty ? nil : filteredSet
   }
-  
-  @inline(__always)
-  private func update2(set: NSHashTable<AnyObject>, closure: (inout NSHashTable<AnyObject>) -> Void) -> NSHashTable<AnyObject>? {
-    var mutableSet = set
-    closure(&mutableSet)
-    // Remove weak nil elements
-    return mutableSet.allObjects.isEmpty ? nil : mutableSet //TODO check is weak object are removed
-  }
-  
+
 }
 
 // MARK: - Register
@@ -128,13 +112,7 @@ extension EventBus {
     defer { lock.unlock() }
     
     validateSubscriber(subscriber)
-    
-    //    self.warnIfNonClass(subscriber)
-    //    if options.contains(.warnUnknown) {
-    //      self.warnIfUnknown(eventType)
-    //    }
-    //    self.lock.with {
-    
+
     let subscriberObject = subscriber as AnyObject
     let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak subscriberObject = subscriberObject] completion in
       guard let self = self else {
@@ -332,22 +310,16 @@ extension EventBus {
         }
         
         if let underlyngObject = self.underlyngObject {
-          // swiftlint:disable:next force_cast
-          //closure(underlyngObject as! T)
-          
           if let subscriber = underlyngObject as? T {
             closure(subscriber)
             completion()
           } else if let bus = underlyngObject as? EventNotifiable {
             bus.notify(eventType, completion: { completion() }, closure: closure)
           }
-          
         } else {
           self.token.cancel(completion: nil)
           completion()
         }
-        
-        
       }
     }
     
@@ -371,7 +343,6 @@ extension EventBus {
 
 // MARK: - Chain
 
-public protocol EventBusType { }
 public protocol SubscriptionType {
   func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void)
 }
@@ -382,12 +353,12 @@ extension EventBus: SubscriptionType {
   }
 }
 
-public protocol EventNotifiable: EventBusType {
+public protocol EventNotifiable {
   @discardableResult
   func notify<T>(_ eventType: T.Type, completion: (()-> Void)?, closure: @escaping (T) -> Void) -> Bool
 }
 
-public protocol EventBusChainable: EventBusType {
+public protocol EventBusChainable {
   @discardableResult
   func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable
   func detach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type)
@@ -398,6 +369,7 @@ public protocol EventBusChainable: EventBusType {
 extension EventBus: EventBusChainable {
   @discardableResult
   public func attach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type, queue: DispatchQueue = .global()) -> SubscriptionCancellable {
+    assert(chain !== self, "Trying to attach an EventBus to itself.")
     lock.lock()
     defer { lock.unlock() }
     
@@ -419,10 +391,10 @@ extension EventBus: EventBusChainable {
     }
     
     return subscription.token
-    
   }
   
   public func detach<T>(chain: EventNotifiable & AnyObject, for eventType: T.Type) {
+    assert(chain !== self, "Trying to detach an EventBus from itself.")
     lock.lock()
     defer { lock.unlock() }
     //      self.warnIfUnknown(eventType)
@@ -436,6 +408,7 @@ extension EventBus: EventBusChainable {
   }
   
   public func detach(chain: EventNotifiable & AnyObject) {
+    assert(chain !== self, "Trying to detach an EventBus from itself.")
     lock.lock()
     defer { lock.unlock() }
     
@@ -451,8 +424,7 @@ extension EventBus: EventBusChainable {
   public func detachAllChains() {
     lock.lock()
     defer { lock.unlock() }
-    // TODO: to be implemented
-    
+    assertionFailure("TO BE IMPLEMENTED")
   }
   //
   //  internal func has<T>(chain: EventNotifiable, for eventType: T.Type) -> Bool {
