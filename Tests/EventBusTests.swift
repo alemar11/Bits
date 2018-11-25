@@ -259,6 +259,52 @@ class EventBusTests: XCTestCase {
     XCTAssertTrue(status)
   }
 
+  func testThatAnEventIsNotifiedOnlyToTheRelatedSubscribers() {
+    let expectation = self.expectation(description: "\(#function)\(#line)")
+    let fooMock = FooMock { _ in expectation.fulfill() }
+    let eventBus = EventBus()
+
+    eventBus.add(subscriber: fooMock, for: FooMockable.self, queue: .main)
+    eventBus.notify(FooMockable.self) { subscriber in
+      subscriber.foo()
+    }
+
+    waitForExpectations(timeout: 1.0)
+  }
+
+  func testThatTheRightEventIsNotifiedToRelatedSubscribers() {
+    let expectation = self.expectation(description: "\(#function)\(#line)")
+
+    let fooBarMock = FooBarMock { event in
+      switch event {
+      case .foo: expectation.fulfill()
+      case _: XCTFail("Should not have called `BarMockable` on subscriber")
+      }
+    }
+
+    let eventBus = EventBus()
+    eventBus.add(subscriber: fooBarMock, for: FooMockable.self, queue: .global())
+    eventBus.notify(FooMockable.self) { subscriber in
+      subscriber.foo()
+    }
+
+    self.waitForExpectations(timeout: 1.0)
+  }
+
+  func testThatAnEventIsNotNotifiedToUnrelatedSubscribers() {
+    let expectation = self.expectation(description: "\(#function)\(#line)")
+    expectation.isInverted = true
+    let fooMock = FooMock { _ in expectation.fulfill() }
+    let eventBus = EventBus()
+
+    eventBus.add(subscriber: fooMock, for: FooMockable.self, queue: .main)
+    eventBus.notify(BarMockable.self) { subscriber in
+      subscriber.bar()
+    }
+
+    waitForExpectations(timeout: 1.0)
+  }
+
 }
 
 protocol FooStubable {}
