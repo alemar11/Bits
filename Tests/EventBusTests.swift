@@ -326,6 +326,39 @@ final class EventBusTests: XCTestCase {
     
     waitForExpectations(timeout: 1.0)
   }
+
+  func testThatAllTheEventsAreNotifiedCorrecltyIfSentConcurrentlyFromDifferentQueues() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let eventBus1 = EventBus(label: "eventBus1")
+    let eventBus2 = EventBus(label: "eventBus2")
+    let iterations = 20
+
+    var count1 = 0
+    let foo1 = FooMock { _ in
+      count1 += 1
+      if count1 >= iterations {
+        expectation1.fulfill()
+      }
+    }
+
+    var count2 = 0
+    let foo2 = FooMock { _ in
+      count2 += 1
+      if count2 >= iterations {
+        expectation2.fulfill()
+      }
+    }
+
+    eventBus1.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+    eventBus2.add(subscriber: foo2, for: FooMockable.self, queue: .main)
+
+    DispatchQueue.concurrentPerform(iterations: iterations) { index in
+      eventBus1.notify(FooMockable.self) { $0.foo() }
+      eventBus2.notify(FooMockable.self) { $0.foo() }
+    }
+    waitForExpectations(timeout: 2, handler: nil)
+  }
     
 }
 
