@@ -34,7 +34,6 @@ public final class Debouncer {
   public let limit: DispatchTimeInterval
 
   private var workItem: DispatchWorkItem?
-  private let queue: DispatchQueue
   private let underlyingQueue: DispatchQueue
 
   // MARK: - Initializers
@@ -45,16 +44,15 @@ public final class Debouncer {
   ///   - limit: Amount of time that needs to be passed without the block being called.
   ///   - queue: The queue where the Debouncer calls its block.
   ///   - qos: The Quality Of Service of the Debouncer.
-  public init(limit: Interval, queue: DispatchQueue = .main, qos: DispatchQoS = .default) {
+  public init(limit: Interval, qos: DispatchQoS = .default) {
     self.limit = limit.dispatchTimeInterval
-    self.queue = queue
     self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
   // MARK: - Debouncer
 
   public func execute(_ block: @escaping () -> Void) {
-    underlyingQueue.async { [weak self] in
+    underlyingQueue.sync { [weak self] in
       guard let self = self else {
         return
       }
@@ -65,14 +63,14 @@ public final class Debouncer {
       }
 
       let workItem = DispatchWorkItem(block: block)
-      self.queue.asyncAfter(deadline: .now() + self.limit, execute: workItem)
+      self.underlyingQueue.asyncAfter(deadline: .now() + self.limit, execute: workItem)
 
       self.workItem = workItem
     }
   }
 
   public func reset() {
-    underlyingQueue.async { [weak self] in
+    underlyingQueue.sync { [weak self] in
       if let workItem = self?.workItem {
         workItem.cancel()
         self?.workItem = nil
@@ -80,3 +78,93 @@ public final class Debouncer {
     }
   }
 }
+
+//class Debouncer_timer {
+//
+//  public let limit: Interval
+//  private let underlyingQueue: DispatchQueue
+//  private weak var timer: Timer?
+//
+//  /// Debouncer
+//  ///
+//  /// - Parameters:
+//  ///   - limit: Amount of time that needs to be passed without the block being called.
+//  ///   - qos: The Quality Of Service of the Debouncer.
+//  public init(limit: Interval, qos: DispatchQoS = .default) {
+//    self.limit = limit
+//    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
+//  }
+//
+//  public func execute(_ block: @escaping () -> Void) {
+//    underlyingQueue.sync { [weak self] in
+//      guard let self = self else {
+//        return
+//      }
+//
+//      self.timer?.invalidate()
+//      let nextTimer = Timer.scheduledTimer(withTimeInterval: limit.timeInterval, repeats: false) { _ in block() }
+//      self.timer = nextTimer
+//    }
+//  }
+//
+//  public func reset() {
+//    underlyingQueue.sync {
+//      timer?.invalidate()
+//      timer = nil
+//    }
+//  }
+//}
+
+//public final class Debouncer_old {
+//
+//  // MARK: - Properties
+//
+//  public let limit: DispatchTimeInterval
+//
+//  private var workItem: DispatchWorkItem?
+//  private let queue: DispatchQueue
+//  private let underlyingQueue: DispatchQueue
+//
+//  // MARK: - Initializers
+//
+//  /// Debouncer
+//  ///
+//  /// - Parameters:
+//  ///   - limit: Amount of time that needs to be passed without the block being called.
+//  ///   - queue: The queue where the Debouncer calls its block.
+//  ///   - qos: The Quality Of Service of the Debouncer.
+//  public init(limit: Interval, queue: DispatchQueue = .main, qos: DispatchQoS = .default) {
+//    self.limit = limit.dispatchTimeInterval
+//    self.queue = queue
+//    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
+//  }
+//
+//  // MARK: - Debouncer
+//
+//  public func execute(_ block: @escaping () -> Void) {
+//    underlyingQueue.async { [weak self] in
+//      guard let self = self else {
+//        return
+//      }
+//
+//      if let workItem = self.workItem {
+//        workItem.cancel()
+//        self.workItem = nil
+//      }
+//
+//      let workItem = DispatchWorkItem(block: block)
+//      self.queue.asyncAfter(deadline: .now() + self.limit, execute: workItem)
+//
+//      self.workItem = workItem
+//    }
+//  }
+//
+//  public func reset() {
+//    underlyingQueue.async { [weak self] in
+//      if let workItem = self?.workItem {
+//        workItem.cancel()
+//        self?.workItem = nil
+//      }
+//    }
+//  }
+//}
