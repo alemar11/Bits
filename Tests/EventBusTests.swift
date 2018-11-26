@@ -158,7 +158,7 @@ final class EventBusTests: XCTestCase {
     let status = eventBus.notify(FooMockable.self) { $0.foo() }
 
     waitForExpectations(timeout: 2)
-    XCTAssertTrue(status)
+    XCTAssertEqual(status, 1)
   }
 
   func testThatSubscriptionIsRemovedOnceTheCancellationTokenIsUsed() {
@@ -257,7 +257,7 @@ final class EventBusTests: XCTestCase {
     let status = eventBus.notify(FooMockable.self) { $0.foo() }
 
     waitForExpectations(timeout: 3) // the execution is concurrent, the timeout should be less than the sum of each closure
-    XCTAssertTrue(status)
+    XCTAssertEqual(status, 4)
   }
 
   func testThatAnEventIsNotifiedOnlyToRelatedSubscribers() {
