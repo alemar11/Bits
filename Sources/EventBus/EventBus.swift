@@ -235,24 +235,6 @@ extension EventBus {
   }
 }
 
-// MARK: - Tests
-
-extension EventBus {
-  
-  /// For tests only, returns also all the deallocated but not yet removed subscriptions
-  // swiftlint:disable:next identifier_name
-  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
-    return dispatchQueue.sync {
-      let identifier = ObjectIdentifier(eventType)
-      if let subscribed = self.subscribed[identifier] {
-        return subscribed.count
-      }
-      return 0
-    }
-  }
-  
-}
-
 // MARK: - Subscription
 
 public protocol SubscriptionCancellable {
@@ -327,4 +309,22 @@ extension EventBus {
     }
   }
   
+}
+
+// MARK: - Tests
+
+extension EventBus {
+
+  /// For tests only, returns also all the deallocated but not yet removed subscriptions
+  // swiftlint:disable:next identifier_name
+  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
+    return dispatchQueue.sync {
+      let identifier = ObjectIdentifier(eventType)
+      if let subscribed = self.subscribed[identifier] {
+        return subscribed.count
+      }
+      return 0
+    }
+  }
+
 }
