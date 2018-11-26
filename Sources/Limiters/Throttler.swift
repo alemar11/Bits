@@ -37,9 +37,14 @@ public final class Throttler {
 
   // MARK: - Initializers
 
+  /// Throttler
+  ///
+  /// - Parameters:
+  ///   - limit: TODO
+  ///   - qos: The Quality Of Service of the Throttler.
   public init(limit: Interval, qos: DispatchQoS = .default) {
     self.limit = limit.dispatchTimeInterval
-    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))")
+    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
   
   // MARK: - Throttler

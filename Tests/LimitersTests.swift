@@ -41,7 +41,9 @@ final class LimitersTests: XCTestCase {
     let throttler = Throttler(limit: .milliseconds(500)) // Execute the function at most once every 500 milliseconds
 
     let scheduler = TestScheduler(timeInterval: Double(0.240), repeats: 10) { // 2400 milliseconds
-      throttler.execute { block() }
+      throttler.execute {
+        block()
+      }
     }
 
     scheduler.start()

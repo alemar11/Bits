@@ -39,7 +39,7 @@ public final class MaxLimiter {
 
   public init(limit: UInt, qos: DispatchQoS = .default) {
     self.limit = limit
-    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))")
+    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
   // MARK: - Limiter

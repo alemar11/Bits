@@ -32,36 +32,42 @@ public final class Debouncer {
   // MARK: - Properties
 
   public let limit: DispatchTimeInterval
-  public let queue: DispatchQueue
 
   private var workItem: DispatchWorkItem?
-  private let underlyingQueue = DispatchQueue(label: "\(identifier).Debouncer")
+  private let queue: DispatchQueue
+  private let underlyingQueue: DispatchQueue
 
   // MARK: - Initializers
 
-  public init(limit: Interval, queue: DispatchQueue = .main) { //TODO: add qos
+  /// Debouncer
+  ///
+  /// - Parameters:
+  ///   - limit: Amount of time that needs to be passed without the block being called.
+  ///   - queue: The queue where the Debouncer calls its block.
+  ///   - qos: The Quality Of Service of the Debouncer.
+  public init(limit: Interval, queue: DispatchQueue = .main, qos: DispatchQoS = .default) {
     self.limit = limit.dispatchTimeInterval
     self.queue = queue
+    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
   // MARK: - Debouncer
 
-  public func execute(_ block: @escaping () -> Void) { //TODO: pass here the queue instead of defining as variable
+  public func execute(_ block: @escaping () -> Void) {
     underlyingQueue.async { [weak self] in
-      if let workItem = self?.workItem {
-        workItem.cancel()
-        self?.workItem = nil
+      guard let self = self else {
+        return
       }
 
-      guard
-        let queue = self?.queue,
-        let limit = self?.limit
-        else { return }
+      if let workItem = self.workItem {
+        workItem.cancel()
+        self.workItem = nil
+      }
 
       let workItem = DispatchWorkItem(block: block)
-      queue.asyncAfter(deadline: .now() + limit, execute: workItem)
+      self.queue.asyncAfter(deadline: .now() + self.limit, execute: workItem)
 
-      self?.workItem = workItem
+      self.workItem = workItem
     }
   }
 
