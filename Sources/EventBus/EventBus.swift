@@ -46,8 +46,7 @@ public final class EventBus {
 
   /// Internal queue
   private let dispatchQueue: DispatchQueue
-  /// Event registered by the `EventBus`.
-  private var registered: Set<ObjectIdentifier> = []
+
   /// Subscriptions.
   private var subscribed = [ObjectIdentifier: SubscriberSet]()
 
