@@ -28,6 +28,9 @@ public protocol EventNotifiable {
   func notify<T>(_ eventType: T.Type, completion: (()-> Void)?, closure: @escaping (T) -> Void) -> Int
 }
 
+/// **Bits**
+///
+/// An event bus object that broadcasts event to its subscribers.
 public final class EventBus: EventNotifiable {
 
   // MARK: - Typealiases
@@ -76,9 +79,22 @@ public final class EventBus: EventNotifiable {
   
 }
 
-// MARK: - Update Subscriber
+// MARK: - Private Methods
 
 extension EventBus {
+
+  private func validateSubscriber<T>(_ subscriber: T) {
+    precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
+  }
+
+  @inline(__always)
+  private func _subscribers<T>(for eventType: T.Type) -> [AnyObject] {
+    let identifier = ObjectIdentifier(eventType)
+    if let subscribed = self.subscribed[identifier] {
+      return subscribed.filter { $0.isValid }.compactMap { $0.underlyngObject }
+    }
+    return []
+  }
   
   @inline(__always)
   private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
@@ -118,11 +134,7 @@ extension EventBus {
 }
 
 extension EventBus {
-  
-  private func validateSubscriber<T>(_ subscriber: T) {
-    precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
-  }
-  
+
   @discardableResult
   public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable {
     return dispatchQueue.sync {
@@ -195,14 +207,14 @@ extension EventBus {
   }
   
   /// Returns all the subscriber for a given eventType.
-  internal func subscribers<T>(for eventType: T.Type) -> [AnyObject] {
+  public func subscribers<T>(for eventType: T.Type) -> [AnyObject] {
     return dispatchQueue.sync {
       return _subscribers(for: eventType)
     }
   }
   
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
-  internal func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
+  public func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
     return dispatchQueue.sync {
       validateSubscriber(subscriber)
       let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
@@ -210,14 +222,6 @@ extension EventBus {
 
       return subscribers.count > 0
     }
-  }
-
-  private func _subscribers<T>(for eventType: T.Type) -> [AnyObject] {
-    let identifier = ObjectIdentifier(eventType)
-    if let subscribed = self.subscribed[identifier] {
-      return subscribed.filter { $0.isValid }.compactMap { $0.underlyngObject }
-    }
-    return []
   }
 }
 
@@ -251,16 +255,20 @@ extension EventBus {
   }
 }
 
+// MARK: - Tests
+
 extension EventBus {
   
   /// For tests only, returns also all the deallocated but not yet removed subscriptions
   // swiftlint:disable:next identifier_name
-  internal func __subscribersCount<T>(for eventType: T.Type) -> Int { //TODO: name and  dispatchQueue.sync {
-    let identifier = ObjectIdentifier(eventType)
-    if let subscribed = self.subscribed[identifier] {
-      return subscribed.count
+  internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
+    return dispatchQueue.sync {
+      let identifier = ObjectIdentifier(eventType)
+      if let subscribed = self.subscribed[identifier] {
+        return subscribed.count
+      }
+      return 0
     }
-    return 0
   }
   
 }
