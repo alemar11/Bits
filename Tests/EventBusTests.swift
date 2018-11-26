@@ -288,7 +288,7 @@ final class EventBusTests: XCTestCase {
   func testThatAnEventIsNotifiedOnlyToRelatedSubscribers() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let fooMock = FooMock { _ in expectation.fulfill() }
-    let eventBus = EventBus()
+    let eventBus = EventBus(label: "\(#function)")
     
     eventBus.add(subscriber: fooMock, for: FooMockable.self, queue: .main)
     eventBus.notify(FooMockable.self) { subscriber in
@@ -308,7 +308,7 @@ final class EventBusTests: XCTestCase {
       }
     }
     
-    let eventBus = EventBus()
+    let eventBus = EventBus(label: "\(#function)")
     eventBus.add(subscriber: fooBarMock, for: FooMockable.self, queue: .global())
     eventBus.notify(FooMockable.self) { subscriber in
       subscriber.foo()
@@ -321,7 +321,7 @@ final class EventBusTests: XCTestCase {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     expectation.isInverted = true
     let fooMock = FooMock { _ in expectation.fulfill() }
-    let eventBus = EventBus()
+    let eventBus = EventBus(label: "\(#function)")
     
     eventBus.add(subscriber: fooMock, for: FooMockable.self, queue: .main)
     eventBus.notify(BarMockable.self) { subscriber in
@@ -330,222 +330,7 @@ final class EventBusTests: XCTestCase {
     
     waitForExpectations(timeout: 1.0)
   }
-  
-  // MARK: - Chained EventBus
-  
-  func testThatAnEventIsPropagatedToAnAttachedEventBusEvenIfTheAttachingEvenBusDoesNotHaveAnySubscriberToThatEvent() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
     
-    let fooMock1 = FooMock { _ in
-      expectation1.fulfill()
-    }
-    let eventBus1 = EventBus()
-    let eventBus2 = EventBus()
-    eventBus2.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
-    eventBus1.add(subscriber: eventBus2, for: FooMockable.self)
-    eventBus1.notify(FooMockable.self) { subscriber in
-      subscriber.foo()
-    }
-    
-    waitForExpectations(timeout: 1.0)
-  }
-  
-  func testThatARemovedAttachedEventBusCannotReceiveEvents() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    expectation1.isInverted = true
-
-    let fooMock1 = FooMock { _ in expectation1.fulfill() }
-    let eventBus1 = EventBus()
-    let eventBus2 = EventBus()
-
-    eventBus1.add(subscriber: eventBus2, for: FooMockable.self)
-    eventBus2.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
-
-    XCTAssertEqual(eventBus1.subscribers(for: FooMockable.self).count, 1)
-    XCTAssertTrue(eventBus1.hasSubscriber(eventBus2, for: FooMockable.self))
-    
-    eventBus1.remove(subscriber: eventBus2)
-    XCTAssertEqual(eventBus1.subscribers(for: FooMockable.self).count, 0)
-    XCTAssertFalse(eventBus1.hasSubscriber(eventBus2, for: FooMockable.self))
-
-    eventBus1.notify(FooMockable.self, completion: { expectation2.fulfill() }, closure: { $0.foo() })
-
-    waitForExpectations(timeout: 1.0)
-  }
-  
-  func testThatAnEventPropagatesCorrectlyToAChainedEventBus() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let fooMock1 = FooMock { _ in
-      XCTAssertTrue(Thread.isMainThread)
-      expectation1.fulfill()
-    }
-    let fooMock2 = FooMock { _ in
-      XCTAssertTrue(Thread.isMainThread)
-      expectation2.fulfill()
-    }
-    let eventBus1 = EventBus()
-    let eventBus2 = EventBus()
-    
-    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
-    eventBus2.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
-    eventBus1.add(subscriber: eventBus2, for: FooMockable.self)
-    
-    eventBus1.notify(FooMockable.self) { subscriber in
-      subscriber.foo()
-    }
-    
-    waitForExpectations(timeout: 1.0)
-  }
-  
-  func testThatAnEventDoesNotPropagateIfTheChainedEventBusHasBeenCancelled() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    expectation2.isInverted = true
-    let fooMock1 = FooMock { _ in expectation1.fulfill() }
-    let fooMock2 = FooMock { _ in expectation2.fulfill() }
-    let eventBus1 = EventBus()
-    let eventBus2 = EventBus()
-    
-    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
-    eventBus2.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
-    let token = eventBus1.add(subscriber: eventBus2, for: FooMockable.self)
-    token.cancel(completion: nil)
-    eventBus1.notify(FooMockable.self) { subscriber in
-      subscriber.foo()
-    }
-    
-    waitForExpectations(timeout: 1.0)
-  }
-  
-  
-  func testThatAnEventDoesNotPropagateIfTheChainedEventBusGetsDeallocated() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    expectation2.isInverted = true
-    let fooMock1 = FooMock { _ in expectation1.fulfill() }
-    let fooMock2 = FooMock { _ in expectation2.fulfill() }
-    
-    let eventBus1 = EventBus()
-    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .main)
-    
-    var eventBus2: EventBus? = EventBus()
-    eventBus2!.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
-    eventBus1.add(subscriber: eventBus2!, for: FooMockable.self)
-    eventBus2 = nil
-    
-    eventBus1.notify(FooMockable.self) { subscriber in
-      subscriber.foo()
-    }
-    
-    waitForExpectations(timeout: 1.0)
-  }
-  
-  func testThatAnEventPropagatesCorrectlyToMultiLevelChildrenEventBus() {
-    let eventBus1 = EventBus(label: "eventBus1")
-    let eventBus2 = EventBus(label: "eventBus2")
-    let eventBus3 = EventBus(label: "eventBus3")
-    let eventBus4 = EventBus(label: "eventBus4")
-    
-    /// EventBus 1
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let fooMock1 = FooMock { _ in expectation1.fulfill() }
-    let fooMock2 = FooMock { _ in expectation2.fulfill() }
-    
-    eventBus1.add(subscriber: fooMock1, for: FooMockable.self, queue: .global())
-    eventBus1.add(subscriber: fooMock2, for: FooMockable.self, queue: .main)
-    //TODO: when attaching an eventbus check is its subscribers are different from the other eventbus ??
-    
-    /// EventBus 2
-    let expectation3 = self.expectation(description: "\(#function)\(#line)")
-    let expectation4 = self.expectation(description: "\(#function)\(#line)")
-    let barMock1 = BarMock { _ in expectation3.fulfill() }
-    let barMock2 = BarMock { _ in expectation4.fulfill() }
-    eventBus2.add(subscriber: barMock1, for: BarMockable.self, queue: .main)
-    eventBus2.add(subscriber: barMock2, for: BarMockable.self, queue: .global())
-    
-    /// EventBus 3
-    let expectation5 = self.expectation(description: "\(#function)\(#line)")
-    let expectation6 = self.expectation(description: "\(#function)\(#line)")
-    let fooBarMock1 = FooBarMock { _ in expectation5.fulfill() }
-    let fooBarMock2 = FooBarMock { _ in expectation6.fulfill() }
-    
-    eventBus3.add(subscriber: fooBarMock1, for: FooMockable.self, queue: .global())
-    eventBus3.add(subscriber: fooBarMock2, for: BarMockable.self, queue: .main)
-    
-    /// EventBus 4
-    let expectation7 = self.expectation(description: "\(#function)\(#line)")
-    let fooBarMock3 = FooBarMock { _ in expectation7.fulfill() }
-    eventBus4.add(subscriber: fooBarMock3, for: BarMockable.self, queue: .main)
-    
-    
-    eventBus1.add(subscriber: eventBus2, for: BarMockable.self)
-    eventBus1.add(subscriber: eventBus3, for: FooMockable.self)
-    eventBus1.add(subscriber: eventBus3, for: BarMockable.self)
-    
-    eventBus2.add(subscriber: eventBus4, for: BarMockable.self)
-    
-    eventBus1.notify(BarMockable.self, completion: nil) { $0.bar() }
-    eventBus1.notify(FooMockable.self, completion: nil) { $0.foo() }
-    
-    waitForExpectations(timeout: 3, handler: nil)
-  }
-  
-  func testThatAnEventCannotBePropagatedFromAChildEventUpToItsFather() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    expectation1.isInverted = true
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let eventBus1 = EventBus(label: "eventBus1")
-    let eventBus2 = EventBus(label: "eventBus2")
-    
-    let barMock1 = BarMock { _ in expectation1.fulfill() }
-    let barMock2 = BarMock { _ in expectation2.fulfill() }
-    
-    eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: .main)
-    eventBus2.add(subscriber: barMock2, for: BarMockable.self, queue: .global())
-    eventBus1.add(subscriber: eventBus2, for: BarMockable.self)
-    
-    eventBus2.notify(BarMockable.self, completion: nil) { $0.bar() }
-    waitForExpectations(timeout: 2, handler: nil)
-  }
-  
-  func testThatAllTheEventsAreNotifiedCorrecltyIfSentConcurrentlyFromDifferentQueues() {
-    let expectation1 = self.expectation(description: "\(#function)\(#line)")
-    let expectation2 = self.expectation(description: "\(#function)\(#line)")
-    let eventBus1 = EventBus(label: "eventBus1")
-    let eventBus2 = EventBus(label: "eventBus2")
-    let iterations = 20
-    
-    var count1 = 0
-    let foo1 = FooMock { _ in
-      count1 += 1
-      if count1 >= iterations {
-        expectation1.fulfill()
-      }
-    }
-    
-    var count2 = 0
-    let foo2 = FooMock { _ in
-      count2 += 1
-      if count2 >= iterations * 2 {
-        expectation2.fulfill()
-      }
-    }
-    
-    eventBus1.add(subscriber: foo1, for: FooMockable.self, queue: .main)
-    eventBus2.add(subscriber: foo2, for: FooMockable.self, queue: .main)
-    
-    eventBus1.add(subscriber: eventBus2, for: FooMockable.self)
-    
-    DispatchQueue.concurrentPerform(iterations: iterations) { index in
-      eventBus1.notify(FooMockable.self) { $0.foo() }
-      eventBus2.notify(FooMockable.self) { $0.foo() }
-    }
-    waitForExpectations(timeout: 2, handler: nil)
-  }
-  
 }
 
 // MARK: - Mocks and Stubs

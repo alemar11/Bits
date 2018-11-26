@@ -23,15 +23,10 @@
 
 import Foundation
 
-private protocol EventNotifiable {
-  @discardableResult
-  func notify<T>(_ eventType: T.Type, completion: (()-> Void)?, closure: @escaping (T) -> Void) -> Int
-}
-
 /// **Bits**
 ///
 /// An event bus object that broadcasts event to its subscribers.
-public final class EventBus: EventNotifiable {
+public final class EventBus {
 
   // MARK: - Typealiases
 
@@ -63,7 +58,7 @@ public final class EventBus: EventNotifiable {
   /// - Parameters:
   ///   - label: a label to identify the `EventBus`.
   ///   - qos: the `EventBus` quality of service.
-  public init(label: String? = nil, qos: DispatchQoS = .default) {
+  public init(label: String, qos: DispatchQoS = .default) {
     self.label = label
     self.dispatchQueue = DispatchQueue.init(label:  "\(identifier).EventBus", qos: qos)
   }
@@ -183,60 +178,6 @@ extension EventBus {
     }
   }
 
-  @discardableResult
-  public func add<T>(subscriber: EventBus, for eventType: T.Type) -> SubscriptionCancellable {
-    assert(subscriber !== self, "Trying to add an EventBus to itself.")
-    return dispatchQueue.sync {
-
-      // TODO: added each eventbus event type
-
-      let subscription = Subscription<AnyObject>(subscriber: subscriber, queue: dispatchQueue, cancellationClosure: { [weak self, weak weakEventBus = subscriber] completion in
-        guard let self = self else {
-          return
-        }
-
-        if let eventBus = weakEventBus {
-          self.remove(subscriber: eventBus, for: eventType)
-        } else {
-          // the subscriber is already deallocated, so let's do some flushing for the given envent
-          self.flushDeallocatedSubscribers(for: eventType)
-        }
-        completion?()
-      })
-
-      updateSubscribers(for: eventType) { subscribed in
-        subscribed.insert(subscription)
-      }
-
-      return subscription.token
-    }
-  }
-
-  public func remove<T>(subscriber: EventBus, for eventType: T.Type) {
-    assert(subscriber !== self, "Trying to remove an EventBus from itself.")
-    dispatchQueue.sync {
-      updateSubscribers(for: eventType) { subscribed in
-        // removes also all the deallocated subscribers
-        while let index = subscribed.index(where: { ($0 == subscriber) || !$0.isValid }) {
-          subscribed.remove(at: index)
-        }
-      }
-    }
-  }
-
-  public func remove(subscriber: EventBus) {
-    assert(subscriber !== self, "Trying to detach an EventBus from itself.")
-    dispatchQueue.sync {
-      for (identifier, subscribed) in subscribed {
-        self.subscribed[identifier] = update(set: subscribed) { subscribed in
-          while let index = subscribed.index(where: { $0 == subscriber }) {
-            subscribed.remove(at: index)
-          }
-        }
-      }
-    }
-  }
-
   /// Removes all subscribers and notifiers.
   public func clear() {
     dispatchQueue.sync {
@@ -256,17 +197,6 @@ extension EventBus {
     return dispatchQueue.sync {
       validateSubscriber(subscriber)
       let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
-      assert((0...1) ~= subscribers.count, "EventBus has subscribed \(subscribers.count) times the same subscriber.")
-
-      return subscribers.count > 0
-    }
-  }
-
-  /// Checks if the `EventBus` has a given subscriber for a particular eventType.
-  public func hasSubscriber<T>(_ subscriber: EventBus, for eventType: T.Type) -> Bool {
-    return dispatchQueue.sync {
-      validateSubscriber(subscriber)
-      let subscribers = _subscribers(for: eventType).filter { $0 === subscriber }
       assert((0...1) ~= subscribers.count, "EventBus has subscribed \(subscribers.count) times the same subscriber.")
 
       return subscribers.count > 0
@@ -336,12 +266,6 @@ private protocol SubscriptionNotifiable {
   func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void)
 }
 
-extension EventBus: SubscriptionNotifiable {
-  fileprivate func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void) {
-    self.notify(eventType, completion: completion, closure: closure)
-  }
-}
-
 extension EventBus {
   
   /// A subscription token to cancel a subscription.
@@ -379,15 +303,8 @@ extension EventBus {
         if let underlyngObject = self.underlyngSubscriber {
           if let subscriber = underlyngObject as? T {
             closure(subscriber)
-            completion()
-
-          } else if let notifier = underlyngObject as? SubscriptionNotifiable {
-            notifier.notify(eventType: eventType, closure: closure, completion: completion)
-
-          } else {
-            // Undefined
-            completion()
           }
+          completion()
         } else {
           self.token.cancel(completion: completion)
         }
