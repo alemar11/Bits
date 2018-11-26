@@ -34,8 +34,11 @@ final class EventBusTests: XCTestCase {
     let foo2 = FooMock()
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
-    
-    XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
+
+    XCTAssertTrue(eventBus.isRegistered(for: FooMockable.self))
+    XCTAssertFalse(eventBus.isRegistered(for: BarMockable.self))
+
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 2)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
   }
 
@@ -57,8 +60,6 @@ final class EventBusTests: XCTestCase {
     XCTAssertFalse(eventBus.hasSubscriber(foo1, for: BarMockable.self))
     XCTAssertTrue(eventBus.hasSubscriber(foo2, for: BarMockable.self))
     
-    XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
-    
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
     
@@ -74,27 +75,23 @@ final class EventBusTests: XCTestCase {
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo1, for: BarMockable.self, queue: .main)
     eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
-    
-    XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
+
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
     
     eventBus.remove(subscriber: foo2, for: BarMockable.self) // foo2 is not subscribed for BarMockable
-    
-    XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
+
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
     
     eventBus.remove(subscriber: foo1, for: FooMockable.self)
     eventBus.remove(subscriber: foo1, for: BarMockable.self)
-    
-    XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
+
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 0)
     
     eventBus.remove(subscriber: foo2, for: FooMockable.self)
-    
-    XCTAssertTrue(eventBus.subscribedEventTypes.isEmpty)
+
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
     XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }
@@ -128,8 +125,7 @@ final class EventBusTests: XCTestCase {
     eventBus.add(subscriber: foo5, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo5, for: BarMockable.self, queue: .main)
     eventBus.clear()
-    
-    XCTAssertTrue(eventBus.subscribedEventTypes.isEmpty)
+
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
     XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
   }

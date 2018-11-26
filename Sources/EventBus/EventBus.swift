@@ -37,18 +37,11 @@ public final class EventBus {
   /// The `EventBus` label.
   public let label: String?
 
-  /// The event types the `EventBus` has subscribers for.
-  public var subscribedEventTypes: [Any] {
-    return self.subscribed.keys.compactMap { self.knownTypes[$0] }
-  }
-  
-  fileprivate var knownTypes: [ObjectIdentifier: Any] = [:]
-
   /// Internal queue
   private let dispatchQueue: DispatchQueue
 
   /// Subscriptions.
-  private var subscribed = [ObjectIdentifier: SubscriberSet]()
+  private var subscriptions = [ObjectIdentifier: SubscriberSet]()
 
   // MARK: - Initializers
   
@@ -68,12 +61,24 @@ public final class EventBus {
 
 extension EventBus {
 
+  @inline(__always)
   private func validateSubscriber<T>(_ subscriber: T) {
     precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
   }
 
-  private func flushDeallocatedSubscribers<T>(for eventType: T.Type) {
-    updateSubscribers(for: eventType) { subscribed in
+  @inline(__always)
+  private func _remove<T>(subscriber: T, for eventType: T.Type) {
+    _updateSubscribers(for: eventType) { subscribed in
+      // removes also all the deallocated subscribers
+      while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
+        subscribed.remove(at: index)
+      }
+    }
+  }
+
+  @inline(__always)
+  private func _flushDeallocatedSubscribers<T>(for eventType: T.Type) {
+    _updateSubscribers(for: eventType) { subscribed in
       while let index = subscribed.index(where: { !$0.isValid }) {
         subscribed.remove(at: index)
       }
@@ -83,28 +88,22 @@ extension EventBus {
   @inline(__always)
   private func _subscribers<T>(for eventType: T.Type) -> [AnyObject] {
     let identifier = ObjectIdentifier(eventType)
-    if let subscribed = self.subscribed[identifier] {
+    if let subscribed = subscriptions[identifier] {
       return subscribed.filter { $0.isValid }.compactMap { $0.underlyngSubscriber }
     }
     return []
   }
   
   @inline(__always)
-  private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
+  private func _updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
     let identifier = ObjectIdentifier(eventType)
-    let subscribed = self.subscribed[identifier] ?? SubscriberSet()
+    let subscribed = subscriptions[identifier] ?? SubscriberSet()
 
-    if let result = update(set: subscribed, closure: closure) {
-      self.subscribed[identifier] = result
-      self.knownTypes[identifier] = eventType
-    } else {
-      self.subscribed[identifier] = nil
-      self.knownTypes[identifier] = nil
-    }
+    subscriptions[identifier] = _update(set: subscribed, closure: closure)
   }
 
   @inline(__always)
-  private func update(set: SubscriberSet, closure: (inout SubscriberSet) -> Void) -> SubscriberSet? {
+  private func _update(set: SubscriberSet, closure: (inout SubscriberSet) -> Void) -> SubscriberSet? {
     var mutableSet = set
     closure(&mutableSet)
     // Remove weak nil elements
@@ -127,20 +126,19 @@ extension EventBus {
           return
         }
 
-        if let subscriberObject = weakSbscriberObject {
-          // swiftlint:disable:next force_cast
-          self.remove(subscriber: subscriberObject as! T, for: eventType)
-        } else {
-          // the subscriber is already deallocated, so let's do some flushing for the given envent
-          self.dispatchQueue.sync {
-            self.flushDeallocatedSubscribers(for: eventType)
+        self.dispatchQueue.sync {
+          if let subscriberObject = weakSbscriberObject {
+            // swiftlint:disable:next force_cast
+            self._remove(subscriber: subscriberObject as! T, for: eventType)
+          } else {
+            // the subscriber is already deallocated, so let's do some flushing for the given envent
+            self._flushDeallocatedSubscribers(for: eventType)
           }
-
         }
         completion?()
       })
 
-      updateSubscribers(for: eventType) { subscribed in
+      _updateSubscribers(for: eventType) { subscribed in
         subscribed.insert(subscription)
       }
 
@@ -148,17 +146,12 @@ extension EventBus {
 
     }
   }
-  
+
   /// Removes a subscriber from a given event type.
   public func remove<T>(subscriber: T, for eventType: T.Type) {
     dispatchQueue.sync {
       validateSubscriber(subscriber)
-      updateSubscribers(for: eventType) { subscribed in
-        // removes also all the deallocated subscribers
-        while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
-          subscribed.remove(at: index)
-        }
-      }
+      _remove(subscriber: subscriber, for: eventType)
     }
   }
 
@@ -167,8 +160,8 @@ extension EventBus {
     dispatchQueue.sync {
       validateSubscriber(subscriber)
 
-      for (identifier, subscribed) in self.subscribed {
-        self.subscribed[identifier] = self.update(set: subscribed) { subscribed in
+      for (identifier, subscribed) in subscriptions {
+        subscriptions[identifier] = self._update(set: subscribed) { subscribed in
           while let index = subscribed.index(where: { $0 == subscriber as AnyObject }) {
             subscribed.remove(at: index)
           }
@@ -177,10 +170,10 @@ extension EventBus {
     }
   }
 
-  /// Removes all subscribers and notifiers.
+  /// Removes all the subscribers.
   public func clear() {
     dispatchQueue.sync {
-      self.subscribed.removeAll()
+      subscriptions.removeAll()
     }
   }
 
@@ -190,22 +183,24 @@ extension EventBus {
       return _subscribers(for: eventType)
     }
   }
+
+  public func isRegistered<T>(for eventType: T.Type) -> Bool {
+    return dispatchQueue.sync {
+      return subscriptions[ObjectIdentifier(eventType)] != nil
+    }
+  }
   
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
   public func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
     return dispatchQueue.sync {
       validateSubscriber(subscriber)
       let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
-      assert((0...1) ~= subscribers.count, "EventBus has subscribed \(subscribers.count) times the same subscriber.")
+      assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
 
       return subscribers.count > 0
     }
   }
 
-}
-
-extension EventBus {
-  
   @discardableResult
   public func notify<T>(_ eventType: T.Type, completion: (()-> Void)? = .none, closure: @escaping (T) -> Void) -> Int {
     return dispatchQueue.sync {
@@ -214,7 +209,7 @@ extension EventBus {
       let group = DispatchGroup()
 
       // Notify to direct subscribers
-      if let subscriptions = subscribed[identifier] {
+      if let subscriptions = subscriptions[identifier] {
         for subscription in subscriptions { ///.lazy.filter ({ $0.isValid }) {
           group.enter()
           // async
@@ -243,10 +238,6 @@ public protocol SubscriptionCancellable {
   func cancel(completion: (() -> Void)?)
 }
 
-private protocol SubscriptionNotifiable {
-  func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void)
-}
-
 extension EventBus {
   
   /// A subscription token to cancel a subscription.
@@ -263,7 +254,7 @@ extension EventBus {
   }
 
   /// Holds all the subscription components.
-  private final class Subscription<T>: Hashable, SubscriptionNotifiable {
+  private final class Subscription<T>: Hashable {
     internal var isValid: Bool { return underlyngSubscriber != nil }
     internal let token: SubscriptionCancellable
     private let queue: DispatchQueue
@@ -319,7 +310,7 @@ extension EventBus {
   internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
     return dispatchQueue.sync {
       let identifier = ObjectIdentifier(eventType)
-      if let subscribed = self.subscribed[identifier] {
+      if let subscribed = subscriptions[identifier] {
         return subscribed.count
       }
       return 0
