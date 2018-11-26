@@ -25,43 +25,43 @@ import XCTest
 @testable import Bits
 
 final class AtomicTests: XCTestCase {
-
+  
   // MARK: - Atomic
-
+  
   func testAtomicMethods() {
     let myVar = Atomic([1, 2, 3, 4, 5, 6, 7, 8, 9], lock: NSLock())
-
+    
     XCTAssertEqual(myVar.read { $0.first }, 1)
-
+    
     myVar.write { $0.append(10) }
-
+    
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-
+    
     myVar.write { $0 = [10] }
-    let sum = myVar.access { (array) -> Int in
+    let sum = myVar.safeAccess { (array) -> Int in
       return array.reduce(0, +)
     }
-
+    
     XCTAssertEqual(myVar.read { $0 }, [10])
     XCTAssertEqual(sum, 10)
-
-    let swap = myVar.access { array -> [Int] in
+    
+    let swap = myVar.safeAccess { array -> [Int] in
       let copy = array
       array = [1, 2, 3]
       return copy
     }
-
+    
     XCTAssertEqual(swap, [10])
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
-
-    let result = myVar.access { array -> Int in
+    
+    let result = myVar.safeAccess { array -> Int in
       return 11
     }
-
+    
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
     XCTAssertEqual(result, 11)
   }
-
+  
   func testAtomicUsingNSLock() {
     let array = Atomic<[Int]>([], lock: NSLock())
     let iterations = 1000
@@ -72,7 +72,7 @@ final class AtomicTests: XCTestCase {
     }
     XCTAssertEqual(array.value.count, iterations)
   }
-
+  
   func testAtomicUsingNSRecursiveLock() {
     let array = Atomic<[Int]>([], lock: NSRecursiveLock())
     let iterations = 1000
@@ -83,7 +83,7 @@ final class AtomicTests: XCTestCase {
     }
     XCTAssertEqual(array.value.count, iterations)
   }
-
+  
   func testAtomicUsingMutex() {
     let array = Atomic<[Int]>([], lock: Mutex())
     let iterations = 1000
@@ -94,7 +94,7 @@ final class AtomicTests: XCTestCase {
     }
     XCTAssertEqual(array.value.count, iterations)
   }
-
+  
   func testAtomicUsingRecursiveMutex() {
     let mutex = Mutex(recursive: true)
     let array = Atomic<[Int]>([], lock: mutex)
@@ -108,55 +108,55 @@ final class AtomicTests: XCTestCase {
     }
     XCTAssertEqual(array.value.count, iterations)
   }
-
+  
   func testAtomicUsingUnfairLock() {
     let array = Atomic<[Int]>([], lock: UnfairLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
         array.append(index)
-
+        
       }
     }
     XCTAssertEqual(array.value.count, iterations)
   }
-
+  
   // MARK: - DispatchedAtomic
-
+  
   func testDispatchedAtomicMethods() {
     let myVar = DispatchedAtomic([1, 2, 3, 4, 5, 6, 7, 8, 9])
-
+    
     XCTAssertEqual(myVar.read { $0.first }, 1)
-
+    
     myVar.write { $0.append(10) }
-
+    
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-
+    
     myVar.write { $0 = [10] }
-    let sum = myVar.access { (array) -> Int in
+    let sum = myVar.safeAccess { (array) -> Int in
       return array.reduce(0, +)
     }
-
+    
     XCTAssertEqual(myVar.read { $0 }, [10])
     XCTAssertEqual(sum, 10)
-
-    let swap = myVar.access { array -> [Int] in
+    
+    let swap = myVar.safeAccess { array -> [Int] in
       let copy = array
       array = [1, 2, 3]
       return copy
     }
-
+    
     XCTAssertEqual(swap, [10])
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
-
-    let result = myVar.access { array -> Int in
+    
+    let result = myVar.safeAccess { array -> Int in
       return 11
     }
-
+    
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
     XCTAssertEqual(result, 11)
   }
-
+  
   func testDispatchedAtomic() {
     let array = DispatchedAtomic([Int]())
     let iterations = 1000
@@ -167,5 +167,5 @@ final class AtomicTests: XCTestCase {
     }
     XCTAssertEqual(array.read { $0.count }, iterations)
   }
-
+  
 }

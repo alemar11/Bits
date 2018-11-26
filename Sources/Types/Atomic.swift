@@ -29,7 +29,7 @@ public protocol ThreadSafe {
   var value: T { get }
   func read<U>(_ value: (T) -> U) -> U
   func write(_ transform: (inout T) -> Void)
-  func access<U>(_ transform: (inout T) -> U) -> U
+  func safeAccess<U>(_ transform: (inout T) -> U) -> U
 }
 
 /// **Bits**
@@ -62,7 +62,7 @@ public final class Atomic<T>: ThreadSafe {
     transform(&_value)
   }
 
-  public func access<U>(_ transform: (inout T) -> U) -> U {
+  public func safeAccess<U>(_ transform: (inout T) -> U) -> U {
     lock.lock()
     defer { lock.unlock() }
     return transform(&_value)
@@ -95,7 +95,7 @@ public final class DispatchedAtomic<T>: ThreadSafe {
     queue.sync { transform(&_value) }
   }
 
-  public func access<U>(_ transform: (inout T) -> U) -> U {
+  public func safeAccess<U>(_ transform: (inout T) -> U) -> U {
     return queue.sync { transform(&_value) }
   }
 
