@@ -480,20 +480,40 @@ final class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 2, handler: nil)
   }
 
-  //  func testMultiThread_TODO() {
-  //    let expectation = self.expectation(description: "\(#function)\(#line)")
-  //    let eventBus1 = EventBus(label: "eventBus1")
-  //    let eventBus2 = EventBus(label: "eventBus2")
-  //    let barMock1 = BarMock { _ in print("ciao") }
-  //    eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: DispatchQueue(label: "test"))
-  //    eventBus2.add(subscriber: barMock1, for: BarMockable.self, queue: .global())
-  //    eventBus1.attach(chain: eventBus2, for: BarMockable.self)
-  //
-  //    eventBus1.notify(BarMockable.self, completion: {
-  //      expectation.fulfill()
-  //    }) { $0.bar()}
-  //    waitForExpectations(timeout: 2, handler: nil)
-  //  }
+    func testThatAllTheEventsAreNotifiedCorrecltyIfSentConcurrentlyFromDifferentQueues() {
+      let expectation1 = self.expectation(description: "\(#function)\(#line)")
+      let expectation2 = self.expectation(description: "\(#function)\(#line)")
+      let eventBus1 = EventBus(label: "eventBus1")
+      let eventBus2 = EventBus(label: "eventBus2")
+      let iterations = 20
+
+      var count1 = 0
+      let foo1 = FooMock { _ in
+        count1 += 1
+        if count1 >= iterations {
+          expectation1.fulfill()
+        }
+      }
+
+      var count2 = 0
+      let foo2 = FooMock { _ in
+        count2 += 1
+        if count2 >= iterations * 2 {
+          expectation2.fulfill()
+        }
+      }
+
+      eventBus1.add(subscriber: foo1, for: FooMockable.self, queue: .main)
+      eventBus2.add(subscriber: foo2, for: FooMockable.self, queue: .main)
+
+      eventBus1.attach(chain: eventBus2, for: FooMockable.self)
+
+      DispatchQueue.concurrentPerform(iterations: iterations) { index in
+        eventBus1.notify(FooMockable.self) { $0.foo() }
+        eventBus2.notify(FooMockable.self) { $0.foo() }
+      }
+      waitForExpectations(timeout: 2, handler: nil)
+    }
 
 }
 
