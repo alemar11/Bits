@@ -27,16 +27,16 @@ import Foundation
 ///
 /// Enforces a maximum number of times a function can be called over time. As in "execute this function at most once every 100 milliseconds." (Throttling)
 public final class Throttler {
-
+  
   // MARK: - Properties
-
+  
   public let limit: DispatchTimeInterval
   public private(set) var lastExecutedAt: DispatchTime?
-
+  
   private let underlyingQueue: DispatchQueue
-
+  
   // MARK: - Initializers
-
+  
   /// Throttler
   ///
   /// - Parameters:
@@ -48,32 +48,27 @@ public final class Throttler {
   }
   
   // MARK: - Throttler
-
+  
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
-    let executed = underlyingQueue.sync { () -> Bool in
+    return underlyingQueue.sync { () -> Bool in
       let now = DispatchTime.now()
       var canBeExecuted = true
-
+      
       if let lastExecutionTime = lastExecutedAt {
         let deadline = lastExecutionTime + limit
         canBeExecuted = now > deadline
       }
-
+      
       if canBeExecuted {
         lastExecutedAt = now
+        block()
       }
-
+      
       return canBeExecuted
     }
-
-    if executed {
-      block()
-    }
-
-    return executed
   }
-
+  
   public func reset() {
     underlyingQueue.sync {
       lastExecutedAt = nil

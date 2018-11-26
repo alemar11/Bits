@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// https://stackoverflow.com/questions/14716334/nsthread-ismainthread-always-returns-yes
+
 import XCTest
 @testable import Bits
 
@@ -32,6 +34,7 @@ final class LimitersTests: XCTestCase {
     var count = 0
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
+      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
       count += 1
       if count == 4 {
         expectation.fulfill()
@@ -46,6 +49,7 @@ final class LimitersTests: XCTestCase {
       }
     }
 
+    XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
     scheduler.start()
     // 240 milliseconds are enough to run 4 function calls and, obviously, not 5
     wait(for: [expectation], timeout: 10)
@@ -58,15 +62,17 @@ final class LimitersTests: XCTestCase {
     var count = 0
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
+      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
       count += 1
       expectation.fulfill()
     }
-    let throttler = Debouncer(limit: .milliseconds(800)) // Execute the function only if 800 milliseconds have passed without it being called.
+    let debouncer = Debouncer(limit: .milliseconds(800)) // Execute the function only if 800 milliseconds have passed without it being called.
 
     let scheduler = TestScheduler(timeInterval: Double(0.250), repeats: 10) {  // 2500 milliseconds
-      throttler.execute { block() }
+      debouncer.execute { block() }
     }
 
+    XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
     // The scheduler call the function every 250 milliseconds and the debouncer is set to 800 milliseconds: the debouncer will limit every call except the last one.
     scheduler.start()
 
@@ -78,6 +84,7 @@ final class LimitersTests: XCTestCase {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     var value = 0
     let block = {
+      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
       value += 1
       if value >= 10 {
         expectation.fulfill()
@@ -90,6 +97,7 @@ final class LimitersTests: XCTestCase {
       debouncer.execute { block() }
     }
 
+    XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
     // The scheduler call the function every 600 milliseconds and the debouncer is set to 100 milliseconds: the debouncer will not limit any calls.
     scheduler.start()
 
@@ -103,6 +111,7 @@ final class LimitersTests: XCTestCase {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let value = Atomic(0, lock: NSLock())
     let block = {
+      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
       value.write { $0 += 1 }
 
       if value.value >= 5 {
@@ -116,6 +125,7 @@ final class LimitersTests: XCTestCase {
       limiter.execute { block() }
     }
 
+    XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
     scheduler.start()
     wait(for: [expectation], timeout: 5)
     scheduler.stop()
@@ -159,6 +169,25 @@ fileprivate final class TestScheduler {
     if times == repeats {
       stop()
     }
+  }
+
+}
+
+fileprivate extension DispatchQueue {
+
+  /// **Mechanica**
+  ///
+  /// Returns a Boolean value indicating whether the current dispatch queue is the specified queue.
+  ///
+  /// - Parameter queue: The queue to compare against.
+  /// - Returns: `true` if the current queue is the specified queue, otherwise `false`.
+  static func isCurrent(_ queue: DispatchQueue) -> Bool {
+    let key = DispatchSpecificKey<Void>()
+
+    queue.setSpecific(key: key, value: ())
+    defer { queue.setSpecific(key: key, value: nil) }
+
+    return DispatchQueue.getSpecific(key: key) != nil
   }
 
 }

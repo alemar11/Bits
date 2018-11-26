@@ -79,10 +79,9 @@ public final class Debouncer {
   }
 }
 
-//class Debouncer_timer {
+//class Debouncer2 {
 //
 //  public let limit: Interval
-//  private let underlyingQueue: DispatchQueue
 //  private weak var timer: Timer?
 //
 //  /// Debouncer
@@ -90,30 +89,24 @@ public final class Debouncer {
 //  /// - Parameters:
 //  ///   - limit: Amount of time that needs to be passed without the block being called.
 //  ///   - qos: The Quality Of Service of the Debouncer.
-//  public init(limit: Interval, qos: DispatchQoS = .default) {
+//  public init(limit: Interval) {
 //    self.limit = limit
-//    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
 //  }
 //
 //  public func execute(_ block: @escaping () -> Void) {
-//    underlyingQueue.sync { [weak self] in
-//      guard let self = self else {
-//        return
-//      }
-//
 //      self.timer?.invalidate()
+//    print(limit.timeInterval) //TODO: this is 0 if working with milliseconds etc...
 //      let nextTimer = Timer.scheduledTimer(withTimeInterval: limit.timeInterval, repeats: false) { _ in block() }
 //      self.timer = nextTimer
-//    }
 //  }
 //
 //  public func reset() {
-//    underlyingQueue.sync {
-//      timer?.invalidate()
-//      timer = nil
-//    }
+//    timer?.invalidate()
+//    timer = nil
 //  }
 //}
+
+/// TODO: test the old debouncer checking in which thread and queue is run the block
 
 //public final class Debouncer_old {
 //
