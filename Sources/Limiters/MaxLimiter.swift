@@ -33,12 +33,13 @@ public final class MaxLimiter {
   public let limit: UInt
   public private(set) var count: UInt = 0
 
-  private let underlyingQueue = DispatchQueue(label: "\(identifier).MaxLimiter")
+  private let underlyingQueue: DispatchQueue
 
   // MARK: - Initializers
 
-  public init(limit: UInt) {
+  public init(limit: UInt, qos: DispatchQoS = .default) {
     self.limit = limit
+    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))")
   }
 
   // MARK: - Limiter

@@ -39,14 +39,14 @@ public final class Debouncer {
 
   // MARK: - Initializers
 
-  public init(limit: Interval, queue: DispatchQueue = .main) {
+  public init(limit: Interval, queue: DispatchQueue = .main) { //TODO: add qos
     self.limit = limit.dispatchTimeInterval
     self.queue = queue
   }
 
   // MARK: - Debouncer
 
-  public func execute(_ block: @escaping () -> Void) {
+  public func execute(_ block: @escaping () -> Void) { //TODO: pass here the queue instead of defining as variable
     underlyingQueue.async { [weak self] in
       if let workItem = self?.workItem {
         workItem.cancel()

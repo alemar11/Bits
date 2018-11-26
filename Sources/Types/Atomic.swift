@@ -75,12 +75,11 @@ public final class Atomic<T>: ThreadSafe {
 /// Thread-safe access using using serial dispatch queues.
 public final class DispatchedAtomic<T>: ThreadSafe {
   private var _value: T
-  private let label = "\(identifier).DispatchedAtomic"
   private let queue: DispatchQueue
 
   public init(_ value: T, qos: DispatchQoS = .default) {
     self._value = value
-    self.queue = DispatchQueue(label: label, qos: qos)
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
   public var value: T {

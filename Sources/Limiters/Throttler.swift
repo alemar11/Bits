@@ -33,14 +33,15 @@ public final class Throttler {
   public let limit: DispatchTimeInterval
   public private(set) var lastExecutedAt: DispatchTime?
 
-  private let underlyingQueue = DispatchQueue(label: "\(identifier).Throttler")
+  private let underlyingQueue: DispatchQueue
 
   // MARK: - Initializers
 
-  public init(limit: Interval) {
+  public init(limit: Interval, qos: DispatchQoS = .default) {
     self.limit = limit.dispatchTimeInterval
+    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))")
   }
-
+  
   // MARK: - Throttler
 
   @discardableResult
