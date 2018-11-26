@@ -47,4 +47,16 @@ public enum Interval {
     case .days(let value): return .seconds(value * 86400)
     }
   }
+
+  public var timeInterval: TimeInterval {
+    switch self {
+    case .nanoseconds(let value): return Double(value/1_000_000_000)
+    case .microseconds(let value): return Double(value/1_000_000)
+    case .milliseconds(let value): return Double(value/1000)
+    case .seconds(let value): return Double(value)
+    case .minutes(let value): return Double(value * 60)
+    case .hours(let value): return Double(value * 3600)
+    case .days(let value): return Double(value * 86400)
+    }
+  }
 }

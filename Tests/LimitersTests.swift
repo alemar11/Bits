@@ -84,10 +84,96 @@ final class LimitersTests: XCTestCase {
       }
     }
 
-    let throttler = Debouncer(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
+    let debouncer = Debouncer(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
 
     let scheduler = TestScheduler(timeInterval: Double(0.600), repeats: 10) { // 6000 milliseconds
-      throttler.execute { block() }
+      debouncer.execute { block() }
+    }
+
+    // The scheduler call the function every 600 milliseconds and the debouncer is set to 100 milliseconds: the debouncer will not limit any calls.
+    scheduler.start()
+
+    wait(for: [expectation], timeout: 10)
+    XCTAssertEqual(value, 10, "The debouncer has run the function \(value) times instead of 10.")
+  }
+
+  func testDebouncerHavingAllTheFunctionCallsLimitedExceptTheLastOne_2() {
+    var count = 0
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    let block = {
+      count += 1
+      expectation.fulfill()
+    }
+    let debouncer = Debouncer2(limit: .milliseconds(800)) // Execute the function only if 800 milliseconds have passed without it being called.
+
+    let scheduler = TestScheduler(timeInterval: Double(0.250), repeats: 10) {  // 2500 milliseconds
+      debouncer.execute { block() }
+    }
+
+    // The scheduler call the function every 250 milliseconds and the debouncer is set to 800 milliseconds: the debouncer will limit every call except the last one.
+    scheduler.start()
+
+    wait(for: [expectation], timeout: 5)
+    XCTAssertEqual(count, 1, "The dobouncer should have cancelled all the function calls except the last one.")
+  }
+
+  func testDebouncerHavingAllTheFunctionCallsNotLimited_2() {
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    var value = 0
+    let block = {
+      value += 1
+      if value >= 10 {
+        expectation.fulfill()
+      }
+    }
+
+    let debouncer = Debouncer2(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
+
+    let scheduler = TestScheduler(timeInterval: Double(0.600), repeats: 10) { // 6000 milliseconds
+      debouncer.execute { block() }
+    }
+
+    // The scheduler call the function every 600 milliseconds and the debouncer is set to 100 milliseconds: the debouncer will not limit any calls.
+    scheduler.start()
+
+    wait(for: [expectation], timeout: 10)
+    XCTAssertEqual(value, 10, "The debouncer has run the function \(value) times instead of 10.")
+  }
+
+  func testDebouncerHavingAllTheFunctionCallsLimitedExceptTheLastOne_3() {
+    var count = 0
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    let block = {
+      count += 1
+      expectation.fulfill()
+    }
+    let debouncer = Debouncer3(limit: .milliseconds(800)) // Execute the function only if 800 milliseconds have passed without it being called.
+
+    let scheduler = TestScheduler(timeInterval: Double(0.250), repeats: 10) {  // 2500 milliseconds
+      debouncer.execute { block() }
+    }
+
+    // The scheduler call the function every 250 milliseconds and the debouncer is set to 800 milliseconds: the debouncer will limit every call except the last one.
+    scheduler.start()
+
+    wait(for: [expectation], timeout: 5)
+    XCTAssertEqual(count, 1, "The dobouncer should have cancelled all the function calls except the last one.")
+  }
+
+  func testDebouncerHavingAllTheFunctionCallsNotLimited_3() {
+    let expectation = self.expectation(description: "\(#file)\(#line)")
+    var value = 0
+    let block = {
+      value += 1
+      if value >= 10 {
+        expectation.fulfill()
+      }
+    }
+
+    let debouncer = Debouncer3(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
+
+    let scheduler = TestScheduler(timeInterval: Double(0.600), repeats: 10) { // 6000 milliseconds
+      debouncer.execute { block() }
     }
 
     // The scheduler call the function every 600 milliseconds and the debouncer is set to 100 milliseconds: the debouncer will not limit any calls.
