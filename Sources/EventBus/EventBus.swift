@@ -41,12 +41,7 @@ public final class EventBus: EventNotifiable {
   
   /// The `EventBus` label.
   public let label: String?
-  
-  /// The event types the `EventBus` is registered for.
-  public var registeredEventTypes: [Any] {
-    return self.registered.compactMap { self.knownTypes[$0] }
-  }
-  
+
   /// The event types the `EventBus` has subscribers for.
   public var subscribedEventTypes: [Any] {
     return self.subscribed.keys.compactMap { self.knownTypes[$0] }
@@ -104,8 +99,14 @@ extension EventBus {
   private func updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
     let identifier = ObjectIdentifier(eventType)
     let subscribed = self.subscribed[identifier] ?? SubscriberSet()
-    self.subscribed[identifier] = update(set: subscribed, closure: closure)
-    self.knownTypes[identifier] = String(describing: eventType)
+
+    if let result = update(set: subscribed, closure: closure) {
+      self.subscribed[identifier] = result
+      self.knownTypes[identifier] = eventType
+    } else {
+      self.subscribed[identifier] = nil
+      self.knownTypes[identifier] = nil
+    }
   }
 
   @inline(__always)
@@ -117,24 +118,6 @@ extension EventBus {
     return filteredSet.isEmpty ? nil : filteredSet
   }
 
-}
-
-// MARK: - Register
-
-extension EventBus {
-  
-  public func register<T>(forEvent eventType: T.Type) { //TODO useless?
-    let identifier = ObjectIdentifier(eventType)
-    registered.insert(identifier)
-    knownTypes[identifier] = String(describing: eventType)
-  }
-
-  public func unregister<T>(forEvent eventType: T.Type) { //TODO useless?
-    let identifier = ObjectIdentifier(eventType)
-    registered.remove(identifier)
-    knownTypes[identifier] = nil
-  }
-  
 }
 
 extension EventBus {
@@ -155,7 +138,10 @@ extension EventBus {
           self.remove(subscriber: subscriberObject as! T, for: eventType)
         } else {
           // the subscriber is already deallocated, so let's do some flushing for the given envent
-          self.flushDeallocatedSubscribers(for: eventType)
+          self.dispatchQueue.sync {
+            self.flushDeallocatedSubscribers(for: eventType)
+          }
+
         }
         completion?()
       })
@@ -201,6 +187,8 @@ extension EventBus {
   public func add<T>(subscriber: EventBus, for eventType: T.Type) -> SubscriptionCancellable {
     assert(subscriber !== self, "Trying to add an EventBus to itself.")
     return dispatchQueue.sync {
+
+      // TODO: added each eventbus event type
 
       let subscription = Subscription<AnyObject>(subscriber: subscriber, queue: dispatchQueue, cancellationClosure: { [weak self, weak weakEventBus = subscriber] completion in
         guard let self = self else {

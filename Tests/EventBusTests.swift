@@ -27,17 +27,7 @@ import XCTest
 final class EventBusTests: XCTestCase {
   
   // MARK: - Add/Remove subscriptions
-  
-  func testThatRegistrationAreUnique() {
-    let eventBus = EventBus(label: "\(#function)")
-    eventBus.register(forEvent: FooMockable.self)
-    eventBus.register(forEvent: FooMockable.self)
-    eventBus.register(forEvent: BarMockable.self)
-    XCTAssertEqual(eventBus.registeredEventTypes.count, 2)
-    eventBus.register(forEvent: FooStubable.self)
-    XCTAssertEqual(eventBus.registeredEventTypes.count, 3)
-  }
-  
+
   func testThatAddingSubscriptionsDoesNotChangeRegistrations() {
     let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooMock()
@@ -46,9 +36,10 @@ final class EventBusTests: XCTestCase {
     eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
     
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 1)
-    XCTAssertTrue(eventBus.registeredEventTypes.isEmpty)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
   }
+
+  // TODO: add test to add and remove subscribers and count the subscribed count
   
   func testThatAnEventBusCanBeQueriedToSeeIfItContainOneSubscriberForAnEvent() {
     let eventBus = EventBus(label: "\(#function)")
@@ -67,7 +58,6 @@ final class EventBusTests: XCTestCase {
     XCTAssertTrue(eventBus.hasSubscriber(foo2, for: BarMockable.self))
     
     XCTAssertEqual(eventBus.subscribedEventTypes.count, 2)
-    XCTAssertTrue(eventBus.registeredEventTypes.isEmpty)
     
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 1)
     XCTAssertEqual(eventBus.subscribers(for: BarMockable.self).count, 1)
@@ -240,7 +230,7 @@ final class EventBusTests: XCTestCase {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let unfulfilledExpectation = self.expectation(description: "\(#function)\(#line)")
     unfulfilledExpectation.isInverted = true
-    eventBus.register(forEvent: FooMockable.self)
+
     do {
       let foo: FooMock = FooMock { event in
         unfulfilledExpectation.fulfill()
