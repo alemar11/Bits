@@ -161,6 +161,41 @@ final class EventBusTests: XCTestCase {
     XCTAssertEqual(status, 1)
   }
 
+  func testThatNotificationIsSentToTheRightQueue() {
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    let queue1 = DispatchQueue(label: "queue1")
+    let queue2 = DispatchQueue(label: "queue2")
+    let key = DispatchSpecificKey<Int>()
+    queue1.setSpecific(key: key, value: 1)
+    queue2.setSpecific(key: key, value: 2)
+
+    let eventBus = EventBus(label: "\(#function)")
+
+    let foo1 = FooBarMock { event in
+      XCTAssertFalse(Thread.isMainThread)
+      XCTAssertEqual(event, .foo)
+      let value = DispatchQueue.getSpecific(key: key)
+      XCTAssertEqual(value, 1)
+      expectation1.fulfill()
+    }
+
+    let foo2 = FooBarMock { event in
+      XCTAssertFalse(Thread.isMainThread)
+      XCTAssertEqual(event, .foo)
+      let value = DispatchQueue.getSpecific(key: key)
+      XCTAssertEqual(value, 2)
+      expectation2.fulfill()
+    }
+
+    eventBus.add(subscriber: foo1, for: FooMockable.self, queue: queue1)
+    eventBus.add(subscriber: foo2, for: FooMockable.self, queue: queue2)
+    let status = eventBus.notify(FooMockable.self) { $0.foo() }
+
+    waitForExpectations(timeout: 2)
+    XCTAssertEqual(status, 2)
+  }
+
   func testThatSubscriptionIsRemovedOnceTheCancellationTokenIsUsed() {
     let eventBus = EventBus(label: "\(#function)")
     var foo: FooMock? = FooMock()
@@ -445,20 +480,20 @@ final class EventBusTests: XCTestCase {
     waitForExpectations(timeout: 2, handler: nil)
   }
 
-//  func testMultiThread_TODO() {
-//    let expectation = self.expectation(description: "\(#function)\(#line)")
-//    let eventBus1 = EventBus(label: "eventBus1")
-//    let eventBus2 = EventBus(label: "eventBus2")
-//    let barMock1 = BarMock { _ in print("ciao") }
-//    eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: DispatchQueue(label: "test"))
-//    eventBus2.add(subscriber: barMock1, for: BarMockable.self, queue: .global())
-//    eventBus1.attach(chain: eventBus2, for: BarMockable.self)
-//
-//    eventBus1.notify(BarMockable.self, completion: {
-//      expectation.fulfill()
-//    }) { $0.bar()}
-//    waitForExpectations(timeout: 2, handler: nil)
-//  }
+  //  func testMultiThread_TODO() {
+  //    let expectation = self.expectation(description: "\(#function)\(#line)")
+  //    let eventBus1 = EventBus(label: "eventBus1")
+  //    let eventBus2 = EventBus(label: "eventBus2")
+  //    let barMock1 = BarMock { _ in print("ciao") }
+  //    eventBus1.add(subscriber: barMock1, for: BarMockable.self, queue: DispatchQueue(label: "test"))
+  //    eventBus2.add(subscriber: barMock1, for: BarMockable.self, queue: .global())
+  //    eventBus1.attach(chain: eventBus2, for: BarMockable.self)
+  //
+  //    eventBus1.notify(BarMockable.self, completion: {
+  //      expectation.fulfill()
+  //    }) { $0.bar()}
+  //    waitForExpectations(timeout: 2, handler: nil)
+  //  }
 
 }
 
