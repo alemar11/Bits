@@ -84,10 +84,10 @@ final class LimitersTests: XCTestCase {
       }
     }
 
-    let throttler = Debouncer(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
+    let debouncer = Debouncer(limit: .milliseconds(100)) // Execute this function only if 100 milliseconds have passed without it being called.
 
     let scheduler = TestScheduler(timeInterval: Double(0.600), repeats: 10) { // 6000 milliseconds
-      throttler.execute { block() }
+      debouncer.execute { block() }
     }
 
     // The scheduler call the function every 600 milliseconds and the debouncer is set to 100 milliseconds: the debouncer will not limit any calls.

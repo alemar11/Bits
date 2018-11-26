@@ -52,7 +52,7 @@ public final class Debouncer {
   // MARK: - Debouncer
 
   public func execute(_ block: @escaping () -> Void) {
-    underlyingQueue.sync { [weak self] in
+    underlyingQueue.async { [weak self] in
       guard let self = self else {
         return
       }
