@@ -26,7 +26,7 @@ import Foundation
 /// **Bits**
 ///
 /// A thread safe event bus object that broadcasts event to its subscribers.
-public final class EventBus {
+open class EventBus {
 
   // MARK: - Typealiases
 
@@ -52,7 +52,7 @@ public final class EventBus {
   ///   - qos: the `EventBus` quality of service.
   public init(label: String, qos: DispatchQoS = .default) {
     self.label = label
-    self.dispatchQueue = DispatchQueue.init(label:  "\(identifier).EventBus", qos: qos)
+    self.dispatchQueue = DispatchQueue.init(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
 }
