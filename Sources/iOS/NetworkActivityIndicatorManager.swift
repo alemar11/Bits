@@ -115,7 +115,7 @@ public class NetworkActivityIndicatorManager {
 
   private var completionDelayTimer: Timer?
 
-  private let unfairLock = UnfairLock() //TODO: use the real unfair lock
+  private let unfairLock = UnfairLock()
 
   // MARK: - Initializers
 

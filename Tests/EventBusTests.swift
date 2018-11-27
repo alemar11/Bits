@@ -35,15 +35,13 @@ final class EventBusTests: XCTestCase {
     eventBus.add(subscriber: foo1, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo2, for: FooMockable.self, queue: .main)
 
-    XCTAssertTrue(eventBus.isRegistered(for: FooMockable.self))
-    XCTAssertFalse(eventBus.isRegistered(for: BarMockable.self))
+    XCTAssertTrue(eventBus.isSubscribed(for: FooMockable.self))
+    XCTAssertFalse(eventBus.isSubscribed(for: BarMockable.self))
 
     XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 2)
     XCTAssertEqual(eventBus.subscribers(for: FooMockable.self).count, 2)
   }
 
-  // TODO: add test to add and remove subscribers and count the subscribed count
-  
   func testThatAnEventBusCanBeQueriedToSeeIfItContainOneSubscriberForAnEvent() {
     let eventBus = EventBus(label: "\(#function)")
     let foo1 = FooBarMock()
