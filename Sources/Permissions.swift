@@ -121,7 +121,7 @@ import UserNotifications
 
 // MARK: - UserNotifications
 
-@available(OSX 10.14, *)
+@available(macOS 10.14, *)
 public class UNUserNotificationPermission: Permission {
   private let notificationCenter: UNUserNotificationCenter
   public var authorizationStatus: UNAuthorizationStatus = .notDetermined

@@ -26,7 +26,7 @@ import Foundation
 /// **Bits**
 ///
 /// `MulticastDelegate` lets you easily create a thread safe "multicast delegate" for a given protocol or class.
-public final class MulticastDelegate<T> {
+open class MulticastDelegate<T> {
   
   /// The delegates hash table.
   private let delegates: NSHashTable<AnyObject>
