@@ -28,8 +28,8 @@ import Foundation
 public typealias PermissionCallback = (PermissionStatus) -> Void
 
 public protocol Permission {
-  func check(completionHandler: @escaping PermissionCallback)
   func request(completionHandler: @escaping PermissionCallback)
+  var status: PermissionStatus { get }
 }
 
 public enum PermissionStatus: String {
@@ -38,6 +38,7 @@ public enum PermissionStatus: String {
   case denied = "Denied"
   case notDetermined = "Not Determined"
   case notAvailable = "Not Available"
+  case restricted = "Restricted"
 }
 
 extension PermissionStatus: CustomStringConvertible {
@@ -47,11 +48,11 @@ extension PermissionStatus: CustomStringConvertible {
   }
 }
 
-#if canImport(AVFoundation) && canImport(UIKit)
-
-import AVFoundation
+#if canImport(UIKit) && canImport(AVFoundation)
 
 // MARK: - Microphone
+
+import AVFoundation
 
 public class MicrophonePermission: Permission {
   private let audioSession: AVAudioSession
@@ -60,16 +61,11 @@ public class MicrophonePermission: Permission {
     self.audioSession = audioSession
   }
 
-  public func check(completionHandler: @escaping PermissionCallback) {
+  public var status: PermissionStatus {
     switch audioSession.recordPermission {
-    case AVAudioSession.RecordPermission.denied:
-      return completionHandler(.denied)
-
-    case AVAudioSession.RecordPermission.undetermined:
-      return completionHandler(.notDetermined)
-
-    case AVAudioSession.RecordPermission.granted:
-      return completionHandler(.authorized)
+    case .denied: return .denied
+    case .undetermined: return .notDetermined
+    case .granted: return .authorized
     }
   }
 
@@ -89,18 +85,13 @@ public class CameraPermission: Permission {
 
   public init() { }
 
-  public func check(completionHandler: @escaping PermissionCallback) {
+  public var status: PermissionStatus {
     switch AVCaptureDevice.authorizationStatus(for: .video) {
-    case .notDetermined:
-      return completionHandler(.notDetermined)
-
-    case .restricted, .denied:
-      return completionHandler(.denied)
-
-    case .authorized:
-      return completionHandler(.authorized)
+    case .notDetermined: return .notDetermined
+    case .denied: return .denied
+    case .restricted: return .restricted
+    case .authorized: return .authorized
     }
-
   }
 
   public func request(completionHandler: @escaping PermissionCallback) {
@@ -117,9 +108,9 @@ public class CameraPermission: Permission {
 
 #if canImport(UserNotifications)
 
-import UserNotifications
-
 // MARK: - UserNotifications
+
+import UserNotifications
 
 @available(macOS 10.14, *)
 public class UNUserNotificationPermission: Permission {
@@ -130,23 +121,20 @@ public class UNUserNotificationPermission: Permission {
     self.notificationCenter = notificationCenter
   }
 
-  public func check(completionHandler: @escaping PermissionCallback) {
-    notificationCenter.getNotificationSettings { (settings) in
-      UNUserNotificationCenter.current().getNotificationSettings { (settings) in
-        switch settings.authorizationStatus {
-        case .notDetermined:
-          return completionHandler(.notDetermined)
+  public var status: PermissionStatus {
+    let semaphore = DispatchSemaphore(value: 0)
+    var status: UNAuthorizationStatus = .notDetermined
+    UNUserNotificationCenter.current().getNotificationSettings { (settings) in
+      status = settings.authorizationStatus
+      semaphore.signal()
+    }
+    _ = semaphore.wait(timeout: .distantFuture)
 
-        case .denied:
-          return completionHandler(.denied)
-
-        case .authorized:
-          return completionHandler(.authorized)
-
-        case .provisional:
-          completionHandler(.provisional)
-        }
-      }
+    switch status {
+    case .notDetermined: return .notDetermined
+    case .denied: return .denied
+    case .authorized: return .authorized
+    case .provisional: return .provisional
     }
   }
 
@@ -166,29 +154,26 @@ public class UNUserNotificationPermission: Permission {
 
       return completionHandler(.denied)
     }
-
   }
 
 }
 
 #endif
 
-import Contacts
-
 // MARK: - Contacts
+
+import Contacts
 
 public class ContactsPermission: Permission {
 
   public init() { }
 
-  public func check(completionHandler: @escaping PermissionCallback) {
+  public var status: PermissionStatus {
     switch Contacts.CNContactStore.authorizationStatus(for: CNEntityType.contacts) {
-    case .authorized:
-      return completionHandler(.authorized)
-    case .denied, .restricted:
-      return completionHandler(.denied)
-    case .notDetermined:
-      return completionHandler(.notDetermined)
+    case .authorized: return .authorized
+    case .denied: return .denied
+    case .restricted: return .restricted
+    case .notDetermined: return .notDetermined
     }
   }
 
@@ -207,26 +192,226 @@ public class ContactsPermission: Permission {
   }
 }
 
-#if canImport(UIKit)
+#if canImport(Photos)
 
-import UIKit
+//MARK: - Photo Library
 
-// MARK: - Utils
+import Photos
 
-@available(iOSApplicationExtension, unavailable)
-public func unregisterForRemoteNotifications() {
-  UIApplication.shared.unregisterForRemoteNotifications()
+public class PhotoPermission: Permission {
+
+  public init() { }
+
+  public var status: PermissionStatus {
+    let status = PHPhotoLibrary.authorizationStatus()
+
+    switch status {
+    case .authorized: return .authorized
+    case .denied: return .denied
+    case .restricted: return .restricted
+    case .notDetermined: return .notDetermined
+    }
+  }
+
+  public func request(completionHandler: @escaping PermissionCallback) {
+    PHPhotoLibrary.requestAuthorization { status in
+      switch status {
+      case .authorized: completionHandler(.authorized)
+      case .denied: completionHandler(.denied)
+      case .restricted: completionHandler(.restricted)
+      case .notDetermined: completionHandler(.notDetermined)
+      }
+    }
+  }
+
 }
 
-@available(iOSApplicationExtension, unavailable)
-public func registerForRemoteNotifications() {
-  UIApplication.shared.registerForRemoteNotifications()
+#endif
+
+#if canImport(CoreLocation)
+
+//MARK: - Location
+
+import CoreLocation
+
+@available(macOS 10.14, *)
+public class LocationPermission: NSObject, Permission {
+
+  public lazy var locationManager: CLLocationManager = {
+    let locationManager = CLLocationManager()
+    locationManager.delegate = self
+    return locationManager
+  }()
+
+  public var status: PermissionStatus {
+    guard CLLocationManager.locationServicesEnabled() else { return .notDetermined }
+
+    let status = CLLocationManager.authorizationStatus()
+
+    switch status {
+    case .authorizedAlways: return .authorized
+      #if os(iOS) || os(tvOS) || os(watchOS)
+    case .authorizedWhenInUse: return .authorized
+      #else
+    case .authorized: return .authorized
+      #endif
+    case .denied: return .denied
+    case .restricted: return .restricted
+    case .notDetermined: return .notDetermined
+    }
+  }
+
+  private var callback: PermissionCallback?
+
+  public func request(completionHandler: @escaping PermissionCallback) {
+
+    #if os(iOS) || os(tvOS) || os(watchOS)
+    locationManager.requestAlwaysAuthorization()
+    #else
+    locationManager.requestLocation()
+    #endif
+    callback = completionHandler
+  }
+
+  #if os(iOS) || os(tvOS) || os(watchOS)
+  public func requestWhenInUse(completionHandler: @escaping PermissionCallback) {
+    locationManager.requestWhenInUseAuthorization()
+    callback = completionHandler
+  }
+  #endif
+
 }
 
-@available(iOSApplicationExtension, unavailable)
-public func openSettings() {
-  if let appSettings = URL(string: UIApplication.openSettingsURLString) {
-    UIApplication.shared.open(appSettings, options: [:], completionHandler: nil)
+@available(macOS 10.14, *)
+extension LocationPermission: CLLocationManagerDelegate {
+  public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    guard let callback = callback else { return }
+    switch status {
+    case .authorizedAlways: callback(.authorized)
+      #if os(iOS) || os(tvOS) || os(watchOS)
+    case .authorizedWhenInUse: callback(.authorized)
+      #else
+    case .authorized: callback(.authorized)
+      #endif
+    case .denied: callback(.denied)
+    case .restricted: callback(.restricted)
+    case .notDetermined: callback(.notDetermined)
+    }
+  }
+}
+
+#endif
+
+#if canImport(Calendar)
+
+// MARK: - Calendar
+
+import EventKit
+
+public class CalendarPermission: Permission {
+
+  public init() { }
+
+  public var status: PermissionStatus {
+    let status = EKEventStore.authorizationStatus(for: .event)
+
+    switch status {
+    case .authorized: return .authorized
+    case .denied: return .denied
+    case .restricted: return .restricted
+    case .notDetermined: return .notDetermined
+    }
+  }
+
+  public func request(completionHandler: @escaping PermissionCallback) {
+    EKEventStore().requestAccess(to: .event) { granted, error in
+      completionHandler(error == nil ? (granted ? .authorized : .denied) : .notDetermined)
+    }
+  }
+}
+
+#endif
+
+// MARK: - Bluetooth
+
+#if canImport(CoreBluetooth)
+
+import CoreBluetooth
+
+public class BluetoothPermission: Permission {
+
+  public init() { }
+
+  public var status: PermissionStatus {
+    let status = CBPeripheralManager.authorizationStatus()
+
+    switch status {
+    case .authorized: return .authorized
+    case .denied: return .denied
+    case .restricted: return .restricted
+    case .notDetermined: return .notDetermined
+    }
+  }
+
+  public func request(completionHandler: @escaping PermissionCallback) {
+    fatalError("not implemented")
+  }
+}
+
+#endif
+
+#if canImport(LocalAuthentication)
+
+// MARK: - Biometry
+
+import LocalAuthentication
+
+public class BiometryPermission: Permission {
+
+  public init() { }
+
+  public var status: PermissionStatus {
+    var error: NSError?
+    let status = LAContext().canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+
+    switch status {
+    case true: return .authorized
+    case false: return .denied
+    }
+  }
+
+  public func request(completionHandler: @escaping PermissionCallback) {
+    LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "TODO_PROVIDE_REASON") { (granted, error) in
+      completionHandler(error == nil ? (granted ? .authorized : .denied) : .notDetermined)
+    }
+  }
+}
+
+#endif
+
+// MARK: - Health
+
+#if canImport(HealthKit)
+
+import HealthKit
+
+public class HealthPermission: Permission {
+
+  public init() { }
+
+  public var status: PermissionStatus {
+    let status = HKHealthStore.isHealthDataAvailable()
+
+    switch status {
+    case true: return .authorized
+    case false: return .denied
+    }
+  }
+
+  public func request(completionHandler: @escaping PermissionCallback) {
+    HKHealthStore().requestAuthorization(toShare: [], read: []) { (granted, error) in
+      completionHandler(error == nil ? (granted ? .authorized : .denied) : .notDetermined)
+    }
   }
 }
 
