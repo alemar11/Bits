@@ -58,6 +58,19 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener.didDispatch_callsCount, 1)
   }
 
+  func testAddingTheSameDelegateMultipleTimes() {
+    let delegates = MulticastDelegate<DispatcherDelegate>()
+    let listener1 = Listener()
+
+    delegates.addDelegate(listener1)
+    delegates.addDelegate(listener1)
+    delegates.addDelegate(listener1)
+    delegates.invoke { $0.didDispatch() }
+
+    XCTAssertEqual(delegates.count, 1)
+    XCTAssertEqual(listener1.didDispatch_callsCount, 1)
+  }
+
   func testAddingDelegates() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener1 = Listener()

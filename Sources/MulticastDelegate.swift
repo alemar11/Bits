@@ -61,9 +61,7 @@ public final class MulticastDelegate<T> {
   /// - Parameter delegate: The delegate to be removed.
   public func removeDelegate(_ delegate: T) {
     validateDelegate(delegate)
-    for oneDelegate in delegates.allObjects.reversed() where oneDelegate === delegate as AnyObject {
-      delegates.remove(oneDelegate)
-    }
+    delegates.remove(delegate as AnyObject)
   }
   
   /// Invokes a closure on each delegate.
