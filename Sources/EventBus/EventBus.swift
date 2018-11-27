@@ -23,6 +23,8 @@
 
 import Foundation
 
+// TODO: add a history buffer
+
 /// **Bits**
 ///
 /// An event bus object that broadcasts event to its subscribers.
@@ -57,68 +59,15 @@ public final class EventBus {
 
 }
 
-// MARK: - Private Methods
+// MARK: - Public Methods
 
 extension EventBus {
 
-  @inline(__always)
-  private func validateSubscriber<T>(_ subscriber: T) {
-    precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
-  }
-
-  @inline(__always)
-  private func _remove<T>(subscriber: T, for eventType: T.Type) {
-    _updateSubscribers(for: eventType) { subscribed in
-      // removes also all the deallocated subscribers
-      while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
-        subscribed.remove(at: index)
-      }
-    }
-  }
-
-  @inline(__always)
-  private func _flushDeallocatedSubscribers<T>(for eventType: T.Type) {
-    _updateSubscribers(for: eventType) { subscribed in
-      while let index = subscribed.index(where: { !$0.isValid }) {
-        subscribed.remove(at: index)
-      }
-    }
-  }
-
-  @inline(__always)
-  private func _subscribers<T>(for eventType: T.Type) -> [AnyObject] {
-    let identifier = ObjectIdentifier(eventType)
-    if let subscribed = subscriptions[identifier] {
-      return subscribed.filter { $0.isValid }.compactMap { $0.underlyngSubscriber }
-    }
-    return []
-  }
-  
-  @inline(__always)
-  private func _updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
-    let identifier = ObjectIdentifier(eventType)
-    let subscribed = subscriptions[identifier] ?? SubscriberSet()
-
-    subscriptions[identifier] = _update(set: subscribed, closure: closure)
-  }
-
-  @inline(__always)
-  private func _update(set: SubscriberSet, closure: (inout SubscriberSet) -> Void) -> SubscriberSet? {
-    var mutableSet = set
-    closure(&mutableSet)
-    // Remove weak nil elements
-    let filteredSet = mutableSet.filter { $0.isValid }
-    return filteredSet.isEmpty ? nil : filteredSet
-  }
-
-}
-
-extension EventBus {
 
   @discardableResult
   public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable {
     return dispatchQueue.sync {
-      validateSubscriber(subscriber)
+      _validateSubscriber(subscriber)
 
       let subscriberObject = subscriber as AnyObject
       let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak weakSbscriberObject = subscriberObject] completion in
@@ -150,7 +99,7 @@ extension EventBus {
   /// Removes a subscriber from a given event type.
   public func remove<T>(subscriber: T, for eventType: T.Type) {
     dispatchQueue.sync {
-      validateSubscriber(subscriber)
+      _validateSubscriber(subscriber)
       _remove(subscriber: subscriber, for: eventType)
     }
   }
@@ -158,7 +107,7 @@ extension EventBus {
   /// Removes a subscriber from all its subscriptions.
   public func remove<T>(subscriber: T) {
     dispatchQueue.sync {
-      validateSubscriber(subscriber)
+      _validateSubscriber(subscriber)
 
       for (identifier, subscribed) in subscriptions {
         subscriptions[identifier] = self._update(set: subscribed) { subscribed in
@@ -193,7 +142,7 @@ extension EventBus {
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
   public func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
     return dispatchQueue.sync {
-      validateSubscriber(subscriber)
+      _validateSubscriber(subscriber)
       let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
       assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
 
@@ -227,6 +176,62 @@ extension EventBus {
       return handledNotifications
     }
   }
+}
+
+// MARK: - Private Methods
+
+extension EventBus {
+
+  @inline(__always)
+  private func _validateSubscriber<T>(_ subscriber: T) {
+    precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
+  }
+
+  @inline(__always)
+  private func _remove<T>(subscriber: T, for eventType: T.Type) {
+    _updateSubscribers(for: eventType) { subscribed in
+      // removes also all the deallocated subscribers
+      while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
+        subscribed.remove(at: index)
+      }
+    }
+  }
+
+  @inline(__always)
+  private func _flushDeallocatedSubscribers<T>(for eventType: T.Type) {
+    _updateSubscribers(for: eventType) { subscribed in
+      while let index = subscribed.index(where: { !$0.isValid }) {
+        subscribed.remove(at: index)
+      }
+    }
+  }
+
+  @inline(__always)
+  private func _subscribers<T>(for eventType: T.Type) -> [AnyObject] {
+    let identifier = ObjectIdentifier(eventType)
+    if let subscribed = subscriptions[identifier] {
+      return subscribed.filter { $0.isValid }.compactMap { $0.underlyngSubscriber }
+    }
+    return []
+  }
+
+  @inline(__always)
+  private func _updateSubscribers<T>(for eventType: T.Type, closure: (inout SubscriberSet) -> Void) {
+    let identifier = ObjectIdentifier(eventType)
+    let subscribed = subscriptions[identifier] ?? SubscriberSet()
+
+    subscriptions[identifier] = _update(set: subscribed, closure: closure)
+  }
+
+  @inline(__always)
+  private func _update(set: SubscriberSet, closure: (inout SubscriberSet) -> Void) -> SubscriberSet? {
+    var mutableSet = set
+    closure(&mutableSet)
+    // Remove weak nil elements
+    let filteredSet = mutableSet.filter { $0.isValid }
+    return filteredSet.isEmpty ? nil : filteredSet
+  }
+
 }
 
 // MARK: - Subscription

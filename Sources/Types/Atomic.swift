@@ -39,7 +39,7 @@ public final class Atomic<T>: ThreadSafe {
   private var _value: T
   private let lock: NSLocking
 
-  public init(_ value: T, lock: NSLocking) {
+  public init(_ value: T, lock: NSLocking = UnfairLock()) {
     self.lock = lock
     self._value = value
   }
