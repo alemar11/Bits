@@ -33,32 +33,25 @@ public final class MaxLimiter {
   public let limit: UInt
   public private(set) var count: UInt = 0
   
-  private let underlyingQueue: DispatchQueue
-  
   // MARK: - Initializers
   
-  public init(limit: UInt, qos: DispatchQoS = .default) {
+  public init(limit: UInt) {
     self.limit = limit
-    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
   
   // MARK: - Limiter
   
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
-    return underlyingQueue.sync { () -> Bool in
-      if count < limit {
-        count += 1
-        block()
-        return true
-      }
-      return false
+    if count < limit {
+      count += 1
+      block()
+      return true
     }
+    return false
   }
   
   public func reset() {
-    underlyingQueue.sync {
-      count = 0
-    }
+    count = 0
   }
 }

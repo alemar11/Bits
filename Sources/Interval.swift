@@ -48,15 +48,16 @@ public enum Interval {
     }
   }
 
+  /// Returns a `TimeInterval` representation.
   public var timeInterval: TimeInterval {
     switch self {
-    case .nanoseconds(let value): return Double(value / 1_000_000_000)
-    case .microseconds(let value): return Double(value / 1_000_000)
-    case .milliseconds(let value): return Double(value / 1000)
-    case .seconds(let value): return Double(value)
-    case .minutes(let value): return Double(value * 60)
-    case .hours(let value): return Double(value * 3600)
-    case .days(let value): return Double(value * 86400)
+    case .nanoseconds(let value): return TimeInterval(value) / TimeInterval(1_000_000_000)
+    case .microseconds(let value): return TimeInterval(value) / TimeInterval(1_000_000)
+    case .milliseconds(let value): return TimeInterval(value) / TimeInterval(1000)
+    case .seconds(let value): return TimeInterval(value)
+    case .minutes(let value): return TimeInterval(value) * TimeInterval(60)
+    case .hours(let value): return TimeInterval(value) * TimeInterval(3600)
+    case .days(let value): return TimeInterval(value) * TimeInterval(86400)
     }
   }
 }

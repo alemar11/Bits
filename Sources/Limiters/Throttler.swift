@@ -26,52 +26,46 @@ import Foundation
 /// **Bits**
 ///
 /// Enforces a maximum number of times a function can be called over time. As in "execute this function at most once every 100 milliseconds." (Throttling)
+/// - Importante: Throttle will allow only one function call per time period.
 public final class Throttler {
-  
+
   // MARK: - Properties
-  
+
   public let limit: DispatchTimeInterval
   public private(set) var lastExecutedAt: DispatchTime?
-  
-  private let underlyingQueue: DispatchQueue
-  
+
   // MARK: - Initializers
-  
+
   /// Throttler
   ///
   /// - Parameters:
   ///   - limit: TODO
   ///   - qos: The Quality Of Service of the Throttler.
-  public init(limit: Interval, qos: DispatchQoS = .default) {
+  public init(limit: Interval) {
     self.limit = limit.dispatchTimeInterval
-    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
-  
+
   // MARK: - Throttler
-  
+
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
-    return underlyingQueue.sync { () -> Bool in
-      let now = DispatchTime.now()
-      var canBeExecuted = true
-      
-      if let lastExecutionTime = lastExecutedAt {
-        let deadline = lastExecutionTime + limit
-        canBeExecuted = now > deadline
-      }
-      
-      if canBeExecuted {
-        lastExecutedAt = now
-        block()
-      }
-      
-      return canBeExecuted
+    let now = DispatchTime.now()
+    var canBeExecuted = true
+
+    if let lastExecutionTime = lastExecutedAt {
+      let deadline = lastExecutionTime + limit
+      canBeExecuted = now > deadline
     }
+
+    if canBeExecuted {
+      lastExecutedAt = now
+      block()
+    }
+
+    return canBeExecuted
   }
-  
+
   public func reset() {
-    underlyingQueue.sync {
-      lastExecutedAt = nil
-    }
+    lastExecutedAt = nil
   }
 }

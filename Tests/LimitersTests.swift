@@ -34,7 +34,7 @@ final class LimitersTests: XCTestCase {
     var count = 0
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
-      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
+      XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
       count += 1
       if count == 4 {
         expectation.fulfill()
@@ -62,7 +62,7 @@ final class LimitersTests: XCTestCase {
     var count = 0
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let block = {
-      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
+      XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
       count += 1
       expectation.fulfill()
     }
@@ -84,7 +84,7 @@ final class LimitersTests: XCTestCase {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     var value = 0
     let block = {
-      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
+      XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
       value += 1
       if value >= 10 {
         expectation.fulfill()
@@ -111,7 +111,7 @@ final class LimitersTests: XCTestCase {
     let expectation = self.expectation(description: "\(#file)\(#line)")
     let value = Atomic(0, lock: NSLock())
     let block = {
-      XCTAssertFalse(DispatchQueue.isCurrent(DispatchQueue.main))
+      XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
       value.write { $0 += 1 }
 
       if value.value >= 5 {

@@ -27,137 +27,29 @@ import Foundation
 ///
 /// Enforces a function to not be called again until a certain amount of time has passed without it being called.
 /// As in "execute this function only if 100 milliseconds have passed without it being called."
-public final class Debouncer {
+/// - Important: Debouncer will not fire immediately but it will wait the specified time period before executing the function call.
+class Debouncer {
 
-  // MARK: - Properties
-
-  public let limit: DispatchTimeInterval
-
-  private var workItem: DispatchWorkItem?
-  private let underlyingQueue: DispatchQueue
-
-  // MARK: - Initializers
+  public let limit: Interval
+  private weak var timer: Timer?
 
   /// Debouncer
   ///
   /// - Parameters:
   ///   - limit: Amount of time that needs to be passed without the block being called.
-  ///   - queue: The queue where the Debouncer calls its block.
   ///   - qos: The Quality Of Service of the Debouncer.
-  public init(limit: Interval, qos: DispatchQoS = .default) {
-    self.limit = limit.dispatchTimeInterval
-    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
+  public init(limit: Interval) {
+    self.limit = limit
   }
 
-  // MARK: - Debouncer
-
   public func execute(_ block: @escaping () -> Void) {
-    underlyingQueue.async { [weak self] in
-      guard let self = self else {
-        return
-      }
-
-      if let workItem = self.workItem {
-        workItem.cancel()
-        self.workItem = nil
-      }
-
-      let workItem = DispatchWorkItem(block: block)
-      self.underlyingQueue.asyncAfter(deadline: .now() + self.limit, execute: workItem)
-
-      self.workItem = workItem
-    }
+    self.timer?.invalidate()
+    let nextTimer = Timer.scheduledTimer(withTimeInterval: limit.timeInterval, repeats: false) { _ in block() }
+    self.timer = nextTimer
   }
 
   public func reset() {
-    underlyingQueue.sync { [weak self] in
-      if let workItem = self?.workItem {
-        workItem.cancel()
-        self?.workItem = nil
-      }
-    }
+    timer?.invalidate()
+    timer = nil
   }
 }
-
-//class Debouncer2 {
-//
-//  public let limit: Interval
-//  private weak var timer: Timer?
-//
-//  /// Debouncer
-//  ///
-//  /// - Parameters:
-//  ///   - limit: Amount of time that needs to be passed without the block being called.
-//  ///   - qos: The Quality Of Service of the Debouncer.
-//  public init(limit: Interval) {
-//    self.limit = limit
-//  }
-//
-//  public func execute(_ block: @escaping () -> Void) {
-//      self.timer?.invalidate()
-//    print(limit.timeInterval) //TODO: this is 0 if working with milliseconds etc...
-//      let nextTimer = Timer.scheduledTimer(withTimeInterval: limit.timeInterval, repeats: false) { _ in block() }
-//      self.timer = nextTimer
-//  }
-//
-//  public func reset() {
-//    timer?.invalidate()
-//    timer = nil
-//  }
-//}
-
-/// TODO: test the old debouncer checking in which thread and queue is run the block
-
-//public final class Debouncer_old {
-//
-//  // MARK: - Properties
-//
-//  public let limit: DispatchTimeInterval
-//
-//  private var workItem: DispatchWorkItem?
-//  private let queue: DispatchQueue
-//  private let underlyingQueue: DispatchQueue
-//
-//  // MARK: - Initializers
-//
-//  /// Debouncer
-//  ///
-//  /// - Parameters:
-//  ///   - limit: Amount of time that needs to be passed without the block being called.
-//  ///   - queue: The queue where the Debouncer calls its block.
-//  ///   - qos: The Quality Of Service of the Debouncer.
-//  public init(limit: Interval, queue: DispatchQueue = .main, qos: DispatchQoS = .default) {
-//    self.limit = limit.dispatchTimeInterval
-//    self.queue = queue
-//    self.underlyingQueue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
-//  }
-//
-//  // MARK: - Debouncer
-//
-//  public func execute(_ block: @escaping () -> Void) {
-//    underlyingQueue.async { [weak self] in
-//      guard let self = self else {
-//        return
-//      }
-//
-//      if let workItem = self.workItem {
-//        workItem.cancel()
-//        self.workItem = nil
-//      }
-//
-//      let workItem = DispatchWorkItem(block: block)
-//      self.queue.asyncAfter(deadline: .now() + self.limit, execute: workItem)
-//
-//      self.workItem = workItem
-//    }
-//  }
-//
-//  public func reset() {
-//    underlyingQueue.async { [weak self] in
-//      if let workItem = self?.workItem {
-//        workItem.cancel()
-//        self?.workItem = nil
-//      }
-//    }
-//  }
-//}
