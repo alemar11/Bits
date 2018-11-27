@@ -63,6 +63,11 @@ open class MulticastDelegate<T> {
     validateDelegate(delegate)
     delegates.remove(delegate as AnyObject)
   }
+
+  /// Removes all the previously-added delegates.
+  public func removeAllDelegates() {
+    delegates.removeAllObjects()
+  }
   
   /// Invokes a closure on each delegate.
   ///

@@ -107,6 +107,24 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
 
+  func testRemovingAllDelegates() {
+    let delegates = MulticastDelegate<DispatcherDelegate>()
+    let listener1 = Listener()
+    let listener2 = Listener()
+    let listener3 = Listener()
+
+    delegates.addDelegate(listener1)
+    delegates.addDelegate(listener2)
+    delegates.addDelegate(listener3)
+    delegates.invoke { $0.didDispatch() }
+    delegates.removeAllDelegates()
+    delegates.invoke { $0.didDispatch() }
+
+    XCTAssertEqual(listener1.didDispatch_callsCount, 1)
+    XCTAssertEqual(listener2.didDispatch_callsCount, 1)
+    XCTAssertEqual(listener3.didDispatch_callsCount, 1)
+  }
+
   func testKeepingWeakReferences() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let listener1 = Listener()
