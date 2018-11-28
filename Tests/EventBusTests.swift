@@ -221,7 +221,6 @@ final class EventBusTests: XCTestCase {
   
   func testThatADeallocatedSubscriberDoesNotReceiveEvents() {
     let eventBus = EventBus(label: "\(#function)")
-    let expectation = self.expectation(description: "\(#function)\(#line)")
     let unfulfilledExpectation = self.expectation(description: "\(#function)\(#line)")
     unfulfilledExpectation.isInverted = true
 
@@ -234,7 +233,7 @@ final class EventBusTests: XCTestCase {
       XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).first! === foo)
     }
     
-    eventBus.notify(FooMockable.self, completion: { expectation.fulfill() }) { $0.foo() }
+    eventBus.notify(FooMockable.self) { $0.foo() }
     
     waitForExpectations(timeout: 2)
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)

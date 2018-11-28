@@ -38,7 +38,7 @@ open class EventBus {
   public let label: String?
 
   /// Internal queue
-  private let dispatchQueue: DispatchQueue
+  private let lock = UnfairLock()
 
   /// Subscriptions.
   private var subscriptions = [ObjectIdentifier: SubscriberSet]()
@@ -49,10 +49,8 @@ open class EventBus {
   ///
   /// - Parameters:
   ///   - label: a label to identify the `EventBus`.
-  ///   - qos: the `EventBus` quality of service.
-  public init(label: String, qos: DispatchQoS = .default) {
+  public init(label: String) {
     self.label = label
-    self.dispatchQueue = DispatchQueue.init(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
 }
@@ -63,54 +61,59 @@ extension EventBus {
 
   @discardableResult
   public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable {
-    return dispatchQueue.sync {
-      _validateSubscriber(subscriber)
+    lock.lock()
+    defer { lock.unlock() }
 
-      let subscriberObject = subscriber as AnyObject
-      let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak weakSbscriberObject = subscriberObject] completion in
-        guard let self = self else {
-          return
-        }
+    _validateSubscriber(subscriber)
 
-        self.dispatchQueue.sync {
-          if let subscriberObject = weakSbscriberObject {
-            // swiftlint:disable:next force_cast
-            self._remove(subscriber: subscriberObject as! T, for: eventType)
-          } else {
-            // the subscriber is already deallocated, so let's do some flushing for the given envent
-            self._flushDeallocatedSubscribers(for: eventType)
-          }
-        }
-        completion?()
-      })
-
-      _updateSubscribers(for: eventType) { subscribed in
-        subscribed.insert(subscription)
+    let subscriberObject = subscriber as AnyObject
+    let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak weakSbscriberObject = subscriberObject] completion in
+      guard let self = self else {
+        return
       }
 
-      return subscription.token
+      self.lock.lock()
+      defer { self.lock.unlock() }
+      if let subscriberObject = weakSbscriberObject {
+        // swiftlint:disable:next force_cast
+        self._remove(subscriber: subscriberObject as! T, for: eventType)
+      } else {
+        // the subscriber is already deallocated, so let's do some flushing for the given envent
+        self._flushDeallocatedSubscribers(for: eventType)
+      }
 
+      completion?()
+    })
+
+    _updateSubscribers(for: eventType) { subscribed in
+      subscribed.insert(subscription)
     }
+
+    return subscription.token
+
   }
 
   /// Removes a subscriber from a given event type.
   public func remove<T>(subscriber: T, for eventType: T.Type) {
-    dispatchQueue.sync {
-      _validateSubscriber(subscriber)
-      _remove(subscriber: subscriber, for: eventType)
-    }
+    lock.lock()
+    defer { lock.unlock() }
+
+    _validateSubscriber(subscriber)
+    _remove(subscriber: subscriber, for: eventType)
+
   }
 
   /// Removes a subscriber from all its subscriptions.
   public func remove<T>(subscriber: T) {
-    dispatchQueue.sync {
-      _validateSubscriber(subscriber)
+    lock.lock()
+    defer { lock.unlock() }
 
-      for (identifier, subscribed) in subscriptions {
-        subscriptions[identifier] = self._update(set: subscribed) { subscribed in
-          while let index = subscribed.index(where: { $0 == subscriber as AnyObject }) {
-            subscribed.remove(at: index)
-          }
+    _validateSubscriber(subscriber)
+
+    for (identifier, subscribed) in subscriptions {
+      subscriptions[identifier] = self._update(set: subscribed) { subscribed in
+        while let index = subscribed.index(where: { $0 == subscriber as AnyObject }) {
+          subscribed.remove(at: index)
         }
       }
     }
@@ -118,61 +121,59 @@ extension EventBus {
 
   /// Removes all the subscribers.
   public func clear() {
-    dispatchQueue.sync {
-      subscriptions.removeAll()
-    }
+    lock.lock()
+    defer { lock.unlock() }
+
+    subscriptions.removeAll()
   }
 
   /// Returns all the subscriber for a given eventType.
   public func subscribers<T>(for eventType: T.Type) -> [AnyObject] {
-    return dispatchQueue.sync {
-      return _subscribers(for: eventType)
-    }
+    lock.lock()
+    defer { lock.unlock() }
+
+    return _subscribers(for: eventType)
   }
 
   /// Checks if the `EventBus` is subscribed for a particular eventType.
   public func isSubscribed<T>(for eventType: T.Type) -> Bool {
-    return dispatchQueue.sync {
-      return subscriptions[ObjectIdentifier(eventType)] != nil
-    }
+    lock.lock()
+    defer { lock.unlock() }
+
+    return subscriptions[ObjectIdentifier(eventType)] != nil
+
   }
   
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
   public func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
-    return dispatchQueue.sync {
-      _validateSubscriber(subscriber)
-      let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
-      assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
+    lock.lock()
+    defer { lock.unlock() }
 
-      return subscribers.count > 0
-    }
+    _validateSubscriber(subscriber)
+    
+    let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
+    assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
+
+    return subscribers.count > 0
   }
 
   @discardableResult
-  public func notify<T>(_ eventType: T.Type, completion: (()-> Void)? = .none, closure: @escaping (T) -> Void) -> Int {
-    return dispatchQueue.sync {
-      var handledNotifications = 0
-      let identifier = ObjectIdentifier(eventType)
-      let group = DispatchGroup()
+  public func notify<T>(_ eventType: T.Type, closure: @escaping (T) -> Void) -> Int {
+    lock.lock()
+    defer { lock.unlock() }
 
-      // Notify to direct subscribers
-      if let subscriptions = subscriptions[identifier] {
-        for subscription in subscriptions {
-          group.enter()
-          // async
-          subscription.notify(eventType: eventType, closure: closure) {
-            group.leave()
-          }
-        }
-        handledNotifications += subscriptions.count
+    var handledNotifications = 0
+    let identifier = ObjectIdentifier(eventType)
+
+    // Notify to direct subscribers
+    if let subscriptions = subscriptions[identifier] {
+      for subscription in subscriptions {
+        // async
+        subscription.notify(eventType: eventType, closure: closure) { }
       }
-
-      group.notify(queue: dispatchQueue) {
-        completion?()
-      }
-
-      return handledNotifications
+      handledNotifications += subscriptions.count
     }
+    return handledNotifications
   }
 }
 
@@ -311,13 +312,14 @@ extension EventBus {
   /// For tests only, returns also all the deallocated but not yet removed subscriptions
   // swiftlint:disable:next identifier_name
   internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
-    return dispatchQueue.sync {
-      let identifier = ObjectIdentifier(eventType)
-      if let subscribed = subscriptions[identifier] {
-        return subscribed.count
-      }
-      return 0
+    lock.lock()
+    defer { lock.unlock() }
+
+    let identifier = ObjectIdentifier(eventType)
+    if let subscribed = subscriptions[identifier] {
+      return subscribed.count
     }
+    return 0
   }
 
 }
