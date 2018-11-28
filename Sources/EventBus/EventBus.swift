@@ -64,7 +64,9 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
 
-    _validateSubscriber(subscriber)
+    guard _validate(subscriber) else {
+      fatalError("Multicast delegates do not support value types.")
+    }
 
     let subscriberObject = subscriber as AnyObject
     let subscription = Subscription<AnyObject>(subscriber: subscriberObject, queue: queue, cancellationClosure: { [weak self, weak weakSbscriberObject = subscriberObject] completion in
@@ -98,9 +100,9 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
 
-    _validateSubscriber(subscriber)
-    _remove(subscriber: subscriber, for: eventType)
+     guard _validate(subscriber) else { return }
 
+    _remove(subscriber: subscriber, for: eventType)
   }
 
   /// Removes a subscriber from all its subscriptions.
@@ -108,7 +110,7 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
 
-    _validateSubscriber(subscriber)
+    guard !_validate(subscriber) else { return }
 
     for (identifier, subscribed) in subscriptions {
       subscriptions[identifier] = self._update(set: subscribed) { subscribed in
@@ -149,7 +151,7 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
 
-    _validateSubscriber(subscriber)
+    guard _validate(subscriber) else { return false }
 
     let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
     assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
@@ -182,8 +184,8 @@ extension EventBus {
 extension EventBus {
 
   @inline(__always)
-  private func _validateSubscriber<T>(_ subscriber: T) {
-    precondition(Mirror(reflecting: subscriber).subjectType is AnyClass, "The subscriber \(String(describing: subscriber.self)) must be a class.")
+  private func _validate<T>(_ subscriber: T) -> Bool {
+    return Mirror(reflecting: subscriber).subjectType is AnyClass
   }
 
   @inline(__always)

@@ -47,26 +47,23 @@ public final class MulticastDelegate<T> {
   ///   - delegate: The delegate to be added.
   ///   - queue: The queue where the delegate should be called on.
   public func add(_ delegate: T, on queue: DispatchQueue = .main) {
-    if Mirror(reflecting: delegate).subjectType is AnyClass {
-      //      guard delegates.index(of: weakValue) == nil else {
-      //        return
-      //      }
-      guard !contains(delegate) else {
-        return
-      }
-
-      let weakValue = Weak(value: delegate as AnyObject, queue: queue)
-      delegates.append(weakValue)
-    } else {
+    guard validate(delegate) else {
       fatalError("Multicast delegates do not support value types.")
     }
+
+    guard !contains(delegate) else {
+      return
+    }
+
+    let weakValue = Weak(value: delegate as AnyObject, queue: queue)
+    delegates.append(weakValue)
   }
 
   /// Removes a previously-added delegate.
   ///
   /// - Parameter delegate: The delegate to be removed.
   public func remove(_ delegate: T) {
-    if Mirror(reflecting: delegate).subjectType is AnyClass {
+    if validate(delegate) {
       delegates.removeAll { $0 == delegate as AnyObject || $0.value == nil }
     }
   }
@@ -100,7 +97,7 @@ public final class MulticastDelegate<T> {
   /// - Parameter delegate: The given delegate to check if it's contained
   /// - Returns: `true` if the delegate is found or `false` otherwise
   public func contains(_ delegate: T) -> Bool {
-    if Mirror(reflecting: delegate).subjectType is AnyClass {
+    if validate(delegate) {
       return delegates.contains { $0 == delegate as AnyObject }
     }
     return false
@@ -115,6 +112,11 @@ public final class MulticastDelegate<T> {
     for index in indexArray {
       delegates.remove(at: index)
     }
+  }
+
+  @inline(__always)
+  private func validate(_ delegate: T) -> Bool {
+    return Mirror(reflecting: delegate).subjectType is AnyClass
   }
 
   private final class Weak: Equatable {
