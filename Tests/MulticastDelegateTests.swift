@@ -32,9 +32,19 @@ private protocol DispatcherDelegate: class {
 
 private class Listener: DispatcherDelegate {
   var didDispatch_callsCount = 0
+  let closure: () -> Void
+  let limit: Int
+
+  init(after: Int = 0, closure: (() -> Void)? = nil) {
+    self.limit = after
+    self.closure = closure ?? { }
+  }
 
   func didDispatch() {
     didDispatch_callsCount += 1
+    if didDispatch_callsCount >= limit {
+      closure()
+    }
   }
 }
 
@@ -200,6 +210,179 @@ final class MulticastDelegateTests: XCTestCase {
 
     XCTAssertEqual(delegates.count, 10)
   }
+}
+
+
+  final class MulticastDelegateTests3: XCTestCase {
+
+    func testCallingSingleDelegate() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      let expectation = self.expectation(description: "\(#function)\(#line)")
+      let listener = Listener(after: 1) {
+        expectation.fulfill()
+      }
+
+      delegates.add(listener)
+      delegates.invoke { $0.didDispatch() }
+
+      waitForExpectations(timeout: 2)
+      XCTAssertEqual(listener.didDispatch_callsCount, 1)
+    }
+
+    func testAddingTheSameDelegateMultipleTimes() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      let expectation = self.expectation(description: "\(#function)\(#line)")
+      let listener = Listener(after: 1) {
+        expectation.fulfill()
+      }
+
+      delegates.add(listener)
+      delegates.add(listener)
+      delegates.add(listener)
+      delegates.invoke { $0.didDispatch() }
+
+      waitForExpectations(timeout: 2)
+      XCTAssertEqual(delegates.numberOfDelegates(), 1)
+      XCTAssertEqual(listener.didDispatch_callsCount, 1)
+    }
+
+    func testAddingDelegates() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      let expectation1 = self.expectation(description: "\(#function)\(#line)")
+      let listener1 = Listener(after: 1) {
+        expectation1.fulfill()
+      }
+
+      let expectation2 = self.expectation(description: "\(#function)\(#line)")
+      let listener2 = Listener(after: 1) {
+        expectation2.fulfill()
+      }
+
+      let expectation3 = self.expectation(description: "\(#function)\(#line)")
+      let listener3 = Listener(after: 1) {
+        expectation3.fulfill()
+      }
+
+      delegates.add(listener1)
+      delegates.add(listener2)
+      delegates.add(listener3)
+      delegates.invoke { $0.didDispatch() }
+
+      waitForExpectations(timeout: 2)
+
+      XCTAssertEqual(listener1.didDispatch_callsCount, 1)
+      XCTAssertEqual(listener2.didDispatch_callsCount, 1)
+      XCTAssertEqual(listener3.didDispatch_callsCount, 1)
+    }
+
+    func testRemovingDelegates() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      let expectation1 = self.expectation(description: "\(#function)\(#line)")
+      let listener1 = Listener(after: 3) {
+        expectation1.fulfill()
+      }
+
+      let expectation2 = self.expectation(description: "\(#function)\(#line)")
+      let listener2 = Listener(after: 2) {
+        expectation2.fulfill()
+      }
+
+      let expectation3 = self.expectation(description: "\(#function)\(#line)")
+      let listener3 = Listener(after: 1) {
+        expectation3.fulfill()
+      }
+
+      delegates.add(listener1)
+      delegates.add(listener2)
+      delegates.add(listener3)
+      delegates.invoke { $0.didDispatch() }
+      delegates.remove(listener3)
+      delegates.invoke { $0.didDispatch() }
+      delegates.remove(listener2)
+      delegates.invoke { $0.didDispatch() }
+
+      waitForExpectations(timeout: 2)
+
+      XCTAssertEqual(listener1.didDispatch_callsCount, 3)
+      XCTAssertEqual(listener2.didDispatch_callsCount, 2)
+      XCTAssertEqual(listener3.didDispatch_callsCount, 1)
+    }
+
+    func testRemovingAllDelegates() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      let expectation1 = self.expectation(description: "\(#function)\(#line)")
+      let listener1 = Listener(after: 1) {
+        expectation1.fulfill()
+      }
+
+      let expectation2 = self.expectation(description: "\(#function)\(#line)")
+      let listener2 = Listener(after: 1) {
+        expectation2.fulfill()
+      }
+
+      let expectation3 = self.expectation(description: "\(#function)\(#line)")
+      let listener3 = Listener(after: 1) {
+        expectation3.fulfill()
+      }
+
+      delegates.add(listener1)
+      delegates.add(listener2)
+      delegates.add(listener3)
+      delegates.invoke { $0.didDispatch() }
+      delegates.removeAllDelegates()
+      delegates.invoke { $0.didDispatch() }
+
+      waitForExpectations(timeout: 2)
+
+      XCTAssertEqual(listener1.didDispatch_callsCount, 1)
+      XCTAssertEqual(listener2.didDispatch_callsCount, 1)
+      XCTAssertEqual(listener3.didDispatch_callsCount, 1)
+    }
+
+    func testKeepingWeakReferences() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      let expectation1 = self.expectation(description: "\(#function)\(#line)")
+      let listener1 = Listener(after: 1) {
+        expectation1.fulfill()
+      }
+      delegates.add(listener1)
+
+      autoreleasepool {
+        let listener2 = Listener { XCTFail("A deallocated delegate shouldn't be called.") }
+        delegates.add(listener2)
+      }
+
+      delegates.invoke { $0.didDispatch() }
+
+      waitForExpectations(timeout: 2)
+      XCTAssertEqual(listener1.didDispatch_callsCount, 1)
+    }
+
+    //TODO
+//    func testWeakReference() {
+//      var listener: ExpectationListener? = ExpectationListener()
+//      listener?.failIfCalled = true
+//      weak var weakListener = listener
+//      let delegates = MulticastDelegate3<DispatcherDelegate>()
+//      delegates.add(weakListener!)
+//      listener = nil
+//      delegates.invoke { $0.didDispatch() }
+//    }
+
+    func testWeakReferences() {
+      let delegates = MulticastDelegate3<DispatcherDelegate>()
+      autoreleasepool {
+        (0...9).forEach { _ in
+          let listener = Listener()
+          delegates.add(listener)
+        }
+      }
+
+      XCTAssertEqual(delegates.numberOfDelegates(), 0)
+      XCTAssertTrue(delegates.isEmpty)
+    }
+
+    }
 
 //  #if os(macOS)
 //
@@ -304,4 +487,3 @@ final class MulticastDelegateTests: XCTestCase {
 //  }
 //  #endif
 
-}

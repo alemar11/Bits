@@ -376,9 +376,9 @@ fileprivate protocol FooMockable { func foo() }
 fileprivate protocol BarMockable { func bar() }
 
 fileprivate class Mock {
-  fileprivate let closure: (MockEvent) -> ()
+  fileprivate let closure: (MockEvent) -> Void
   
-  init(closure: ((MockEvent) -> ())? = nil) {
+  init(closure: ((MockEvent) -> Void)? = nil) {
     self.closure = closure ?? { _ in }
   }
 }
