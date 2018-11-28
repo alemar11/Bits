@@ -27,50 +27,29 @@ import Foundation
 ///
 /// Enforces a function to not be called again until a certain amount of time has passed without it being called.
 /// As in "execute this function only if 100 milliseconds have passed without it being called."
-public final class Debouncer {
+/// - Important: Debouncer will not fire immediately but it will wait the specified time period before executing the function call.
+class Debouncer {
 
-  // MARK: - Properties
+  public let limit: Interval
+  private weak var timer: Timer?
 
-  public let limit: DispatchTimeInterval
-  public let queue: DispatchQueue
-
-  private var workItem: DispatchWorkItem?
-  private let underlyingQueue = DispatchQueue(label: "\(identifier).Debouncer")
-
-  // MARK: - Initializers
-
-  public init(limit: Interval, queue: DispatchQueue = .main) {
-    self.limit = limit.dispatchTimeInterval
-    self.queue = queue
+  /// Debouncer
+  ///
+  /// - Parameters:
+  ///   - limit: Amount of time that needs to be passed without the block being called.
+  ///   - qos: The Quality Of Service of the Debouncer.
+  public init(limit: Interval) {
+    self.limit = limit
   }
 
-  // MARK: - Debouncer
-
   public func execute(_ block: @escaping () -> Void) {
-    underlyingQueue.async { [weak self] in
-      if let workItem = self?.workItem {
-        workItem.cancel()
-        self?.workItem = nil
-      }
-
-      guard
-        let queue = self?.queue,
-        let limit = self?.limit
-        else { return }
-
-      let workItem = DispatchWorkItem(block: block)
-      queue.asyncAfter(deadline: .now() + limit, execute: workItem)
-
-      self?.workItem = workItem
-    }
+    self.timer?.invalidate()
+    let nextTimer = Timer.scheduledTimer(withTimeInterval: limit.timeInterval, repeats: false) { _ in block() }
+    self.timer = nextTimer
   }
 
   public func reset() {
-    underlyingQueue.async { [weak self] in
-      if let workItem = self?.workItem {
-        workItem.cancel()
-        self?.workItem = nil
-      }
-    }
+    timer?.invalidate()
+    timer = nil
   }
 }

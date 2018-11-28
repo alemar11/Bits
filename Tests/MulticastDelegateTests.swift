@@ -24,6 +24,8 @@
 import XCTest
 @testable import Bits
 
+import AVFoundation
+
 private protocol DispatcherDelegate: class {
   func didDispatch()
 }
@@ -56,6 +58,19 @@ final class MulticastDelegateTests: XCTestCase {
     delegates.invoke { $0.didDispatch() }
 
     XCTAssertEqual(listener.didDispatch_callsCount, 1)
+  }
+
+  func testAddingTheSameDelegateMultipleTimes() {
+    let delegates = MulticastDelegate<DispatcherDelegate>()
+    let listener1 = Listener()
+
+    delegates.addDelegate(listener1)
+    delegates.addDelegate(listener1)
+    delegates.addDelegate(listener1)
+    delegates.invoke { $0.didDispatch() }
+
+    XCTAssertEqual(delegates.count, 1)
+    XCTAssertEqual(listener1.didDispatch_callsCount, 1)
   }
 
   func testAddingDelegates() {
@@ -91,6 +106,24 @@ final class MulticastDelegateTests: XCTestCase {
 
     XCTAssertEqual(listener1.didDispatch_callsCount, 3)
     XCTAssertEqual(listener2.didDispatch_callsCount, 2)
+    XCTAssertEqual(listener3.didDispatch_callsCount, 1)
+  }
+
+  func testRemovingAllDelegates() {
+    let delegates = MulticastDelegate<DispatcherDelegate>()
+    let listener1 = Listener()
+    let listener2 = Listener()
+    let listener3 = Listener()
+
+    delegates.addDelegate(listener1)
+    delegates.addDelegate(listener2)
+    delegates.addDelegate(listener3)
+    delegates.invoke { $0.didDispatch() }
+    delegates.removeAllDelegates()
+    delegates.invoke { $0.didDispatch() }
+
+    XCTAssertEqual(listener1.didDispatch_callsCount, 1)
+    XCTAssertEqual(listener2.didDispatch_callsCount, 1)
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
 
@@ -167,4 +200,108 @@ final class MulticastDelegateTests: XCTestCase {
 
     XCTAssertEqual(delegates.count, 10)
   }
+
+//  #if os(macOS)
+//
+//  //import AVFoundation
+//  /// https://developer.apple.com/library/archive/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html#//apple_ref/doc/uid/TP40011226
+//  /// https://developer.apple.com/library/archive/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html
+//  /// Which classes don’t support weak references?
+//  /// You cannot currently create weak references to instances of the following classes:
+//  /// NSATSTypesetter, NSColorSpace, NSFont, NSMenuView, NSParagraphStyle, NSSimpleHorizontalTypesetter, and NSTextView.
+//  /// Note: In addition, in OS X v10.7, you cannot create weak references to instances of NSFontManager, NSFontPanel, NSImage, NSTableCellView, NSViewController, NSWindow, and NSWindowController. In addition, in OS X v10.7 no classes in the AV Foundation framework support weak references.
+//  func testWeakReferenceMacOS() {
+//    /// Failing
+//
+//    /// As of macOS 10.14
+//    /// NSFontManager, NSFontPanel, NSTextView, NSFont do NOT support Objective-C weak references.
+//
+////    var fontManager: NSFontManager? = NSFontManager()
+////    weak var weakFontManager = fontManager
+////    fontManager = nil
+////    XCTAssertNil(weakFontManager)
+//
+////    var fontPanel: NSFontPanel? = NSFontPanel()
+////    weak var weakFontPanel = fontPanel
+////    fontPanel = nil
+////    XCTAssertNil(weakFontPanel)
+//
+////    var textView: NSTextView? = NSTextView()
+////    weak var weakTextView = textView
+////    textView = nil
+////    XCTAssertNil(weakTextView)
+//
+////    var font: NSFont? =  NSFont.menuFont(ofSize: 1.0)
+////    weak var weakFont = font
+////    font = nil
+////    XCTAssertNil(weakFont)
+//
+////    var audioSession: AVAudioSession? = AVAudioSession()
+////    weak var weakAudioSession = audioSession
+////    audioSession = nil
+////    XCTAssertNil(weakAudioSession)
+//
+//    var audioPlayer: AVAudioPlayer? = AVAudioPlayer()
+//    weak var weakAudioPlayer = audioPlayer
+//    audioPlayer = nil
+//    XCTAssertNil(weakAudioPlayer)
+//
+//    var player: AVPlayer? = AVPlayer()
+//    weak var weakPlayer = player
+//    player = nil
+//    XCTAssertNil(weakPlayer)
+//
+//    /// Successful
+//
+//    // It works using NSFont(name:size:)
+//    var font2: NSFont? = NSFont(name: "font", size: 1.0)
+//    weak var weakFont2 = font2
+//    font2 = nil
+//    XCTAssertNil(weakFont2)
+//
+//    var typeSetter: NSATSTypesetter? = NSATSTypesetter()
+//    weak var weakTypeSetter = typeSetter
+//    typeSetter = nil
+//    XCTAssertNil(weakTypeSetter)
+//
+//    var image: NSImage? = NSImage()
+//    weak var weakImage = image
+//    image = nil
+//    XCTAssertNil(weakImage)
+//
+//    var paragraphStyle: NSParagraphStyle? = NSParagraphStyle()
+//    weak var weakParagraphStyle = paragraphStyle
+//    paragraphStyle = nil
+//    XCTAssertNil(weakParagraphStyle)
+//
+//    var tableViewCell: NSTableCellView? = NSTableCellView()
+//    weak var weakTableViewCell = tableViewCell
+//    tableViewCell = nil
+//    XCTAssertNil(weakTableViewCell)
+//
+//    // 10.8 supports
+//
+//    var window: NSWindow? = NSWindow()
+//    weak var weakWindow = window
+//    window = nil
+//    XCTAssertNil(weakWindow)
+//
+//    var windowController: NSWindowController? = NSWindowController()
+//    weak var weakWindowController = windowController
+//    windowController = nil
+//    XCTAssertNil(weakWindowController)
+//
+//    var viewController: NSViewController? = NSViewController()
+//    weak var weakViewController = viewController
+//    viewController = nil
+//    XCTAssertNil(weakViewController)
+//
+//    // 10.14 - NSColorSpace now supports Objective-C weak references.
+//    var colorSpace: NSColorSpace? = NSColorSpace()
+//    weak var weakColorSpace = colorSpace
+//    colorSpace = nil
+//    XCTAssertNil(weakColorSpace)
+//  }
+//  #endif
+
 }

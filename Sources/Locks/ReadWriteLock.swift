@@ -33,7 +33,7 @@ import Darwin.os.lock
 /// Provides concurrent access for read-only operations, but exclusive access for write operations.
 ///
 /// Efficient when reading is common and writing is rare.
-/// - Note: 
+/// - Note:
 public final class ReadWriteLock {
 
   // Initialization: pthread_rwlock_t is a value type and must be declared as var in order to refer it later. Make sure not to copy it.

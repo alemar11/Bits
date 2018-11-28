@@ -24,11 +24,12 @@
 import Foundation
 
 public protocol ThreadSafe {
+  // swiftlint:disable:next type_name
   associatedtype T
   var value: T { get }
   func read<U>(_ value: (T) -> U) -> U
   func write(_ transform: (inout T) -> Void)
-  func access<U>(_ transform: (inout T) -> U) -> U
+  func safeAccess<U>(_ transform: (inout T) -> U) -> U
 }
 
 /// **Bits**
@@ -38,7 +39,7 @@ public final class Atomic<T>: ThreadSafe {
   private var _value: T
   private let lock: NSLocking
 
-  public init(_ value: T, lock: NSLocking) {
+  public init(_ value: T, lock: NSLocking = UnfairLock()) {
     self.lock = lock
     self._value = value
   }
@@ -61,7 +62,7 @@ public final class Atomic<T>: ThreadSafe {
     transform(&_value)
   }
 
-  public func access<U>(_ transform: (inout T) -> U) -> U {
+  public func safeAccess<U>(_ transform: (inout T) -> U) -> U {
     lock.lock()
     defer { lock.unlock() }
     return transform(&_value)
@@ -74,12 +75,11 @@ public final class Atomic<T>: ThreadSafe {
 /// Thread-safe access using using serial dispatch queues.
 public final class DispatchedAtomic<T>: ThreadSafe {
   private var _value: T
-  private let label = "\(identifier).DispatchedAtomic"
   private let queue: DispatchQueue
 
-  public init(_ value: T, qos: DispatchQoS  = DispatchQoS.default) {
+  public init(_ value: T, qos: DispatchQoS = .default) {
     self._value = value
-    self.queue = DispatchQueue(label: label, qos: qos)
+    self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }
 
   public var value: T {
@@ -94,7 +94,7 @@ public final class DispatchedAtomic<T>: ThreadSafe {
     queue.sync { transform(&_value) }
   }
 
-  public func access<U>(_ transform: (inout T) -> U) -> U {
+  public func safeAccess<U>(_ transform: (inout T) -> U) -> U {
     return queue.sync { transform(&_value) }
   }
 

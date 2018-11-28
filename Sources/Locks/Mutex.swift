@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
 import Darwin.os.lock
+import Foundation
 
 // http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_mutex_lock.html
 
@@ -54,7 +54,7 @@ public final class Mutex: NSLocking {
   }
 
   public func unlock() {
-    let status =  pthread_mutex_unlock(&mutex)
+    let status = pthread_mutex_unlock(&mutex)
     guard status == 0 else {
       fatalError(String(cString: strerror(status)))
     }

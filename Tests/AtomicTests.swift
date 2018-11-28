@@ -38,14 +38,14 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     
     myVar.write { $0 = [10] }
-    let sum = myVar.access { (array) -> Int in
+    let sum = myVar.safeAccess { (array) -> Int in
       return array.reduce(0, +)
     }
     
     XCTAssertEqual(myVar.read { $0 }, [10])
     XCTAssertEqual(sum, 10)
     
-    let swap = myVar.access { array -> [Int] in
+    let swap = myVar.safeAccess { array -> [Int] in
       let copy = array
       array = [1, 2, 3]
       return copy
@@ -54,7 +54,7 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(swap, [10])
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
     
-    let result = myVar.access { array -> Int in
+    let result = myVar.safeAccess { array -> Int in
       return 11
     }
     
@@ -133,14 +133,14 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     
     myVar.write { $0 = [10] }
-    let sum = myVar.access { (array) -> Int in
+    let sum = myVar.safeAccess { (array) -> Int in
       return array.reduce(0, +)
     }
     
     XCTAssertEqual(myVar.read { $0 }, [10])
     XCTAssertEqual(sum, 10)
     
-    let swap = myVar.access { array -> [Int] in
+    let swap = myVar.safeAccess { array -> [Int] in
       let copy = array
       array = [1, 2, 3]
       return copy
@@ -149,7 +149,7 @@ final class AtomicTests: XCTestCase {
     XCTAssertEqual(swap, [10])
     XCTAssertEqual(myVar.read { $0 }, [1, 2, 3])
     
-    let result = myVar.access { array -> Int in
+    let result = myVar.safeAccess { array -> Int in
       return 11
     }
     

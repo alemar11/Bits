@@ -27,42 +27,31 @@ import Foundation
 ///
 /// Enforces a maximum number of times a function can be called. As in "execute this function at most 10 times."
 public final class MaxLimiter {
-
+  
   // MARK: - Properties
-
+  
   public let limit: UInt
   public private(set) var count: UInt = 0
-
-  private let underlyingQueue = DispatchQueue(label: "\(identifier).MaxLimiter")
-
+  
   // MARK: - Initializers
-
+  
   public init(limit: UInt) {
     self.limit = limit
   }
-
+  
   // MARK: - Limiter
-
+  
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
-    let executed = underlyingQueue.sync { () -> Bool in
-      if count < limit {
-        count += 1
-        return true
-      }
-      return false
-    }
-
-    if executed {
+    if count < limit {
+      count += 1
       block()
+      return true
     }
-
-    return executed
+    return false
   }
-
+  
   public func reset() {
-    underlyingQueue.sync {
-      count = 0
-    }
+    count = 0
   }
 }
