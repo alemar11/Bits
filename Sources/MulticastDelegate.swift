@@ -100,3 +100,84 @@ public func += <T> (left: MulticastDelegate<T>, right: T) {
 public func -= <T> (left: MulticastDelegate<T>, right: T) {
   left.removeDelegate(right)
 }
+
+//extension MulticastDelegate: Sequence {
+//  public func makeIterator() -> AnyIterator<T> {
+//    var iterator = delegates.allObjects.makeIterator()
+//
+//    return AnyIterator {
+//      while let next = iterator.next() {
+//        if let delegate = next as? T {
+//          return delegate
+//        }
+//      }
+//      return nil
+//    }
+//  }
+//}
+
+// https://stackoverflow.com/questions/9146540/which-ios-classes-that-dont-support-zeroing-weak-references
+// > NSATSTypesetter, NSFont, NSFontManager, NSFontPanel, NSImage, NSMenuView,
+// > NSParagraphStyle, NSSimpleHorizontalTypesetter, NSTableCellView, NSTextView
+
+// 10.8
+// Starting in 10.8, instances of NSWindow, NSWindowController, and NSViewController can be pointed to by ARC weak references.
+
+// 10.14
+//NSColorSpace
+//NSColorSpace now supports Objective-C weak references. NSColorSpace instances can now be stored in weak instance variables or collections.
+
+//open class MulticastDelegate2<T> {
+//
+//  fileprivate final class Node<T: AnyObject>: Hashable {
+//    let queue: DispatchQueue
+//    weak var delegate: T?
+//
+//    init(delegate: T, queue: DispatchQueue) {
+//      self.delegate = delegate
+//      self.queue = queue
+//    }
+//
+//    fileprivate static func == (lhs: Node, rhs: Node) -> Bool {
+//      return lhs.delegate === rhs.delegate
+//    }
+//
+//    fileprivate static func == (lhs: Node, rhs: AnyObject) -> Bool {
+//      return lhs.delegate === rhs
+//    }
+//
+//    fileprivate var hashValue: Int {
+//      guard let delegate = delegate else {
+//        return 0
+//      }
+//      return ObjectIdentifier(delegate).hashValue
+//    }
+//  }
+//
+//  private var nodes = Set<Node<AnyObject>>()
+//
+//  public func addDelegate(_ delegate: T, on queue: DispatchQueue) {
+//    let node = Node(delegate: delegate as AnyObject, queue: queue)
+//    nodes.insert(node)
+//  }
+//
+//  public func invoke(invocation: @escaping (T) -> Void) {
+//    for node in nodes {
+//      guard let delegate = node.delegate as? T else {
+//        continue
+//      }
+//      node.queue.async {
+//        invocation(delegate)
+//      }
+//    }
+//
+//  }
+//
+//  public func removeDelegate(_ delegate: T) {
+//    while let index = nodes.index(where: { $0.delegate === delegate as AnyObject || $0.delegate == nil }) {
+//      nodes.remove(at: index)
+//    }
+//    //nodes.removeAll { $0.delegate === delegate as AnyObject || $0.delegate == nil }
+//  }
+//
+//}
