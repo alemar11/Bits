@@ -189,7 +189,7 @@ final class EventBusTests: XCTestCase {
     XCTAssertNil(foo)
     XCTAssertNil(weakFoo)
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
-    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1) // the subscriber has been deallocated BUT the subscription is still stored.
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
 
     token.cancel(completion: nil)
     XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
@@ -205,7 +205,7 @@ final class EventBusTests: XCTestCase {
     }
 
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
-    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 1) // // the subscriber has been deallocated BUT the subscription is still stored.
+    XCTAssertEqual(eventBus.__subscribersCount(for: FooMockable.self), 0)
 
     do {
       let foo: FooMock = FooMock()

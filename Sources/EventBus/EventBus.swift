@@ -154,6 +154,7 @@ extension EventBus {
 
     guard _validate(subscriber) else { return false }
 
+    _removeDeallocatedSubscribers(for: eventType)
     let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
     assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
 
