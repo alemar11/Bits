@@ -139,7 +139,7 @@ extension EventBus {
   public func isSubscribed<T>(for eventType: T.Type) -> Bool {
     lock.lock()
     defer { lock.unlock() }
-
+    // TODO: flush
     return subscriptions[ObjectIdentifier(eventType)] != nil
 
   }
