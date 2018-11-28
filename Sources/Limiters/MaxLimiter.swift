@@ -27,20 +27,20 @@ import Foundation
 ///
 /// Enforces a maximum number of times a function can be called. As in "execute this function at most 10 times."
 public final class MaxLimiter {
-  
+
   // MARK: - Properties
-  
+
   public let limit: UInt
   public private(set) var count: UInt = 0
-  
+
   // MARK: - Initializers
-  
+
   public init(limit: UInt) {
     self.limit = limit
   }
-  
+
   // MARK: - Limiter
-  
+
   @discardableResult
   public func execute(_ block: () -> Void) -> Bool {
     if count < limit {
@@ -50,7 +50,7 @@ public final class MaxLimiter {
     }
     return false
   }
-  
+
   public func reset() {
     count = 0
   }

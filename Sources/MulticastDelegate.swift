@@ -41,7 +41,6 @@ public final class MulticastDelegate<T> {
     return delegates.count
   }
 
-
   /// Adds a delelgate.
   ///
   /// - Parameters:
@@ -49,9 +48,9 @@ public final class MulticastDelegate<T> {
   ///   - queue: The queue where the delegate should be called on.
   public func add(_ delegate: T, on queue: DispatchQueue = .main) {
     if Mirror(reflecting: delegate).subjectType is AnyClass {
-//      guard delegates.index(of: weakValue) == nil else {
-//        return
-//      }
+      //      guard delegates.index(of: weakValue) == nil else {
+      //        return
+      //      }
       guard !contains(delegate) else {
         return
       }

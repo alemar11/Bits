@@ -33,7 +33,7 @@ open class EventBus {
   private typealias SubscriberSet = Set<EventBus.Subscription<AnyObject>>
 
   // MARK: - Properties
-  
+
   /// The `EventBus` label.
   public let label: String?
 
@@ -44,7 +44,7 @@ open class EventBus {
   private var subscriptions = [ObjectIdentifier: SubscriberSet]()
 
   // MARK: - Initializers
-  
+
   /// Creates an `EventBus` with a given configuration and dispatch queue.
   ///
   /// - Parameters:
@@ -143,14 +143,14 @@ extension EventBus {
     return subscriptions[ObjectIdentifier(eventType)] != nil
 
   }
-  
+
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
   public func hasSubscriber<T>(_ subscriber: T, for eventType: T.Type) -> Bool {
     lock.lock()
     defer { lock.unlock() }
 
     _validateSubscriber(subscriber)
-    
+
     let subscribers = _subscribers(for: eventType).filter { $0 === subscriber as AnyObject }
     assert((0...1) ~= subscribers.count, "EventBus has registered a subscriber \(subscribers.count) times for event \(eventType).")
 
@@ -243,11 +243,11 @@ public protocol SubscriptionCancellable {
 }
 
 extension EventBus {
-  
+
   /// A subscription token to cancel a subscription.
   private final class Token: SubscriptionCancellable {
     private let cancellationClosure: ((() -> Void)?) -> Void
-    
+
     fileprivate init(cancellationClosure: @escaping ((() -> Void)?) -> Void) {
       self.cancellationClosure = cancellationClosure
     }
@@ -263,19 +263,19 @@ extension EventBus {
     internal let token: SubscriptionCancellable
     private let queue: DispatchQueue
     fileprivate weak var underlyngSubscriber: AnyObject?
-    
+
     init(subscriber: AnyObject, queue: DispatchQueue, cancellationClosure: @escaping ((() -> Void)?) -> Void) {
       self.underlyngSubscriber = subscriber as AnyObject
       self.token = Token(cancellationClosure: cancellationClosure)
       self.queue = queue
     }
-    
+
     fileprivate func notify<T>(eventType: T.Type, closure: @escaping (T) -> Void, completion: @escaping () -> Void) {
       queue.async { [weak self] in
         guard let `self` = self else {
           return
         }
-        
+
         if let underlyngObject = self.underlyngSubscriber {
           if let subscriber = underlyngObject as? T {
             closure(subscriber)
@@ -286,15 +286,15 @@ extension EventBus {
         }
       }
     }
-    
+
     fileprivate static func == (lhs: Subscription, rhs: Subscription) -> Bool {
       return lhs.underlyngSubscriber === rhs.underlyngSubscriber
     }
-    
+
     fileprivate static func == (lhs: Subscription, rhs: AnyObject) -> Bool {
       return lhs.underlyngSubscriber === rhs
     }
-    
+
     fileprivate var hashValue: Int {
       guard let underlyngObject = underlyngSubscriber else {
         return 0
@@ -302,7 +302,7 @@ extension EventBus {
       return ObjectIdentifier(underlyngObject).hashValue
     }
   }
-  
+
 }
 
 // MARK: - Tests

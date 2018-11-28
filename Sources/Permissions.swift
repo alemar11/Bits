@@ -194,7 +194,7 @@ public class ContactsPermission: Permission {
 
 #if canImport(Photos)
 
-//MARK: - Photo Library
+// MARK: - Photo Library
 
 import Photos
 
@@ -230,7 +230,7 @@ public class PhotoPermission: Permission {
 
 #if canImport(CoreLocation)
 
-//MARK: - Location
+// MARK: - Location
 
 import CoreLocation
 
@@ -286,6 +286,7 @@ public class LocationPermission: NSObject, Permission {
 extension LocationPermission: CLLocationManagerDelegate {
   public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     guard let callback = callback else { return }
+
     switch status {
     case .authorizedAlways: callback(.authorized)
       #if os(iOS) || os(tvOS) || os(watchOS)
