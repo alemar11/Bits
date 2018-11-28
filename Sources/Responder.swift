@@ -22,12 +22,13 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
+
 import UIKit
 typealias Responder = UIResponder
 
 #elseif canImport(AppKit)
-import AppKit
 
+import AppKit
 typealias Responder = NSResponder
 
 extension Responder {
@@ -41,6 +42,7 @@ extension Responder {
     }
   }
 }
+
 #endif
 
 public protocol ResponderAction {
