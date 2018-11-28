@@ -24,8 +24,6 @@
 import XCTest
 @testable import Bits
 
-import AVFoundation
-
 private protocol DispatcherDelegate: class {
   func didDispatch()
 }
@@ -235,6 +233,11 @@ final class MulticastDelegateTests: XCTestCase {
 
 }
 
+// TODO: add tests to verify that each delegate is called on is own queue
+// TODO: add tests and description regarding classes that cannot be weakened
+
+
+// import AVFoundation
 //  #if os(macOS)
 //
 //  //import AVFoundation
