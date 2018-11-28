@@ -25,7 +25,7 @@ import Foundation
 
 /// **Bits**
 ///
-/// A thread safe event bus object that broadcasts event to its subscribers.
+/// A thread safe event bus that broadcasts event to its subscribers.
 open class EventBus {
 
   // MARK: - Typealiases
@@ -81,7 +81,7 @@ extension EventBus {
         self._remove(subscriber: subscriberObject as! T, for: eventType)
       } else {
         // the subscriber is already deallocated, so let's do some flushing for the given envent
-        self._flushDeallocatedSubscribers(for: eventType)
+        self._removeDeallocatedSubscribers(for: eventType)
       }
 
       completion?()
@@ -92,7 +92,6 @@ extension EventBus {
     }
 
     return subscription.token
-
   }
 
   /// Removes a subscriber from a given event type.
@@ -110,7 +109,7 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
 
-    guard !_validate(subscriber) else { return }
+    guard _validate(subscriber) else { return }
 
     for (identifier, subscribed) in subscriptions {
       subscriptions[identifier] = self._update(set: subscribed) { subscribed in
@@ -122,7 +121,7 @@ extension EventBus {
   }
 
   /// Removes all the subscribers.
-  public func clear() {
+  public func removeAllSubscribers() {
     lock.lock()
     defer { lock.unlock() }
 
@@ -134,6 +133,7 @@ extension EventBus {
     lock.lock()
     defer { lock.unlock() }
 
+    _removeDeallocatedSubscribers(for: eventType)
     return _subscribers(for: eventType)
   }
 
@@ -141,7 +141,8 @@ extension EventBus {
   public func isSubscribed<T>(for eventType: T.Type) -> Bool {
     lock.lock()
     defer { lock.unlock() }
-    // TODO: flush
+
+    _removeDeallocatedSubscribers(for: eventType)
     return subscriptions[ObjectIdentifier(eventType)] != nil
 
   }
@@ -199,7 +200,7 @@ extension EventBus {
   }
 
   @inline(__always)
-  private func _flushDeallocatedSubscribers<T>(for eventType: T.Type) {
+  private func _removeDeallocatedSubscribers<T>(for eventType: T.Type) {
     _updateSubscribers(for: eventType) { subscribed in
       while let index = subscribed.index(where: { !$0.isValid }) {
         subscribed.remove(at: index)

@@ -64,7 +64,7 @@ public final class MulticastDelegate<T> {
   /// - Parameter delegate: The delegate to be removed.
   public func remove(_ delegate: T) {
     if validate(delegate) {
-      delegates.removeAll { $0 == delegate as AnyObject || $0.value == nil }
+      delegates.removeAll { $0 == delegate as AnyObject || $0.delegate == nil }
     }
   }
 
@@ -80,7 +80,7 @@ public final class MulticastDelegate<T> {
     var indices = IndexSet()
     for (index, delegate) in delegates.enumerated() {
       let queue = delegate.queue
-      if let delegate = delegate.value as? T {
+      if let delegate = delegate.delegate as? T {
         queue.async {
           invocation(delegate)
         }
@@ -104,7 +104,7 @@ public final class MulticastDelegate<T> {
   }
 
   private func removeDeallocatedDelegates() {
-    delegates.removeAll { $0.value == nil }
+    delegates.removeAll { $0.delegate == nil }
   }
 
   private func removeObjects(atIndices indices: IndexSet) {
@@ -120,20 +120,20 @@ public final class MulticastDelegate<T> {
   }
 
   private final class Weak: Equatable {
-    weak var value: AnyObject?
+    weak var delegate: AnyObject?
     let queue: DispatchQueue
 
     init(value: AnyObject, queue: DispatchQueue) {
-      self.value = value
+      self.delegate = value
       self.queue = queue
     }
 
     static func == (lhs: Weak, rhs: Weak) -> Bool {
-      return lhs.value === rhs.value
+      return lhs.delegate === rhs.delegate
     }
 
     static func == (lhs: Weak, rhs: AnyObject) -> Bool {
-      return lhs.value === rhs
+      return lhs.delegate === rhs
     }
   }
 

@@ -122,7 +122,7 @@ final class EventBusTests: XCTestCase {
     eventBus.add(subscriber: foo4, for: BarMockable.self, queue: .main)
     eventBus.add(subscriber: foo5, for: FooMockable.self, queue: .main)
     eventBus.add(subscriber: foo5, for: BarMockable.self, queue: .main)
-    eventBus.clear()
+    eventBus.removeAllSubscribers()
 
     XCTAssertTrue(eventBus.subscribers(for: FooMockable.self).isEmpty)
     XCTAssertTrue(eventBus.subscribers(for: BarMockable.self).isEmpty)
