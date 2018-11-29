@@ -23,19 +23,28 @@
 
 import Foundation
 
-public protocol ThreadSafe {
+/// **Bits**
+///
+/// Thread sage Access
+public protocol ThreadSafeAccessible {
   // swiftlint:disable:next type_name
   associatedtype T
+  /// The element to be protected against multi-thread accesses.
   var value: T { get }
+  /// Thread safe access to the protected element for read-only operations.
   func read<U>(_ value: (T) -> U) -> U
+  /// Thread safe access to the protected element for write operations.
   func write(_ transform: (inout T) -> Void)
+  /// Thread safe access to the protected element.
   func safeAccess<U>(_ transform: (inout T) -> U) -> U
 }
+
+// MARK: - Atomic
 
 /// **Bits**
 ///
 /// Thread-safe access using a locking mechanism conforming to `NSLocking` protocol.
-public final class Atomic<T>: ThreadSafe {
+public final class Atomic<T>: ThreadSafeAccessible {
   private var _value: T
   private let lock: NSLocking
 
@@ -70,10 +79,12 @@ public final class Atomic<T>: ThreadSafe {
 
 }
 
+// MARK: - DispatchedAtomic
+
 /// **Bits**
 ///
 /// Thread-safe access using using serial dispatch queues.
-public final class DispatchedAtomic<T>: ThreadSafe {
+public final class DispatchedAtomic<T>: ThreadSafeAccessible {
   private var _value: T
   private let queue: DispatchQueue
 
