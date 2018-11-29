@@ -28,7 +28,7 @@ private protocol DispatcherDelegate: class {
   func didDispatch()
 }
 
-private class Listener: DispatcherDelegate {
+private final class Listener: DispatcherDelegate {
   var didDispatch_callsCount = 0
   let closure: () -> Void
   let limit: Int
@@ -46,19 +46,9 @@ private class Listener: DispatcherDelegate {
   }
 }
 
-private class ExpectationListener: DispatcherDelegate {
-  var failIfCalled = false
-
-  func didDispatch() {
-    if failIfCalled {
-      XCTFail("The delegate shouldn't be called.")
-    }
-  }
-}
-
 final class MulticastDelegateTests: XCTestCase {
 
-  func testCallingSingleDelegate() {
+  func testThatASingleDelegateIsInvokedCorrectly() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let listener = Listener(after: 1) {
@@ -72,7 +62,7 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener.didDispatch_callsCount, 1)
   }
 
-  func testAddingTheSameDelegateMultipleTimes() {
+  func testThatTheSameDelegateCannotBeAddedMultipleTimes() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let expectation = self.expectation(description: "\(#function)\(#line)")
     let listener = Listener(after: 1) {
@@ -89,7 +79,7 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener.didDispatch_callsCount, 1)
   }
 
-  func testAddingDelegates() {
+  func testThatMultipleDelegatesAreInvokedCorrectly() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let listener1 = Listener(after: 1) {
@@ -118,7 +108,7 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
 
-  func testRemovingDelegates() {
+  func testThatRemovedDelegatedAreNotInvoked() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let listener1 = Listener(after: 3) {
@@ -151,7 +141,7 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
 
-  func testRemovingAllDelegates() {
+  func testThatDelegatesAreInvokedCorrectlyOnceAddedButNotInvokedAfterDeletion() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let listener1 = Listener(after: 1) {
@@ -182,7 +172,7 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertEqual(listener3.didDispatch_callsCount, 1)
   }
 
-  func testAutoreleasingWeakReferences() {
+  func testThatAnAutoreleasedDelegateIsNotInvoked() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     let expectation1 = self.expectation(description: "\(#function)\(#line)")
     let listener1 = Listener(after: 1) {
@@ -203,14 +193,14 @@ final class MulticastDelegateTests: XCTestCase {
   }
 
 
-  func testWeakReference() {
+  func testThatAWeakReferencedDelegateIsNotInvokedOnceDeallocated() {
     let expectation = self.expectation(description: "\(#function)\(#line)")
     expectation.isInverted = true
     var listener: Listener? = Listener(after: 0) { expectation.fulfill() }
     weak var weakListener = listener
     let delegates = MulticastDelegate<DispatcherDelegate>()
-
-    delegates.add(listener!)
+    let queue = DispatchQueue(label: "\(#function)")
+    delegates.add(listener!, on: queue)
     listener = nil
     delegates.invoke { $0.didDispatch() }
 
@@ -218,7 +208,7 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertNil(weakListener)
   }
 
-  func testWeakReferences() {
+  func testThatMultipleAutoreleasedDelegatesAreNotInvoked() {
     let delegates = MulticastDelegate<DispatcherDelegate>()
     autoreleasepool {
       (0...9).forEach { _ in
@@ -231,113 +221,163 @@ final class MulticastDelegateTests: XCTestCase {
     XCTAssertTrue(delegates.isEmpty)
   }
 
+  func testThatEachDelegateIsInvokedOnTheRightQueue() {
+    let queue1 = DispatchQueue(label: "queue1")
+    let queue2 = DispatchQueue(label: "queue2")
+    let key = DispatchSpecificKey<Int>()
+    queue1.setSpecific(key: key, value: 1)
+    queue2.setSpecific(key: key, value: 2)
+
+    let expectation1 = self.expectation(description: "\(#function)\(#line)")
+    expectation1.isInverted = true
+    let listener1 = Listener(after: 1) {
+      let value = DispatchQueue.getSpecific(key: key)
+      XCTAssertEqual(value, 1)
+      expectation1.fulfill()
+    }
+
+    let expectation2 = self.expectation(description: "\(#function)\(#line)")
+    expectation2.isInverted = true
+    let listener2 = Listener(after: 1) {
+      let value = DispatchQueue.getSpecific(key: key)
+      XCTAssertEqual(value, 1)
+      expectation2.fulfill()
+    }
+
+    let delegates = MulticastDelegate<DispatcherDelegate>()
+
+    delegates.add(listener1, on: queue1)
+    delegates.add(listener2, on: queue1)
+
+    waitForExpectations(timeout: 2)
+  }
+
 }
 
 // TODO: add tests to verify that each delegate is called on is own queue
 // TODO: add tests and description regarding classes that cannot be weakened
 
 
-// import AVFoundation
-//  #if os(macOS)
-//
-//  //import AVFoundation
-//  /// https://developer.apple.com/library/archive/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html#//apple_ref/doc/uid/TP40011226
-//  /// https://developer.apple.com/library/archive/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html
-//  /// Which classes don’t support weak references?
-//  /// You cannot currently create weak references to instances of the following classes:
-//  /// NSATSTypesetter, NSColorSpace, NSFont, NSMenuView, NSParagraphStyle, NSSimpleHorizontalTypesetter, and NSTextView.
-//  /// Note: In addition, in OS X v10.7, you cannot create weak references to instances of NSFontManager, NSFontPanel, NSImage, NSTableCellView, NSViewController, NSWindow, and NSWindowController. In addition, in OS X v10.7 no classes in the AV Foundation framework support weak references.
-//  func testWeakReferenceMacOS() {
-//    /// Failing
-//
-//    /// As of macOS 10.14
-//    /// NSFontManager, NSFontPanel, NSTextView, NSFont do NOT support Objective-C weak references.
-//
-////    var fontManager: NSFontManager? = NSFontManager()
-////    weak var weakFontManager = fontManager
-////    fontManager = nil
-////    XCTAssertNil(weakFontManager)
-//
-////    var fontPanel: NSFontPanel? = NSFontPanel()
-////    weak var weakFontPanel = fontPanel
-////    fontPanel = nil
-////    XCTAssertNil(weakFontPanel)
-//
-////    var textView: NSTextView? = NSTextView()
-////    weak var weakTextView = textView
-////    textView = nil
-////    XCTAssertNil(weakTextView)
-//
-////    var font: NSFont? =  NSFont.menuFont(ofSize: 1.0)
-////    weak var weakFont = font
-////    font = nil
-////    XCTAssertNil(weakFont)
-//
-////    var audioSession: AVAudioSession? = AVAudioSession()
-////    weak var weakAudioSession = audioSession
-////    audioSession = nil
-////    XCTAssertNil(weakAudioSession)
-//
-//    var audioPlayer: AVAudioPlayer? = AVAudioPlayer()
-//    weak var weakAudioPlayer = audioPlayer
-//    audioPlayer = nil
-//    XCTAssertNil(weakAudioPlayer)
-//
-//    var player: AVPlayer? = AVPlayer()
-//    weak var weakPlayer = player
-//    player = nil
-//    XCTAssertNil(weakPlayer)
-//
-//    /// Successful
-//
-//    // It works using NSFont(name:size:)
-//    var font2: NSFont? = NSFont(name: "font", size: 1.0)
-//    weak var weakFont2 = font2
-//    font2 = nil
-//    XCTAssertNil(weakFont2)
-//
-//    var typeSetter: NSATSTypesetter? = NSATSTypesetter()
-//    weak var weakTypeSetter = typeSetter
-//    typeSetter = nil
-//    XCTAssertNil(weakTypeSetter)
-//
-//    var image: NSImage? = NSImage()
-//    weak var weakImage = image
-//    image = nil
-//    XCTAssertNil(weakImage)
-//
-//    var paragraphStyle: NSParagraphStyle? = NSParagraphStyle()
-//    weak var weakParagraphStyle = paragraphStyle
-//    paragraphStyle = nil
-//    XCTAssertNil(weakParagraphStyle)
-//
-//    var tableViewCell: NSTableCellView? = NSTableCellView()
-//    weak var weakTableViewCell = tableViewCell
-//    tableViewCell = nil
-//    XCTAssertNil(weakTableViewCell)
-//
-//    // 10.8 supports
-//
-//    var window: NSWindow? = NSWindow()
-//    weak var weakWindow = window
-//    window = nil
-//    XCTAssertNil(weakWindow)
-//
-//    var windowController: NSWindowController? = NSWindowController()
-//    weak var weakWindowController = windowController
-//    windowController = nil
-//    XCTAssertNil(weakWindowController)
-//
-//    var viewController: NSViewController? = NSViewController()
-//    weak var weakViewController = viewController
-//    viewController = nil
-//    XCTAssertNil(weakViewController)
-//
-//    // 10.14 - NSColorSpace now supports Objective-C weak references.
-//    var colorSpace: NSColorSpace? = NSColorSpace()
-//    weak var weakColorSpace = colorSpace
-//    colorSpace = nil
-//    XCTAssertNil(weakColorSpace)
-//  }
-//  #endif
+#if os(macOS) || os(iOS)
 
+import AVFoundation
+
+final class NotWeakableClassesTests: XCTestCase {
+
+  /// https://developer.apple.com/library/archive/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html#//apple_ref/doc/uid/TP40011226
+  /// https://developer.apple.com/library/archive/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html
+  /// Which classes don’t support weak references?
+  /// You cannot currently create weak references to instances of the following classes:
+  /// NSATSTypesetter, NSColorSpace, NSFont, NSMenuView, NSParagraphStyle, NSSimpleHorizontalTypesetter, and NSTextView.
+  /// Note: In addition, in OS X v10.7, you cannot create weak references to instances of NSFontManager, NSFontPanel, NSImage, NSTableCellView, NSViewController, NSWindow, and NSWindowController. In addition, in OS X v10.7 no classes in the AV Foundation framework support weak references.
+  func testWeakReferenceMacOS() {
+    /// Failing on macOS 10.14
+
+    /// macOS
+    ///
+    /// NSFontManager, NSFontPanel, NSTextView, NSFont do NOT support Objective-C weak references.
+    /// AVFoundation
+    ///
+    /// iOS
+    ///
+    /// AVFoundation
+
+    #if os(macOS)
+
+    //    var fontManager: NSFontManager? = NSFontManager()
+    //    weak var weakFontManager = fontManager
+    //    fontManager = nil
+    //    XCTAssertNil(weakFontManager)
+
+    //    var fontPanel: NSFontPanel? = NSFontPanel()
+    //    weak var weakFontPanel = fontPanel
+    //    fontPanel = nil
+    //    XCTAssertNil(weakFontPanel)
+
+    //    var textView: NSTextView? = NSTextView()
+    //    weak var weakTextView = textView
+    //    textView = nil
+    //    XCTAssertNil(weakTextView)
+
+    //    var font: NSFont? =  NSFont.menuFont(ofSize: 1.0)
+    //    weak var weakFont = font
+    //    font = nil
+    //    XCTAssertNil(weakFont)
+
+    #elseif os(iOS)
+
+    //    var audioSession: AVAudioSession? = AVAudioSession()
+    //    weak var weakAudioSession = audioSession
+    //    audioSession = nil
+    //    XCTAssertNil(weakAudioSession)
+
+    #endif
+
+    var audioPlayer: AVAudioPlayer? = AVAudioPlayer()
+    weak var weakAudioPlayer = audioPlayer
+    audioPlayer = nil
+    XCTAssertNil(weakAudioPlayer)
+
+    var player: AVPlayer? = AVPlayer()
+    weak var weakPlayer = player
+    player = nil
+    XCTAssertNil(weakPlayer)
+
+    #if os(macOS)
+
+    /// Successful on macOS 10.14
+
+    var font2: NSFont? = NSFont(name: "font", size: 1.0)  // It works using NSFont(name:size:)
+    weak var weakFont2 = font2
+    font2 = nil
+    XCTAssertNil(weakFont2)
+
+    var typeSetter: NSATSTypesetter? = NSATSTypesetter()
+    weak var weakTypeSetter = typeSetter
+    typeSetter = nil
+    XCTAssertNil(weakTypeSetter)
+
+    var image: NSImage? = NSImage()
+    weak var weakImage = image
+    image = nil
+    XCTAssertNil(weakImage)
+
+    var paragraphStyle: NSParagraphStyle? = NSParagraphStyle()
+    weak var weakParagraphStyle = paragraphStyle
+    paragraphStyle = nil
+    XCTAssertNil(weakParagraphStyle)
+
+    var tableViewCell: NSTableCellView? = NSTableCellView()
+    weak var weakTableViewCell = tableViewCell
+    tableViewCell = nil
+    XCTAssertNil(weakTableViewCell)
+
+    // 10.8 supports
+
+    var window: NSWindow? = NSWindow()
+    weak var weakWindow = window
+    window = nil
+    XCTAssertNil(weakWindow)
+
+    var windowController: NSWindowController? = NSWindowController()
+    weak var weakWindowController = windowController
+    windowController = nil
+    XCTAssertNil(weakWindowController)
+
+    var viewController: NSViewController? = NSViewController()
+    weak var weakViewController = viewController
+    viewController = nil
+    XCTAssertNil(weakViewController)
+
+    // 10.14 - NSColorSpace now supports Objective-C weak references.
+
+    var colorSpace: NSColorSpace? = NSColorSpace()
+    weak var weakColorSpace = colorSpace
+    colorSpace = nil
+    XCTAssertNil(weakColorSpace)
+    #endif
+  }
+
+}
+
+#endif

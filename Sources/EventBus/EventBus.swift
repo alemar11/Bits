@@ -26,6 +26,17 @@ import Foundation
 /// **Bits**
 ///
 /// A thread safe event bus that broadcasts event to its subscribers.
+///
+/// - Attention: You cannot currently create weak references to instances of the following classes:
+///
+/// **macOS**
+///
+/// NSFontManager, NSFontPanel, NSTextView, NSFont, AVFoundation
+///
+/// **iOS**
+///
+/// AVFoundation
+///
 open class EventBus {
 
   // MARK: - Typealiases

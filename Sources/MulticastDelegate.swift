@@ -26,6 +26,17 @@ import Foundation
 /// **Bits**
 ///
 /// `MulticastDelegate` lets you easily create a thread safe "multicast delegate" for a given protocol or class.
+///
+/// - Attention: You cannot currently create weak references to instances of the following classes:
+///
+/// **macOS**
+///
+/// NSFontManager, NSFontPanel, NSTextView, NSFont, AVFoundation
+///
+/// **iOS**
+///
+/// AVFoundation
+///
 public final class MulticastDelegate<T> {
   private var delegates = [Weak]()
 
