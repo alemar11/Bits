@@ -32,11 +32,11 @@ public protocol ThreadSafeAccessible {
   /// The element to be protected against multi-thread accesses.
   var value: T { get }
   /// Thread safe access to the protected element for read-only operations.
-  func read<U>(_ value: (T) -> U) -> U
+  func read<U>(_ value: (T) throws -> U) rethrows -> U
   /// Thread safe access to the protected element for write operations.
-  func write(_ transform: (inout T) -> Void)
+  func write(_ transform: (inout T) throws -> Void) rethrows
   /// Thread safe access to the protected element.
-  func safeAccess<U>(_ transform: (inout T) -> U) -> U
+  func safeAccess<U>(_ transform: (inout T) throws -> U) rethrows -> U
 }
 
 // MARK: - Atomic
@@ -56,25 +56,28 @@ public final class Atomic<T>: ThreadSafeAccessible {
   public var value: T {
     // Atomic properties with a setter are kind of dangerous in some scenarios
     // https://github.com/ReactiveCocoa/ReactiveSwift/issues/269
-    return read { $0 }
-  }
-
-  public func read<U>(_ value: (T) -> U) -> U {
     lock.lock()
     defer { lock.unlock() }
-    return value(_value)
+
+    return _value
   }
 
-  public func write(_ transform: (inout T) -> Void) {
+  public func read<U>(_ value: (T) throws -> U) rethrows -> U {
     lock.lock()
     defer { lock.unlock() }
-    transform(&_value)
+    return try value(_value)
   }
 
-  public func safeAccess<U>(_ transform: (inout T) -> U) -> U {
+  public func write(_ transform: (inout T) throws -> Void) rethrows {
     lock.lock()
     defer { lock.unlock() }
-    return transform(&_value)
+    try transform(&_value)
+  }
+
+  public func safeAccess<U>(_ transform: (inout T) throws -> U) rethrows -> U {
+    lock.lock()
+    defer { lock.unlock() }
+    return try transform(&_value)
   }
 
 }
@@ -85,6 +88,7 @@ public final class Atomic<T>: ThreadSafeAccessible {
 ///
 /// Thread-safe access using using serial dispatch queues.
 public final class DispatchedAtomic<T>: ThreadSafeAccessible {
+
   private var _value: T
   private let queue: DispatchQueue
 
@@ -97,16 +101,16 @@ public final class DispatchedAtomic<T>: ThreadSafeAccessible {
     return read { $0 }
   }
 
-  public func read<U>(_ value: (T) -> U) -> U {
-    return queue.sync { value(_value) }
+  public func read<U>(_ value: (T) throws -> U) rethrows -> U {
+    return try queue.sync { try value(_value) }
   }
 
-  public func write(_ transform: (inout T) -> Void) {
-    queue.sync { transform(&_value) }
+  public func write(_ transform: (inout T) throws -> Void) rethrows {
+    try queue.sync { try transform(&_value) }
   }
 
-  public func safeAccess<U>(_ transform: (inout T) -> U) -> U {
-    return queue.sync { transform(&_value) }
+  public func safeAccess<U>(_ transform: (inout T) throws -> U) rethrows -> U {
+    return try queue.sync { try transform(&_value) }
   }
 
 }
