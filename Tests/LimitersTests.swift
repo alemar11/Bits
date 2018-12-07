@@ -109,7 +109,7 @@ final class LimitersTests: XCTestCase {
 
   func testLimiterHavingTheMaxNumberOfFunctionCallsRun() {
     let expectation = self.expectation(description: "\(#file)\(#line)")
-    let value = Atomic(0, lock: NSLock())
+    let value = Atomic(value: 0, lock: NSLock())
     let block = {
       XCTAssertTrue(DispatchQueue.isCurrent(DispatchQueue.main))
       value.write { $0 += 1 }

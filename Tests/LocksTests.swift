@@ -36,7 +36,7 @@ final class LocksTests: XCTestCase {
   }
 
   func testPerformanceUnfairLock() {
-    let value = Atomic(0, lock: UnfairLock())
+    let value = Atomic(value: 0, lock: UnfairLock())
     execute { value.write{ $0 += 1 } }
   }
 
@@ -50,7 +50,7 @@ final class LocksTests: XCTestCase {
   }
 
   func testPerformanceMutex() {
-    let value = Atomic(0, lock: Mutex())
+    let value = Atomic(value: 0, lock: Mutex())
     execute { value.write{ $0 += 1 }
     }
   }
@@ -66,7 +66,7 @@ final class LocksTests: XCTestCase {
   }
 
   func testPerformanceRecursiveMutex() {
-    let value = Atomic(0, lock: Mutex(recursive: true))
+    let value = Atomic(value: 0, lock: Mutex(recursive: true))
     execute { value.write{ $0 += 1 }
     }
   }

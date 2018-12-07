@@ -48,7 +48,7 @@ public final class Atomic<T>: ThreadSafeAccessible {
   private var _value: T
   private let lock: NSLocking
 
-  public init(_ value: T, lock: NSLocking = UnfairLock()) {
+  public init(value: T, lock: NSLocking = UnfairLock()) {
     self.lock = lock
     self._value = value
   }
@@ -92,7 +92,7 @@ public final class DispatchedAtomic<T>: ThreadSafeAccessible {
   private var _value: T
   private let queue: DispatchQueue
 
-  public init(_ value: T, qos: DispatchQoS = .default) {
+  public init(value: T, qos: DispatchQoS = .default) {
     self._value = value
     self.queue = DispatchQueue(label: "\(identifier).\(type(of: self))", qos: qos)
   }

@@ -29,7 +29,7 @@ final class AtomicTests: XCTestCase {
   // MARK: - Atomic
 
   func testAtomicMethods() {
-    let myVar = Atomic([1, 2, 3, 4, 5, 6, 7, 8, 9], lock: NSLock())
+    let myVar = Atomic(value: [1, 2, 3, 4, 5, 6, 7, 8, 9], lock: NSLock())
 
     XCTAssertEqual(myVar.read { $0.first }, 1)
 
@@ -63,7 +63,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testAtomicUsingNSLock() {
-    let array = Atomic<[Int]>([], lock: NSLock())
+    let array = Atomic<[Int]>(value: [], lock: NSLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
@@ -74,7 +74,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testAtomicUsingNSRecursiveLock() {
-    let array = Atomic<[Int]>([], lock: NSRecursiveLock())
+    let array = Atomic<[Int]>(value: [], lock: NSRecursiveLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { _array in
@@ -85,7 +85,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testAtomicUsingMutex() {
-    let array = Atomic<[Int]>([], lock: Mutex())
+    let array = Atomic<[Int]>(value: [], lock: Mutex())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
@@ -97,7 +97,7 @@ final class AtomicTests: XCTestCase {
 
   func testAtomicUsingRecursiveMutex() {
     let mutex = Mutex(recursive: true)
-    let array = Atomic<[Int]>([], lock: mutex)
+    let array = Atomic<[Int]>(value: [], lock: mutex)
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
@@ -110,7 +110,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testAtomicUsingUnfairLock() {
-    let array = Atomic<[Int]>([], lock: UnfairLock())
+    let array = Atomic<[Int]>(value: [], lock: UnfairLock())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
@@ -122,7 +122,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testThatAccessingAnElementProtectedByAtomicCanThrowErrors() {
-    let value = Atomic(0)
+    let value = Atomic(value: 0)
 
     XCTAssertThrowsError(
       try value.read { _ throws -> Void in
@@ -155,7 +155,7 @@ final class AtomicTests: XCTestCase {
   // MARK: - DispatchedAtomic
 
   func testDispatchedAtomicMethods() {
-    let myVar = DispatchedAtomic([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    let myVar = DispatchedAtomic(value: [1, 2, 3, 4, 5, 6, 7, 8, 9])
 
     XCTAssertEqual(myVar.read { $0.first }, 1)
 
@@ -189,7 +189,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testDispatchedAtomic() {
-    let array = DispatchedAtomic([Int]())
+    let array = DispatchedAtomic(value: [Int]())
     let iterations = 1000
     DispatchQueue.concurrentPerform(iterations: iterations) { index in
       array.write { array in
@@ -200,7 +200,7 @@ final class AtomicTests: XCTestCase {
   }
 
   func testThatAccessingAnElementProtectedByDispatchedAtomicCanThrowErrors() {
-    let value = DispatchedAtomic(0)
+    let value = DispatchedAtomic(value: 0)
 
     XCTAssertThrowsError(
       try value.read { _ throws -> Void in
