@@ -27,6 +27,15 @@ public final class Box<T> {
   init(_ value: T) {
     self.value = value
   }
+
+  func map<U>(_ transformation: (T) -> U) -> Box<U> {
+    return Box<U>(transformation(self.value))
+  }
+
+  /// transforms a value, then re-wrap it in the original container type
+  func flatMap<U>(_ transformation: (T) -> Box<U>) -> Box<U> {
+    return transformation(self.value)
+  }
 }
 
 extension Box: Equatable where T: Equatable {
