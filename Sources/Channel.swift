@@ -85,7 +85,7 @@ public final class Channel<Value> {
     queue.async(flags: .barrier, execute: { [weak self] in
       guard let `self` = self else { return }
 
-      if let foundIndex = self._subscriptions.index(where: { $0.object === object }) {
+      if let foundIndex = self._subscriptions.firstIndex(where: { $0.object === object }) {
         self._subscriptions.remove(at: foundIndex)
       }
       completion?()

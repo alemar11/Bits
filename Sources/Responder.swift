@@ -53,7 +53,7 @@ public protocol ResponderAction {
 public extension Responder {
 
   @discardableResult
-  public func execute<A: ResponderAction>(action: A) -> A.Responder? {
+  func execute<A: ResponderAction>(action: A) -> A.Responder? {
     if let responder = find(action: action) {
       action.execute(responder: responder)
       return responder
@@ -61,7 +61,7 @@ public extension Responder {
     return nil
   }
 
-  public func find<A: ResponderAction>(action: A) -> A.Responder? {
+  func find<A: ResponderAction>(action: A) -> A.Responder? {
     var responder: Responder? = self
     while responder != nil {
       if let responder = responder as? A.Responder {

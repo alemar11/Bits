@@ -135,6 +135,8 @@ public class UNUserNotificationPermission: Permission {
     case .denied: return .denied
     case .authorized: return .authorized
     case .provisional: return .provisional
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 
@@ -174,6 +176,8 @@ public class ContactsPermission: Permission {
     case .denied: return .denied
     case .restricted: return .restricted
     case .notDetermined: return .notDetermined
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 
@@ -210,6 +214,8 @@ public class PhotoPermission: Permission {
     case .denied: return .denied
     case .restricted: return .restricted
     case .notDetermined: return .notDetermined
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 
@@ -220,6 +226,8 @@ public class PhotoPermission: Permission {
       case .denied: completionHandler(.denied)
       case .restricted: completionHandler(.restricted)
       case .notDetermined: completionHandler(.notDetermined)
+      @unknown default:
+        fatalError("not implemented")
       }
     }
   }
@@ -252,12 +260,12 @@ public class LocationPermission: NSObject, Permission {
     case .authorizedAlways: return .authorized
       #if os(iOS) || os(tvOS) || os(watchOS)
     case .authorizedWhenInUse: return .authorized
-      #else
-    case .authorized: return .authorized
       #endif
     case .denied: return .denied
     case .restricted: return .restricted
     case .notDetermined: return .notDetermined
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 
@@ -291,12 +299,12 @@ extension LocationPermission: CLLocationManagerDelegate {
     case .authorizedAlways: callback(.authorized)
       #if os(iOS) || os(tvOS) || os(watchOS)
     case .authorizedWhenInUse: callback(.authorized)
-      #else
-    case .authorized: callback(.authorized)
       #endif
     case .denied: callback(.denied)
     case .restricted: callback(.restricted)
     case .notDetermined: callback(.notDetermined)
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 }
@@ -351,6 +359,8 @@ public class BluetoothPermission: Permission {
     case .denied: return .denied
     case .restricted: return .restricted
     case .notDetermined: return .notDetermined
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 

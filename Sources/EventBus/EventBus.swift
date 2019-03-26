@@ -124,7 +124,7 @@ extension EventBus {
 
     for (identifier, subscribed) in subscriptions {
       subscriptions[identifier] = self._update(set: subscribed) { subscribed in
-        while let index = subscribed.index(where: { $0 == subscriber as AnyObject }) {
+        while let index = subscribed.firstIndex(where: { $0 == subscriber as AnyObject }) {
           subscribed.remove(at: index)
         }
       }
@@ -205,7 +205,7 @@ extension EventBus {
   private func _remove<T>(subscriber: T, for eventType: T.Type) {
     _updateSubscribers(for: eventType) { subscribed in
       // removes also all the deallocated subscribers
-      while let index = subscribed.index(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
+      while let index = subscribed.firstIndex(where: { ($0 == subscriber as AnyObject) || !$0.isValid }) {
         subscribed.remove(at: index)
       }
     }
@@ -214,7 +214,7 @@ extension EventBus {
   @inline(__always)
   private func _removeDeallocatedSubscribers<T>(for eventType: T.Type) {
     _updateSubscribers(for: eventType) { subscribed in
-      while let index = subscribed.index(where: { !$0.isValid }) {
+      while let index = subscribed.firstIndex(where: { !$0.isValid }) {
         subscribed.remove(at: index)
       }
     }
@@ -310,12 +310,14 @@ extension EventBus {
       return lhs.underlyngSubscriber === rhs
     }
 
-    fileprivate var hashValue: Int {
-      guard let underlyngObject = underlyngSubscriber else {
-        return 0
+    func hash(into hasher: inout Hasher) {
+      if let underlyngObject = underlyngSubscriber {
+         hasher.combine(ObjectIdentifier(underlyngObject).hashValue)
+      } else {
+         hasher.combine(0)
       }
-      return ObjectIdentifier(underlyngObject).hashValue
     }
+
   }
 
 }
