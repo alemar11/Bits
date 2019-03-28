@@ -35,7 +35,6 @@ import SystemConfiguration
 /// The `Reachability` class listens for reachability changes of hosts and addresses for both WWAN and WiFi network interfaces.
 /// - Note: The Apple `Network Framework` can be used to achieve the same results.
 final public class Reachability {
-
   // MARK: - Properties
 
   /// Whether the network is currently reachable.
@@ -136,7 +135,6 @@ final public class Reachability {
   /// Starts notifing network reachability changes.
   @discardableResult
   public func startNotifier() -> Bool {
-
     guard !notifying else { return false }
 
     var context = SCNetworkReachabilityContext()
@@ -158,7 +156,6 @@ final public class Reachability {
 
     notifying = true
     return notifying
-
   }
 
   /// Stops notifing network reachability changes.
@@ -204,7 +201,6 @@ final public class Reachability {
 
     return isReachable && (!needsConnection || canConnectWithoutUserInteraction)
   }
-
 }
 
 /// Callback used by `SCNetworkReachabilitySetCallback(target:callout:context:)
@@ -218,7 +214,6 @@ private func callback(reachability: SCNetworkReachability, flags: SCNetworkReach
 }
 
 extension Reachability {
-
   /// Creates a `Reachability` instance that monitors the address 0.0.0.0.
   ///
   /// Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
@@ -246,11 +241,9 @@ extension Reachability {
     localWifiAddress.sin_addr.s_addr = 0xA9FE0000 // IN_LINKLOCALNETNUM is defined in <netinet/in.h> as 169.254.0.0 (0xA9FE0000).
     return Reachability(hostAddress: localWifiAddress)
   }
-
 }
 
 extension Reachability {
-
   // MARK: - Connection Type
 
   /// Defines the various connection types detected by reachability flags.
@@ -264,7 +257,6 @@ extension Reachability {
 }
 
 extension Reachability {
-
   // MARK: - NetworkStatus
 
   /// Defines the various states of network reachability.
@@ -280,7 +272,6 @@ extension Reachability {
 }
 
 extension Reachability.NetworkStatus: CustomStringConvertible {
-
   public var description: String {
     switch self {
     case .notReachable:
@@ -291,7 +282,6 @@ extension Reachability.NetworkStatus: CustomStringConvertible {
       return connction.description
     }
   }
-
 }
 
 extension Reachability.NetworkStatus: Equatable {}
@@ -313,11 +303,9 @@ public func == (lhs: Reachability.NetworkStatus, rhs: Reachability.NetworkStatus
   default:
     return false
   }
-
 }
 
 extension Reachability.Connection: CustomStringConvertible {
-
   public var description: String {
     switch self {
     case .ethernetOrWiFi:
@@ -326,7 +314,6 @@ extension Reachability.Connection: CustomStringConvertible {
       return "Cellular"
     }
   }
-
 }
 
 #endif

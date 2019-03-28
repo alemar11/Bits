@@ -28,7 +28,6 @@ import Foundation
 /// Enforces a maximum number of times a function can be called over time. As in "execute this function at most once every 100 milliseconds." (Throttling)
 /// - Importante: Throttle will allow only one function call per time period.
 public final class Throttler {
-
   // MARK: - Properties
 
   public let limit: DispatchTimeInterval

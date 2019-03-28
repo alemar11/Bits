@@ -27,7 +27,6 @@ import Foundation
 ///
 /// An event bus object which provides an API to broadcast messages to its subscribers.
 public final class Channel<Value> {
-
   // MARK: - Properties
 
   /// An internal queue for concurrent readings and exclusive writing.
@@ -69,11 +68,10 @@ public final class Channel<Value> {
 
     let subscription = Subscription(object: object, queue: dispatchQueue, token: token, block: block)
 
-    queue.async(flags: .barrier, execute: { [weak self] in
+    queue.async(flags: .barrier) { [weak self] in
       self?._subscriptions.append(subscription)
       completion?(token)
-    })
-
+    }
   }
 
   /// Unsubscribes given object.
@@ -118,7 +116,6 @@ public final class Channel<Value> {
 }
 
 extension Channel {
-
   /// A subscription token to cancel a subscription.
   public struct Token {
     private let cancellationClosure: ((() -> Void)?) -> Void
@@ -139,7 +136,6 @@ extension Channel {
 
   /// A subscription.
   internal final class Subscription {
-
     internal weak var object: AnyObject?
     internal let uuid = UUID()
     internal var isValid: Bool { return object != nil }
@@ -169,7 +165,5 @@ extension Channel {
         }
       }
     }
-
   }
-
 }

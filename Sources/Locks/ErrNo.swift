@@ -283,7 +283,6 @@ public enum ErrNo: errno_t, Error, CaseIterable {
 // MARK: - CustomStringConvertible
 
 extension ErrNo: CustomStringConvertible {
-
   /// Returns the error message and code.
   public var description: String {
     return "\(message) (\(rawValue))"
@@ -293,5 +292,4 @@ extension ErrNo: CustomStringConvertible {
   public var message: String {
     return String(cString: strerror(self.rawValue))
   }
-
 }

@@ -30,7 +30,6 @@ import Foundation
 /// Causes a thread trying to acquire a lock to wait in a loop while checking if the lock is available. It is efficient if waiting is rare, but wasteful if waiting is common.
 /// - Note: This is a replacement for the deprecated OSSpinLock.
 public final class UnfairLock: NSLocking {
-
   private var unfairLock: os_unfair_lock_t
 
   public init() {
@@ -54,5 +53,4 @@ public final class UnfairLock: NSLocking {
     unfairLock.deinitialize(count: 1)
     unfairLock.deallocate()
   }
-
 }

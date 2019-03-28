@@ -42,7 +42,6 @@ public enum PermissionStatus: String {
 }
 
 extension PermissionStatus: CustomStringConvertible {
-
   public var description: String {
     return rawValue
   }
@@ -66,6 +65,8 @@ public class MicrophonePermission: Permission {
     case .denied: return .denied
     case .undetermined: return .notDetermined
     case .granted: return .authorized
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 
@@ -82,7 +83,6 @@ public class MicrophonePermission: Permission {
 // MARK: - Camera
 
 public class CameraPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {
@@ -91,6 +91,8 @@ public class CameraPermission: Permission {
     case .denied: return .denied
     case .restricted: return .restricted
     case .authorized: return .authorized
+    @unknown default:
+      fatalError("not implemented")
     }
   }
 
@@ -157,7 +159,6 @@ public class UNUserNotificationPermission: Permission {
       return completionHandler(.denied)
     }
   }
-
 }
 
 #endif
@@ -167,7 +168,6 @@ public class UNUserNotificationPermission: Permission {
 import Contacts
 
 public class ContactsPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {
@@ -203,7 +203,6 @@ public class ContactsPermission: Permission {
 import Photos
 
 public class PhotoPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {
@@ -231,7 +230,6 @@ public class PhotoPermission: Permission {
       }
     }
   }
-
 }
 
 #endif
@@ -244,7 +242,6 @@ import CoreLocation
 
 @available(macOS 10.14, *)
 public class LocationPermission: NSObject, Permission {
-
   public lazy var locationManager: CLLocationManager = {
     let locationManager = CLLocationManager()
     locationManager.delegate = self
@@ -272,7 +269,6 @@ public class LocationPermission: NSObject, Permission {
   private var callback: PermissionCallback?
 
   public func request(completionHandler: @escaping PermissionCallback) {
-
     #if os(iOS) || os(tvOS) || os(watchOS)
     locationManager.requestAlwaysAuthorization()
     #else
@@ -287,7 +283,6 @@ public class LocationPermission: NSObject, Permission {
     callback = completionHandler
   }
   #endif
-
 }
 
 @available(macOS 10.14, *)
@@ -318,7 +313,6 @@ extension LocationPermission: CLLocationManagerDelegate {
 import EventKit
 
 public class CalendarPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {
@@ -348,7 +342,6 @@ public class CalendarPermission: Permission {
 import CoreBluetooth
 
 public class BluetoothPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {
@@ -378,7 +371,6 @@ public class BluetoothPermission: Permission {
 import LocalAuthentication
 
 public class BiometryPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {
@@ -407,7 +399,6 @@ public class BiometryPermission: Permission {
 import HealthKit
 
 public class HealthPermission: Permission {
-
   public init() { }
 
   public var status: PermissionStatus {

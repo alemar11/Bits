@@ -38,7 +38,6 @@ import Foundation
 /// AVFoundation
 ///
 open class EventBus {
-
   // MARK: - Typealiases
 
   private typealias SubscriberSet = Set<EventBus.Subscription<AnyObject>>
@@ -63,13 +62,11 @@ open class EventBus {
   public init(label: String) {
     self.label = label
   }
-
 }
 
 // MARK: - Public Methods
 
 extension EventBus {
-
   @discardableResult
   public func add<T>(subscriber: T, for eventType: T.Type, queue: DispatchQueue) -> SubscriptionCancellable {
     lock.lock()
@@ -155,7 +152,6 @@ extension EventBus {
 
     _removeDeallocatedSubscribers(for: eventType)
     return subscriptions[ObjectIdentifier(eventType)] != nil
-
   }
 
   /// Checks if the `EventBus` has a given subscriber for a particular eventType.
@@ -195,7 +191,6 @@ extension EventBus {
 // MARK: - Private Methods
 
 extension EventBus {
-
   @inline(__always)
   private func _validate<T>(_ subscriber: T) -> Bool {
     return Mirror(reflecting: subscriber).subjectType is AnyClass
@@ -245,7 +240,6 @@ extension EventBus {
     let filteredSet = mutableSet.filter { $0.isValid }
     return filteredSet.isEmpty ? nil : filteredSet
   }
-
 }
 
 // MARK: - Subscription
@@ -258,7 +252,6 @@ public protocol SubscriptionCancellable {
 }
 
 extension EventBus {
-
   /// A subscription token to cancel a subscription.
   private final class Token: SubscriptionCancellable {
     private let cancellationClosure: ((() -> Void)?) -> Void
@@ -317,15 +310,12 @@ extension EventBus {
          hasher.combine(0)
       }
     }
-
   }
-
 }
 
 // MARK: - Tests
 
 extension EventBus {
-
   /// For tests only, returns also all the deallocated but not yet removed subscriptions
   // swiftlint:disable:next identifier_name
   internal func __subscribersCount<T>(for eventType: T.Type) -> Int {
@@ -338,5 +328,4 @@ extension EventBus {
     }
     return 0
   }
-
 }

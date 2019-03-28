@@ -29,7 +29,6 @@ import Foundation
 /// As in "execute this function only if 100 milliseconds have passed without it being called."
 /// - Important: Debouncer will not fire immediately but it will wait the specified time period before executing the function call.
 class Debouncer {
-
   public let limit: Interval
   private weak var timer: Timer?
 

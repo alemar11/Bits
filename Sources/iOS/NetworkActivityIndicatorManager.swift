@@ -35,7 +35,6 @@ import UIKit
 ///
 @available(iOSApplicationExtension, unavailable)
 public class NetworkActivityIndicatorManager {
-
   // MARK: - Internal State
 
   fileprivate enum ActivityIndicatorState {

@@ -79,7 +79,6 @@ public final class Atomic<T>: ThreadSafeAccessible {
     defer { lock.unlock() }
     return try transform(&_value)
   }
-
 }
 
 // MARK: - DispatchedAtomic
@@ -88,7 +87,6 @@ public final class Atomic<T>: ThreadSafeAccessible {
 ///
 /// Thread-safe access using using serial dispatch queues.
 public final class DispatchedAtomic<T>: ThreadSafeAccessible {
-
   private var _value: T
   private let queue: DispatchQueue
 
@@ -112,5 +110,4 @@ public final class DispatchedAtomic<T>: ThreadSafeAccessible {
   public func safeAccess<U>(_ transform: (inout T) throws -> U) rethrows -> U {
     return try queue.sync { try transform(&_value) }
   }
-
 }

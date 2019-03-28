@@ -26,12 +26,10 @@
 import UIKit
 
 extension Notification {
-
   /// **Bits**
   ///
   /// UIKeyboard Notification Payload.
   public struct UIKeyboardPayload: NotificationPayload {
-
     /// Identifies whether the keyboard belongs to the current app.
     public let isLocal: Bool
 
@@ -70,12 +68,10 @@ extension Notification {
 
       self.init(userInfo: userInfo)
     }
-
   }
 }
 
 extension Notification.UIKeyboardPayload {
-
   public var userInfo: [AnyHashable: Any] {
     var userInfo = [AnyHashable: Any]()
 
@@ -87,7 +83,6 @@ extension Notification.UIKeyboardPayload {
 
     return userInfo
   }
-
 }
 
 #endif

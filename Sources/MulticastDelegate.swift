@@ -147,5 +147,4 @@ public final class MulticastDelegate<T> {
       return lhs.delegate === rhs
     }
   }
-
 }

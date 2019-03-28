@@ -27,7 +27,6 @@ import Foundation
 ///
 /// Enforces a maximum number of times a function can be called. As in "execute this function at most 10 times."
 public final class MaxLimiter {
-
   // MARK: - Properties
 
   public let limit: UInt

@@ -35,7 +35,6 @@ import Darwin.os.lock
 /// Efficient when reading is common and writing is rare.
 /// - Note:
 public final class ReadWriteLock {
-
   // Initialization: pthread_rwlock_t is a value type and must be declared as var in order to refer it later. Make sure not to copy it.
   private var lock = pthread_rwlock_t()
 
@@ -80,5 +79,4 @@ public final class ReadWriteLock {
       fatalError(String(cString: strerror(status)))
     }
   }
-
 }

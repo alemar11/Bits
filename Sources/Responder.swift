@@ -51,7 +51,6 @@ public protocol ResponderAction {
 }
 
 public extension Responder {
-
   @discardableResult
   func execute<A: ResponderAction>(action: A) -> A.Responder? {
     if let responder = find(action: action) {
@@ -71,5 +70,4 @@ public extension Responder {
     }
     return nil
   }
-
 }

@@ -22,21 +22,16 @@
 // SOFTWARE.
 
 public class WeakBox<T: AnyObject> {
-
   private weak var _value: T?
-
   public var value: T? { return _value }
 
   public init(_ value: T) {
     _value = value
   }
-
 }
 
 extension WeakBox: Equatable where T: Equatable {
-
   public static func == (lhs: WeakBox<T>, rhs: WeakBox<T>) -> Bool {
     return lhs.value == rhs.value
   }
-
 }

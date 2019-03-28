@@ -39,9 +39,7 @@ public final class Box<T> {
 }
 
 extension Box: Equatable where T: Equatable {
-
   public static func == (lhs: Box<T>, rhs: Box<T>) -> Bool {
     return lhs.value == rhs.value
   }
-
 }

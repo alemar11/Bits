@@ -73,5 +73,4 @@ public final class Mutex: NSLocking {
       fatalError(String(cString: strerror(status)))
     }
   }
-
 }
